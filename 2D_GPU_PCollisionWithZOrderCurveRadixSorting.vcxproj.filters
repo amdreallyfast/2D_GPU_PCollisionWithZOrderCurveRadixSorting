@@ -76,6 +76,18 @@
     <ClInclude Include="Include\ShaderControllers\ParallelSort.h">
       <Filter>Include\ShaderControllers</Filter>
     </ClInclude>
+    <ClInclude Include="Include\ShaderControllers\ParticleCollide.h">
+      <Filter>Include\ShaderControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ShaderControllers\ParticleReset.h">
+      <Filter>Include\ShaderControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ShaderControllers\ParticleUpdate.h">
+      <Filter>Include\ShaderControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ShaderControllers\RenderParticles.h">
+      <Filter>Include\ShaderControllers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">

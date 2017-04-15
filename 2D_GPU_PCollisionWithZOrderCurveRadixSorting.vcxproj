@@ -165,6 +165,10 @@
     <ClInclude Include="Include\RenderFrameRate\FreeTypeEncapsulated.h" />
     <ClInclude Include="Include\RenderFrameRate\Stopwatch.h" />
     <ClInclude Include="Include\ShaderControllers\ParallelSort.h" />
+    <ClInclude Include="Include\ShaderControllers\ParticleCollide.h" />
+    <ClInclude Include="Include\ShaderControllers\ParticleReset.h" />
+    <ClInclude Include="Include\ShaderControllers\ParticleUpdate.h" />
+    <ClInclude Include="Include\ShaderControllers\RenderParticles.h" />
     <ClInclude Include="Include\SSBOs\IntermediateData.h" />
     <ClInclude Include="Include\SSBOs\IntermediateDataSsbo.h" />
     <ClInclude Include="Include\SSBOs\OriginalData.h" />

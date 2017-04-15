@@ -56,7 +56,7 @@ Stopwatch gTimer;
 FreeTypeEncapsulated gTextAtlases;
 
 OriginalDataSsbo::SHARED_PTR originalData = nullptr;
-std::unique_ptr<ParallelSort> parallelSort = nullptr;
+std::unique_ptr<ShaderControllers::ParallelSort> parallelSort = nullptr;
 
 const unsigned int MAX_DATA_COUNT = 1000000;
 
@@ -149,7 +149,7 @@ void Init()
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 
-    parallelSort = std::make_unique<ParallelSort>(originalData);
+    parallelSort = std::make_unique<ShaderControllers::ParallelSort>(originalData);
 
     // the sort's so nice, I did it twice
     // Note: Actually, I did it twice because the first time is slowed down on the first calls 
