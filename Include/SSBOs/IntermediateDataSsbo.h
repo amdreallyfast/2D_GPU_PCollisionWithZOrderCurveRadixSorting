@@ -16,7 +16,7 @@ class IntermediateDataSsbo : public SsboBase
 {
 public:
     IntermediateDataSsbo(unsigned int numItems);
-    typedef std::shared_ptr<IntermediateDataSsbo> SHARED_PTR;
+    using SHARED_PTR = std::shared_ptr<IntermediateDataSsbo>;
 
     void ConfigureConstantUniforms(unsigned int computeProgramId) const override;
     unsigned int NumItems() const;

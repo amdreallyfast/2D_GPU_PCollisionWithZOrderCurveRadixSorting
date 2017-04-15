@@ -14,12 +14,12 @@ class SsboBase
 public:
     SsboBase();
     virtual ~SsboBase();
-    typedef std::shared_ptr<SsboBase> SHARED_PTR;
+    using SHARED_PTR = std::shared_ptr<SsboBase>;
 
 
     // derived class needs customized Init(...) function to initialize member values
     virtual void ConfigureConstantUniforms(unsigned int computeProgramId) const;
-    virtual void ConfigureRender(unsigned int renderProgramId, unsigned int drawStyle) const;
+    virtual void ConfigureRender(unsigned int renderProgramId, unsigned int drawStyle);
 
     unsigned int VaoId() const;
     unsigned int BufferId() const;

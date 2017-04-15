@@ -2,7 +2,6 @@
 
 #include "Include/Particles/IParticleEmitter.h"
 #include "Include/Particles/Particle.h"
-#include "Include/MinMaxVelocity.h"
 #include "ThirdParty/glm/vec2.hpp"
 
 /*------------------------------------------------------------------------------------------------
@@ -17,6 +16,8 @@ class ParticleEmitterBar : public IParticleEmitter
 public:
     ParticleEmitterBar(const glm::vec2 &p1, const glm::vec2 &p2, const glm::vec2 &emitDir,
         const float minVel, const float maxVel);
+    using SHARED_PTR = std::shared_ptr<ParticleEmitterBar>;
+
     virtual void SetTransform(const glm::mat4 &emitterTransform) override;
 
     glm::vec4 GetBarStart() const;

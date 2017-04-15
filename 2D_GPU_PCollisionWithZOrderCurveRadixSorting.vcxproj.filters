@@ -23,16 +23,28 @@
     <ClCompile Include="Source\SSBOs\PrefixSumSsbo.cpp">
       <Filter>Source\SSBOs</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SSBOs\OriginalDataCopySsbo.cpp">
-      <Filter>Source\SSBOs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SSBOs\OriginalDataSsbo.cpp">
-      <Filter>Source\SSBOs</Filter>
-    </ClCompile>
     <ClCompile Include="Source\SSBOs\IntermediateDataSsbo.cpp">
       <Filter>Source\SSBOs</Filter>
     </ClCompile>
     <ClCompile Include="Source\ShaderControllers\ParallelSort.cpp">
+      <Filter>Source\ShaderControllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SSBOs\ParticleSsbo.cpp">
+      <Filter>Source\SSBOs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SSBOs\ParticleCopySsbo.cpp">
+      <Filter>Source\SSBOs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ShaderControllers\ParticleCollide.cpp">
+      <Filter>Source\ShaderControllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ShaderControllers\ParticleReset.cpp">
+      <Filter>Source\ShaderControllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ShaderControllers\ParticleUpdate.cpp">
+      <Filter>Source\ShaderControllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ShaderControllers\RenderParticles.cpp">
       <Filter>Source\ShaderControllers</Filter>
     </ClCompile>
   </ItemGroup>
@@ -58,12 +70,6 @@
     <ClInclude Include="Include\SSBOs\PrefixSumSsbo.h">
       <Filter>Include\SSBOs</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SSBOs\OriginalDataSsbo.h">
-      <Filter>Include\SSBOs</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\SSBOs\OriginalDataCopySsbo.h">
-      <Filter>Include\SSBOs</Filter>
-    </ClInclude>
     <ClInclude Include="Include\SSBOs\IntermediateData.h">
       <Filter>Include\SSBOs</Filter>
     </ClInclude>
@@ -85,9 +91,6 @@
     <ClInclude Include="Include\ShaderControllers\RenderParticles.h">
       <Filter>Include\ShaderControllers</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SSBOs\ParticleCopySssbo.h">
-      <Filter>Include\SSBOs</Filter>
-    </ClInclude>
     <ClInclude Include="Include\SSBOs\ParticleSsbo.h">
       <Filter>Include\SSBOs</Filter>
     </ClInclude>
@@ -102,6 +105,9 @@
     </ClInclude>
     <ClInclude Include="Include\Particles\ParticleEmitterBar.h">
       <Filter>Include\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SSBOs\ParticleCopySsbo.h">
+      <Filter>Include\SSBOs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -182,9 +188,6 @@
     <None Include="Shaders\ParticleBuffer.comp">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\ParticleReset.comp">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="Shaders\ParticleUpdate.comp">
       <Filter>Shaders</Filter>
     </None>
@@ -198,9 +201,6 @@
       <Filter>Shaders\ParticleReset</Filter>
     </None>
     <None Include="Shaders\ParticleReset\NewVelocityBetweenMinAndMax.comp">
-      <Filter>Shaders\ParticleReset</Filter>
-    </None>
-    <None Include="Shaders\ParticleReset\ParticleReset.comp">
       <Filter>Shaders\ParticleReset</Filter>
     </None>
     <None Include="Shaders\ParticleReset\ParticleResetBarEmitter.comp">

@@ -21,7 +21,7 @@ Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
 
 // ParticleBuffer.comp
-#define UNIFORM_LOCATION_ORIGINAL_DATA_BUFFER_SIZE 0
+#define UNIFORM_LOCATION_PARTICLE_BUFFER_SIZE 0
 
 // IntermediateSortBuffers.comp
 #define UNIFORM_LOCATION_INTERMEDIATE_BUFFER_HALF_SIZE 1
@@ -37,13 +37,3 @@ Creator:    John Cox, 3/2017
 // ParallelPrefixScan.comp
 #define UNIFORM_LOCATION_CALCULATE_ALL 6
 
-/*------------------------------------------------------------------------------------------------
-Particle updating
-Note: ParticleUpdate.comp runs prior to the sorting, but these uniforms are defined afterwards 
-because this project was created after GpuRadixSort and I didn't want to have to go back and 
-change the prior uniforms just to appear in a particular order.
-------------------------------------------------------------------------------------------------*/
-// ParticleUpdate.comp
-#define UNIFORM_LOCATION_PARTICLE_REGION_CENTER 8
-#define UNIFORM_LOCATION_PARTICLE_REGION_RADIUS_SQR 9
-#define UNIFORM_LOCATION_DELTA_TIME_SEC 10

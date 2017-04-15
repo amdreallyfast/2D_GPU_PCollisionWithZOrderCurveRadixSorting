@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "Include/Particles/Particle.h"
 #include "ThirdParty/glm/mat4x4.hpp"
 
@@ -12,7 +13,7 @@ Creator:    John Cox (7-2-2016)
 class IParticleEmitter
 {
 public:
-    virtual ~IParticleEmitter() {}
+    using SHARED_PTR = std::shared_ptr<IParticleEmitter>;
     virtual void SetTransform(const glm::mat4 &emitterTransform) = 0;
 };
 

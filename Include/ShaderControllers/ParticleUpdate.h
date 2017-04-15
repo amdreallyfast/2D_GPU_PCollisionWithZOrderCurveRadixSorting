@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Include/SSBOs/ParticleSsbo.h"
 #include "ThirdParty/glm/vec4.hpp"
 
 namespace ShaderControllers
@@ -22,7 +23,8 @@ namespace ShaderControllers
     class ParticleUpdate
     {
     public:
-        ParticleUpdate(unsigned int numParticles, const glm::vec4 &particleRegionCenter,
+        ParticleUpdate(const ParticleSsbo::SHARED_PTR &ssboToUpdate, 
+            const glm::vec4 &particleRegionCenter,
             float particleRegionRadius);
         ~ParticleUpdate();
 

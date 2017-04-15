@@ -13,7 +13,7 @@ layout (local_size_x = PARTICLE_OPERATIONS_WORK_GROUP_SIZE_X) in;
 // dynamically as in ParticleSsbo and PolygonSsbo, so declare the atomic counters up front to 
 // make it easier to keep the numbers straight.
 // Note: Discovered by experience and through this: https://www.opengl.org/wiki/Atomic_Counter.
-layout (binding = ACTIVE_PARTICLE_ATOMIC_COUNTER_BUFFER, offset = 0) uniform atomic_uint acActiveParticleCounter;
+layout (binding = 0, offset = 0) uniform atomic_uint acActiveParticleCounter;
 
 
 /*------------------------------------------------------------------------------------------------
@@ -26,8 +26,8 @@ Returns:
     True if the particle is out of bounds and should be reset, otherwise false.
 Creator:    John Cox (1-7-2016)
 ------------------------------------------------------------------------------------------------*/
-layout(location = UNIFORM_LOCATION_PARTICLE_REGION_CENTER) uniform vec4 uParticleRegionCenter;
-layout(location = UNIFORM_LOCATION_PARTICLE_REGION_RADIUS_SQR) uniform float uParticleRegionRadiusSqr;
+uniform vec4 uParticleRegionCenter;
+uniform float uParticleRegionRadiusSqr;
 bool ParticleOutOfBoundsPolygon(uint particleIndex)
 {
     vec4 regionCenterToParticle = AllParticles[particleIndex]._pos - uParticleRegionCenter;
@@ -44,7 +44,7 @@ bool ParticleOutOfBoundsPolygon(uint particleIndex)
     return false;
 }
 
-layout(location = UNIFORM_LOCATION_DELTA_TIME_SEC) uniform float uDeltaTimeSec;
+uniform float uDeltaTimeSec;
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -78,12 +78,7 @@ void main()
         if (ParticleOutOfBoundsPolygon(index))
         {
             p._isActive = 0;
-        }                
-
-        // regardless of whether it went out of bounds or not, reset the net force and collision 
-        // count for this frame
-        p._netForceThisFrame = vec4(0,0,0,0);
-        p._collisionCountThisFrame = 0;
+        }
 
         // copy the updated one back into the array
         AllParticles[index] = p;

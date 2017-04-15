@@ -2,7 +2,6 @@
 
 #include "Include/Particles/IParticleEmitter.h"
 #include "Include/Particles/Particle.h"
-#include "Include/MinMaxVelocity.h"
 #include "ThirdParty/glm/vec2.hpp"
 
 /*------------------------------------------------------------------------------------------------
@@ -16,6 +15,8 @@ class ParticleEmitterPoint : public IParticleEmitter
 public:
     // emits randomly from the origin point
     ParticleEmitterPoint(const glm::vec2 &emitterPos, const float minVel, const float maxVel);
+    using SHARED_PTR = std::shared_ptr<ParticleEmitterPoint>;
+
     virtual void SetTransform(const glm::mat4 &emitterTransform) override;
 
     glm::vec4 GetPos() const;

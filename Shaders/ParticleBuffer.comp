@@ -21,7 +21,7 @@ struct Particle
 };
 
 // whatever size the user wants
-layout(location = UNIFORM_LOCATION_ORIGINAL_DATA_BUFFER_SIZE) uniform uint uParticleBufferSize;
+layout(location = UNIFORM_LOCATION_PARTICLE_BUFFER_SIZE) uniform uint uParticleBufferSize;
 
 /*------------------------------------------------------------------------------------------------
 Description:

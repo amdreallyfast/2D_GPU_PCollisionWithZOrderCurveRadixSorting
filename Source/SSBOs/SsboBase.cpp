@@ -83,12 +83,15 @@ Description:
     This one does nothing.  There are several SSBOs required as part of the parallel sorting, 
     and those SSBO don't do anything with rendering, so let this be a virtual method, not pure 
     virtual.
+
+    Note: This method cannot be const if the user needs to record either the render program ID 
+    or the draw style for later use.
 Parameters: 
     Ignored
 Returns:    None
 Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
-void SsboBase::ConfigureRender(unsigned int, unsigned int) const
+void SsboBase::ConfigureRender(unsigned int, unsigned int)
 {
     // nothing
 }

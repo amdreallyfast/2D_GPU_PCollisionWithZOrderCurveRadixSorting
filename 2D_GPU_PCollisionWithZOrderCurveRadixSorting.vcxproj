@@ -153,9 +153,13 @@
     <ClCompile Include="Source\RenderFrameRate\FreeTypeEncapsulated.cpp" />
     <ClCompile Include="Source\RenderFrameRate\Stopwatch.cpp" />
     <ClCompile Include="Source\ShaderControllers\ParallelSort.cpp" />
+    <ClCompile Include="Source\ShaderControllers\ParticleCollide.cpp" />
+    <ClCompile Include="Source\ShaderControllers\ParticleReset.cpp" />
+    <ClCompile Include="Source\ShaderControllers\ParticleUpdate.cpp" />
+    <ClCompile Include="Source\ShaderControllers\RenderParticles.cpp" />
     <ClCompile Include="Source\SSBOs\IntermediateDataSsbo.cpp" />
-    <ClCompile Include="Source\SSBOs\OriginalDataCopySsbo.cpp" />
-    <ClCompile Include="Source\SSBOs\OriginalDataSsbo.cpp" />
+    <ClCompile Include="Source\SSBOs\ParticleCopySsbo.cpp" />
+    <ClCompile Include="Source\SSBOs\ParticleSsbo.cpp" />
     <ClCompile Include="Source\SSBOs\PrefixSumSsbo.cpp" />
     <ClCompile Include="Source\SSBOs\SsboBase.cpp" />
   </ItemGroup>
@@ -175,9 +179,7 @@
     <ClInclude Include="Include\ShaderControllers\RenderParticles.h" />
     <ClInclude Include="Include\SSBOs\IntermediateData.h" />
     <ClInclude Include="Include\SSBOs\IntermediateDataSsbo.h" />
-    <ClInclude Include="Include\SSBOs\OriginalDataCopySsbo.h" />
-    <ClInclude Include="Include\SSBOs\OriginalDataSsbo.h" />
-    <ClInclude Include="Include\SSBOs\ParticleCopySssbo.h" />
+    <ClInclude Include="Include\SSBOs\ParticleCopySsbo.h" />
     <ClInclude Include="Include\SSBOs\ParticleSsbo.h" />
     <ClInclude Include="Include\SSBOs\PrefixSumSsbo.h" />
     <ClInclude Include="Include\SSBOs\SsboBase.h" />
@@ -198,10 +200,8 @@
     <None Include="Shaders\ParallelSort\SortIntermediateData.comp" />
     <None Include="Shaders\ParallelSort\SortParticleData.comp" />
     <None Include="Shaders\ParticleBuffer.comp" />
-    <None Include="Shaders\ParticleReset.comp" />
     <None Include="Shaders\ParticleReset\LinearBlend.comp" />
     <None Include="Shaders\ParticleReset\NewVelocityBetweenMinAndMax.comp" />
-    <None Include="Shaders\ParticleReset\ParticleReset.comp" />
     <None Include="Shaders\ParticleReset\ParticleResetBarEmitter.comp" />
     <None Include="Shaders\ParticleReset\ParticleResetPointEmitter.comp" />
     <None Include="Shaders\ParticleReset\QuickNormalize.comp" />
