@@ -164,9 +164,6 @@
     <None Include="Shaders\ParallelSort\PrefixScanBuffer.comp">
       <Filter>Shaders\ParallelSort</Filter>
     </None>
-    <None Include="Shaders\ParallelSort\ParallelSortConstants.comp">
-      <Filter>Shaders\ParallelSort</Filter>
-    </None>
     <None Include="Shaders\ParallelSort\IntermediateSortBuffers.comp">
       <Filter>Shaders\ParallelSort</Filter>
     </None>
@@ -186,6 +183,15 @@
       <Filter>Shaders\ParallelSort</Filter>
     </None>
     <None Include="Shaders\ParticleBuffer.comp">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\ParticleReset.comp">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\ParticleUpdate.comp">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\ComputeWorkGroupSizes.comp">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

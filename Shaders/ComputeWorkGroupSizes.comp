@@ -6,14 +6,15 @@ Description:
 Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
 
-// REQUIRES NumDataEntries.comp
-//  NUM_DATA_ENTRIES
+// this is used for operating on particles in ParticleReset.comp, ParticleUpdate.comp, etc.
+// Note: This could be the same macro as PARALLEL_SORT_WORK_GRUP_SIZE_X since it is the same 
+// size, but the parallel sort is its own world, so I'll let it stay separate.
+#define PARTICLE_OPERATIONS_WORK_GROUP_SIZE_X 512
+#define PARTICLE_OPERATIONS_WORK_GROUP_SIZE_Y 1
+#define PARTICLE_OPERATIONS_WORK_GROUP_SIZE_Z 1
 
-#ifndef PARALLEL_SORT_CONSTANTS_COMP
-#define PARALLEL_SORT_CONSTANTS_COMP
-
-// this algorithm relies on using a power of 2 threads in a binary tree pattern within each work 
-// group, so the number of threads must be a power of 2 
+// the parallel sort algorithm relies on using a power of 2 threads in a binary tree pattern 
+// within each work group, so the number of threads must be a power of 2 
 #define PARALLEL_SORT_WORK_GROUP_SIZE_X 512
 #define PARALLEL_SORT_WORK_GROUP_SIZE_Y 1
 #define PARALLEL_SORT_WORK_GROUP_SIZE_Z 1
@@ -21,6 +22,5 @@ Creator:    John Cox, 3/2017
 // Note: Each thread in the ParallelPrefixScan.comp's algorithm works on 2 data entries.  Define 
 // the number of items per work group such that each work groups' full complement of threads can 
 // have something to work with.
-#define ITEMS_PER_WORK_GROUP (PARALLEL_SORT_WORK_GROUP_SIZE_X * 2)
+#define PARALLEL_SORT_ITEMS_PER_WORK_GROUP (PARALLEL_SORT_WORK_GROUP_SIZE_X * 2)
 
-#endif
