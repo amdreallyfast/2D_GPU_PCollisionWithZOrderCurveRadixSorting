@@ -185,8 +185,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\ComputeHeaders\ComputeShaderWorkGroupSizes.comp" />
+    <None Include="Shaders\ComputeHeaders\CrossShaderUniformLocations.comp" />
     <None Include="Shaders\ComputeHeaders\SsboBufferBindings.comp" />
-    <None Include="Shaders\ComputeHeaders\UniformLocations.comp" />
     <None Include="Shaders\ComputeHeaders\Version.comp" />
     <None Include="Shaders\FreeType.frag" />
     <None Include="Shaders\FreeType.vert" />

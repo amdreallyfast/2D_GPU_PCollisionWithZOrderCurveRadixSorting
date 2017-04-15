@@ -1,7 +1,7 @@
 // REQUIRES Version.comp
 // REQUIRES ComputeShaderWorkGroupSizes.comp
 // - PARALLEL_SORT_WORK_GROUP_SIZE_X
-// REQUIRES UniformLocations.comp
+// REQUIRES CrossShaderUniformLocations.comp
 // REQUIRES SsboBufferBindings.comp
 // REQUIRES IntermediateSortBuffers.comp
 // REQUIRES PrefixScanBuffer.comp

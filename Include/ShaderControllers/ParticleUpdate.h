@@ -33,6 +33,11 @@ namespace ShaderControllers
         unsigned int _totalParticleCount;
         unsigned int _activeParticleCount;
         unsigned int _computeProgramId;
+        
+        // these uniforms are specific to this shader
+        int _unifLocParticleRegionCenter;
+        int _unifLocParticleRegionRadiusSqr;
+        int _unifLocDeltaTimeSec;
 
         // the atomic counter is used to count the total number of active particles after this 
         // update

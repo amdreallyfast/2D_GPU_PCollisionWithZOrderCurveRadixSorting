@@ -2,7 +2,7 @@
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 #include "Shaders/ComputeHeaders/SsboBufferBindings.comp"
-#include "Shaders/ComputeHeaders/UniformLocations.comp"
+#include "Shaders/ComputeHeaders/CrossShaderUniformLocations.comp"
 
 #include "Include/SSBOs/OriginalData.h"
 
@@ -35,7 +35,7 @@ OriginalDataSsbo::OriginalDataSsbo(unsigned int numItems) :
 /*------------------------------------------------------------------------------------------------
 Description:
     Defines the buffer's size uniform in the specified shader.  It uses the #define'd uniform 
-    location found in UniformLocations.comp.
+    location found in CrossShaderUniformLocations.comp.
 
     If the shader does not have the uniform or if the shader compiler optimized it out, then 
     OpenGL will complain about not finding it.  Enable debugging in main() in main.cpp for more 

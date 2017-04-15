@@ -2,7 +2,7 @@
 // REQUIRES ComputeShaderWorkGroupSizes.comp
 // - PARALLEL_SORT_WORK_GROUP_SIZE_X
 // REQUIRES SsboBufferBindings.comp
-// REQUIRES UniformLocations.comp
+// REQUIRES CrossShaderUniformLocations.comp
 // REQUIRES ParticleBuffer.comp
 
 // Y and Z work group sizes default to 1

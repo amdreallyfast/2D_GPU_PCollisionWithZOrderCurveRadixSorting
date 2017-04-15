@@ -170,9 +170,6 @@
     <None Include="Shaders\ParallelSort\GetBitForPrefixScan.comp">
       <Filter>Shaders\ParallelSort</Filter>
     </None>
-    <None Include="Shaders\ComputeHeaders\UniformLocations.comp">
-      <Filter>Shaders\ComputeHeaders</Filter>
-    </None>
     <None Include="Shaders\ParallelSort\SortParticleData.comp">
       <Filter>Shaders\ParallelSort</Filter>
     </None>
@@ -189,6 +186,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\ComputeHeaders\ComputeShaderWorkGroupSizes.comp">
+      <Filter>Shaders\ComputeHeaders</Filter>
+    </None>
+    <None Include="Shaders\ComputeHeaders\CrossShaderUniformLocations.comp">
       <Filter>Shaders\ComputeHeaders</Filter>
     </None>
   </ItemGroup>

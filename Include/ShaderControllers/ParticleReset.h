@@ -41,8 +41,7 @@ namespace ShaderControllers
         // per frame 
         unsigned int _particleResetAtomicCounterBufferId;
 
-        // unlike most OpenGL IDs, uniform locations are GLint
-        int _unifLocParticleCount;
+        // these uniforms are specific to this shader
         int _unifLocMaxParticleEmitCount;
         int _unifLocMinParticleVelocity;
         int _unifLocDeltaParticleVelocity;

@@ -16,7 +16,7 @@ Creator:    John Cox, 3/11/2017
 // REQUIRES ComputeShaderWorkGroupSizes.comp
 // - PARALLEL_SORT_WORK_GROUP_SIZE_X
 // - PARALLEL_SORT_ITEMS_PER_WORK_GROUP
-// REQUIRES UniformLocations.comp
+// REQUIRES CrossShaderUniformLocations.comp
 // REQUIRES SsboBufferBindings.comp
 // REQUIRES PrefixScanBuffer.comp.comp
 
