@@ -29,11 +29,11 @@
     <ClCompile Include="Source\SSBOs\OriginalDataSsbo.cpp">
       <Filter>Source\SSBOs</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ComputeControllers\ParallelSort.cpp">
-      <Filter>Source\ComputeControllers</Filter>
-    </ClCompile>
     <ClCompile Include="Source\SSBOs\IntermediateDataSsbo.cpp">
       <Filter>Source\SSBOs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ShaderControllers\ParallelSort.cpp">
+      <Filter>Source\ShaderControllers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -70,11 +70,11 @@
     <ClInclude Include="Include\SSBOs\OriginalData.h">
       <Filter>Include\SSBOs</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ComputeControllers\ParallelSort.h">
-      <Filter>Include\ComputeControllers</Filter>
-    </ClInclude>
     <ClInclude Include="Include\SSBOs\IntermediateDataSsbo.h">
       <Filter>Include\SSBOs</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ShaderControllers\ParallelSort.h">
+      <Filter>Include\ShaderControllers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -87,14 +87,8 @@
     <Filter Include="Source">
       <UniqueIdentifier>{edb898f2-6571-4166-865e-689d93ec7233}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Include\ComputeControllers">
-      <UniqueIdentifier>{bc6dc51e-3dad-4527-898b-7fe365093c28}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Include\RenderFrameRate">
       <UniqueIdentifier>{948f0825-f7bd-4e99-9ff8-44ea962a9fe1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\ComputeControllers">
-      <UniqueIdentifier>{a73809c4-b73c-469b-9701-2aeed3a14341}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\SSBOs">
       <UniqueIdentifier>{10d689cb-a3de-4060-a112-cde5c25ebc09}</UniqueIdentifier>
@@ -110,6 +104,12 @@
     </Filter>
     <Filter Include="Shaders\ParallelSort">
       <UniqueIdentifier>{4092c9e6-ca98-4729-9404-0e9fde5d45c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\ShaderControllers">
+      <UniqueIdentifier>{bc6dc51e-3dad-4527-898b-7fe365093c28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ShaderControllers">
+      <UniqueIdentifier>{a73809c4-b73c-469b-9701-2aeed3a14341}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

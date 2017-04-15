@@ -1,4 +1,4 @@
-#include "Include/ComputeControllers/ParallelSort.h"
+#include "Include/ShaderControllers/ParallelSort.h"
 
 #include "Shaders/ShaderStorage.h"
 #include "ThirdParty/glload/include/glload/gl_4_4.h"

@@ -46,7 +46,7 @@
 
 #include "Include/SSBOs/originalData.h"
 #include "Include/SSBOs/OriginalData.h" // for generating demo data
-#include "Include/ComputeControllers/ParallelSort.h"
+#include "Include/ShaderControllers/ParallelSort.h"
 
 // for the frame rate counter
 #include "Include/RenderFrameRate/FreeTypeEncapsulated.h"
