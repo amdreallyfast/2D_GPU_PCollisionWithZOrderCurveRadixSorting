@@ -51,7 +51,7 @@ Particle PointEmitterResetPos(Particle pCopy)
     // shall eminate.  Then do a linear blend between the new position on the rim of this circle 
     // and the particle emitter's center.  This shall be the particle's new span position.
     vec4 outerPosLimit = (0.1 * QuickNormalize(vec4(posX, posY, 0.0, 0.0)))
-    vec4 posVariance = LinearMix(uPointEmitterCenter, outerPosLimit, RandomOnRange0To1());
+    vec4 posVariance = LinearBlend(uPointEmitterCenter, outerPosLimit, RandomOnRange0To1(vec(posX, posY)));
     pCopy._pos = uPointEmitterCenter + posVariance;
     
     // velocity

@@ -26,7 +26,7 @@ Creator:    John Cox (10-10-2016)
 ------------------------------------------------------------------------------------------------*/
 float NewVelocityBetweenMinAndMax(vec2 randSeed)
 {
-    float velocityVariation = RandomOnRange0To1() * uDeltaParticleVelocity;
+    float velocityVariation = RandomOnRange0To1(randSeed) * uDeltaParticleVelocity;
     float velocityMagnitude = uMinParticleVelocity + velocityVariation;
 
     return velocityMagnitude;

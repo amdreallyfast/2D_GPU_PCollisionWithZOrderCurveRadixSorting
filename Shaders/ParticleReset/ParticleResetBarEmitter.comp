@@ -39,11 +39,11 @@ Particle BarEmitterResetPos(Particle pCopy)
     vec4 start = uBarEmitterP1;
     vec4 end = uBarEmitterP2;
     vec4 startToEnd = end - start;
-    pCopy._pos = start + (RandomOnRange0To1() * startToEnd);
+    pCopy._pos = LinearBlend(start, end, RandomOnRange0To1(pCopy._pos.xy));
 
     // velocity
     vec4 velocityDir = QuickNormalize(uBarEmitterEmitDir);
-    pCopy._vel = velocityDir * NewVelocityBetweenMinAndMax();
+    pCopy._vel = velocityDir * NewVelocityBetweenMinAndMax(pCopy._vel.xy);
 
     return pCopy;
 }
