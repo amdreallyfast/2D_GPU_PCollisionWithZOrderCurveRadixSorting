@@ -44,7 +44,6 @@ because this project was created after GpuRadixSort and I didn't want to have to
 change the prior uniforms just to appear in a particular order.
 ------------------------------------------------------------------------------------------------*/
 // ParticleUpdate.comp
-#define UNIFORM_LOCATION_PARTICLE_COUNT 7
 #define UNIFORM_LOCATION_PARTICLE_REGION_CENTER 8
 #define UNIFORM_LOCATION_PARTICLE_REGION_RADIUS_SQR 9
 #define UNIFORM_LOCATION_DELTA_TIME_SEC 10

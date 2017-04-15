@@ -1,7 +1,7 @@
 // REQUIRES SsboBufferBindings.comp
 //  PREFIX_SCAN_BUFFER_BINDING
-// REQUIRES ParallelSortConstants.comp
-//  ITEMS_PER_WORK_GROUP
+// REQUIRES ComputeShaderWorkGroupSizes.comp
+//  PARALLEL_SORT_ITEMS_PER_WORK_GROUP
 
 
 // Note: The ParallelSort compute controller should be carefully controlling the number of work 
@@ -33,7 +33,7 @@ Creator:    John Cox, 3/11/2017
 ------------------------------------------------------------------------------------------------*/
 layout (std430, binding = PREFIX_SCAN_BUFFER_BINDING) buffer PrefixScanBuffer
 {
-    uint PrefixSumsByGroup[ITEMS_PER_WORK_GROUP];
+    uint PrefixSumsByGroup[PARALLEL_SORT_ITEMS_PER_WORK_GROUP];
     uint totalNumberOfOnes;
     uint PrefixSumsWithinGroup[];
 };

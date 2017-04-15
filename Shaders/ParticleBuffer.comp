@@ -11,10 +11,13 @@ struct Particle
 {
     vec4 _pos;
     vec4 _vel;
+
     float _mass;
     float _radiusOfInfluence;
     uint _hasCollidedAlreadyThisFrame;
     int _isActive;
+
+    // vec4s are 16 bytes, +4 individual 4byte items, so no padding necessary on CPU side
 };
 
 // whatever size the user wants
@@ -45,7 +48,13 @@ Description:
 
     Note: It should be in its own buffer so that it can easily be used with 
     glCopyBufferSubData(...).
-Creator:    John Cox, 3/2017
+
+    Also Note: According to the documentation for shader storage buffer objects, "there can only 
+    be one array of variable size per SSBO and it has to be the bottommost in the layout 
+    definition."  So I can't create a particle buffer of variable size and then another of the 
+    same size back to back in the same buffer.  They have to be separate buffers.
+    See here: https://www.opengl.org/wiki/Shader_Storage_Buffer_Object.
+Creator:    John Cox, 4/2017
 ------------------------------------------------------------------------------------------------*/
 layout (std430, binding = PARTICLE_BUFFER_BINDING) buffer ParticleCopyBuffer
 {

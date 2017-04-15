@@ -67,9 +67,6 @@
     <ClInclude Include="Include\SSBOs\IntermediateData.h">
       <Filter>Include\SSBOs</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SSBOs\OriginalData.h">
-      <Filter>Include\SSBOs</Filter>
-    </ClInclude>
     <ClInclude Include="Include\SSBOs\IntermediateDataSsbo.h">
       <Filter>Include\SSBOs</Filter>
     </ClInclude>
@@ -191,8 +188,8 @@
     <None Include="Shaders\ParticleUpdate.comp">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\ComputeWorkGroupSizes.comp">
-      <Filter>Shaders</Filter>
+    <None Include="Shaders\ComputeHeaders\ComputeShaderWorkGroupSizes.comp">
+      <Filter>Shaders\ComputeHeaders</Filter>
     </None>
   </ItemGroup>
 </Project>

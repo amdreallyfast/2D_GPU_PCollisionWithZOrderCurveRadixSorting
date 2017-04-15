@@ -1,86 +1,20 @@
-#version 440
+// REQUIRES Version.comp
+// REQUIRES ComputeShaderWorkGroupSizes.comp
+// - PARALLEL_SORT_WORK_GROUP_SIZE_X
+// REQUIRES SsboBufferBindings.comp
+// REQUIRES UniformLocations.comp
+// REQUIRES ParticleBuffer.comp
 
-const int gerble = 256;
-//layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
-layout (local_size_x = gerble) in;
-//layout (local_size_x = SAT_WORKGROUP_SIZE_X) in;
+// Y and Z work group sizes default to 1
+layout (local_size_x = PARTICLE_OPERATIONS_WORK_GROUP_SIZE_X) in;
 
-// unlike the ParticleBuffer and FaceBuffer, atomic counter buffers seem to need a declaration 
-// like this and cannot be bound dynamically as in ParticleSsbo and PolygonSsbo, so declare 
-// the atomic counters up front to make it easier to keep the numbers straight.
+// unlike SSBOs, atomic counter buffers seem to need a declaration like this and cannot be bound 
+// dynamically as in ParticleSsbo and PolygonSsbo, so declare the atomic counters up front to 
+// make it easier to keep the numbers straight.
 // Note: Discovered by experience and through this: https://www.opengl.org/wiki/Atomic_Counter.
-// Also Note: MUST use a unique binding unless you want these atomic counters to be identical to 
-// the atomic counters in another shader.  Discovered by experience.  Even though this is a 
-// different shader than the "particle update" compute shader, the layout binding holds.
-layout (binding = 1, offset = 0) uniform atomic_uint acResetParticleCounter;
-layout (binding = 1, offset = 4) uniform atomic_uint acRandSeed;
+layout (binding = ACTIVE_PARTICLE_ATOMIC_COUNTER_BUFFER, offset = 0) uniform atomic_uint acResetParticleCounter;
 
-/*------------------------------------------------------------------------------------------------
-Description:
-    Stores info about a single particle.  Must match the version on the CPU side.
-Creator:    John Cox (9-25-2016)
-------------------------------------------------------------------------------------------------*/
-struct Particle
-{
-    vec4 _pos;
-    vec4 _vel;
-    vec4 _netForceThisFrame;
-    int _collisionCountThisFrame;
-    float _mass;
-    float _radiusOfInfluence;
-    unsigned int _indexOfNodeThatItIsOccupying;
-    int _isActive;
-};
 
-/*------------------------------------------------------------------------------------------------
-Description:
-    OpenGL rendering uses the same "Polygon Face" buffer, and OpenGL rendering takes vertices 
-    one at a time.  I originally tried making each face into a single structure with two 
-    positions and one normal, but then the rendering treated the whole thing like a single 
-    vertex.  Whoops.  So I have to specify each vertex individually for the sake of rendering 
-    and then match that here in the compute shader.
-    
-    Must match the version on the CPU side.
-Creator:    John Cox (9-25-2016)
-------------------------------------------------------------------------------------------------*/
-struct MyVertex
-{
-    vec4 _pos;
-    vec4 _normal;
-};
-
-/*------------------------------------------------------------------------------------------------
-Description:
-    This is the array of particles that the compute shader will be accessing.  It is set up on 
-    the CPU side in ParticleSsbo::Init(...).
-
-    Note: Instead of the hard-coded binding point as was used in the "render particles 2D basic" 
-    project, the binding point is determined on the CPU side.  Is that necessary in this demo?  
-    No.  Binding points are relevant only to a particular shader and the CPU side needs to, at 
-    least, tell OpenGL that the just-created SSBO should be bound to the same binding point 
-    ("binding = 0" here in the shader means glBindBufferBase(..., 0, ...) in the SSBO setup), 
-    but if the user doesn't want to handle the binding on both the shader side and the CPU side, 
-    then this demo shows how to handle binding entirely on the CPU side.
-    
-    Also Note: Without the binding point specifier, which implicitly assumed std430, then the 
-    layout standard needs to be specified explicitly.  According to this website under heading 
-    "Layout std430, new and better std140", std430 is the ONLY layout specifier available for 
-    SSBOs.  I don't know what it does, but it is necessary.  
-    http://malideveloper.arm.com/resources/sample-code/introduction-compute-shaders-2/
-Creator:    John Cox (9-25-2016)
-------------------------------------------------------------------------------------------------*/
-uniform uint uMaxParticles;
-layout (std430) buffer ParticleBuffer
-{
-    // Note: According to the documentation for shader storage buffer objects, "there can only 
-    // be one array of variable size per SSBO and it has to be the bottommost in the layout 
-    // definition."  This means that, if I wanted to define anything else in here (I don't since 
-    // it is an array of Particle structures whose size is determined on the CPU side), then I 
-    // would have to declare it before the array.  If I declared it after, then the shader won't 
-    // compile.
-    // See here: https://www.opengl.org/wiki/Shader_Storage_Buffer_Object.
-    Particle AllParticles[];
-};
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -144,6 +78,27 @@ Creator:    John Cox (9-25-2016)
 ------------------------------------------------------------------------------------------------*/
 float RandomOnRange0To1()
 {
+    // TODO: take a vec2; resetting a particle needs several random numbers though, so it needs several seeds
+    // bar emitter reset position
+    //  RandomOnRange0To1 for distance along the bar (pass in pos.xy)
+    //  NewVelocityBetweenMinAndMax()
+    //      RandomOnRange0To1 for variation on velocity range (pass in vel.xy)
+    // point emitter reset position to cloud
+    //  pos x = RandomOnRangeNeg1ToPos1 (pass in pos.xy)
+    //  pos y = RandomOnRangeNeg1ToPos1 (pass in pos.yx)
+    //  linear mix 
+    //  vel x = RandomOnRangeNeg1ToPos1 (pass in vel.xy)
+    //  vel y = RandomOnRangeNeg1ToPos1 (pass in vel.yx)
+//highp float rand(vec2 co)
+//{
+//    highp float a = 12.9898;
+//    highp float b = 78.233;
+//    highp float c = 43758.5453;
+//    highp float dt= dot(co.xy ,vec2(a,b));
+//    highp float sn= mod(dt,3.14);
+//    return fract(sin(sn) * c);
+//}
+
     // increment the rand seed counter, but NOT the particle counter (that is for main())
     // Note: Using two atomic counters because it was discovered by experience that passing in 
     // two sequential values wasn't random enough for personal taste.  There was some banding 
@@ -167,6 +122,12 @@ Creator:    John Cox (9-25-2016)
 ------------------------------------------------------------------------------------------------*/
 float RandomOnRangeNeg1ToPos1()
 {
+    // TODO: move to a Random.comp composite shader
+
+
+    // TODO: 
+    // - take vec2 argument
+    // - use the same random number for <0.5 check and for value
     if (RandomOnRange0To1() < 0.5)
     {
         return -1.0 * RandomOnRange0To1();
@@ -216,6 +177,8 @@ Creator:    John Cox (9-25-2016)
 uniform vec4 uPointEmitterCenter;
 Particle PointEmitterResetPos(Particle p)
 {
+    // TODO: move to ParticleResetPointEmitter
+
     Particle pCopy = p;
     
     vec4 basePosition = uPointEmitterCenter;
@@ -224,6 +187,7 @@ Particle PointEmitterResetPos(Particle p)
 
     // need to normalize the outer limit (), but to do that we can't have a 1 in the w position 
     // or else the X and Y's normalization get's messed up
+    // Note: To make the particle appear in a cloud around the point emitter's center, need 
     // Note: Window space is on the range [-1,+1] on X and Y, hence the normalizing.
     vec4 outerPosLimit = 0.1 * QuickNormalize(vec4(posX, posY, 0.0, 0.0));
     vec4 posVariance = LinearMix(uPointEmitterCenter, outerPosLimit, RandomOnRange0To1());
@@ -253,6 +217,8 @@ uniform vec4 uBarEmitterP2;
 uniform vec4 uBarEmitterEmitDir;
 Particle BarEmitterResetPos(Particle p)
 {
+    // TODO: move to ParticleResetBarEmitter.comp
+
     Particle pCopy = p;
 
     // position

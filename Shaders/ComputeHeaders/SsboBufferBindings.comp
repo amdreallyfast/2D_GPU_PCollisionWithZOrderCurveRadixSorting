@@ -21,3 +21,10 @@ Creator:    John Cox, 3/2017
 #define PREFIX_SCAN_BUFFER_BINDING 2
 #define INTERMEDIATE_SORT_BUFFERS_BINDING 3
 
+// specifically for ParticleUpdate.comp
+#define ACTIVE_PARTICLE_ATOMIC_COUNTER_BUFFER 4
+
+// specifically for ParticleReset.comp
+#define RESET_PARTICLES_ATOMIC_COUNTER_BUFFER 5
+
+

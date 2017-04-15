@@ -175,7 +175,6 @@
     <ClInclude Include="Include\ShaderControllers\RenderParticles.h" />
     <ClInclude Include="Include\SSBOs\IntermediateData.h" />
     <ClInclude Include="Include\SSBOs\IntermediateDataSsbo.h" />
-    <ClInclude Include="Include\SSBOs\OriginalData.h" />
     <ClInclude Include="Include\SSBOs\OriginalDataCopySsbo.h" />
     <ClInclude Include="Include\SSBOs\OriginalDataSsbo.h" />
     <ClInclude Include="Include\SSBOs\ParticleCopySssbo.h" />
@@ -185,10 +184,10 @@
     <ClInclude Include="Shaders\ShaderStorage.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\ComputeHeaders\ComputeShaderWorkGroupSizes.comp" />
     <None Include="Shaders\ComputeHeaders\SsboBufferBindings.comp" />
     <None Include="Shaders\ComputeHeaders\UniformLocations.comp" />
     <None Include="Shaders\ComputeHeaders\Version.comp" />
-    <None Include="Shaders\ComputeWorkGroupSizes.comp" />
     <None Include="Shaders\FreeType.frag" />
     <None Include="Shaders\FreeType.vert" />
     <None Include="Shaders\ParallelSort\GetBitForPrefixScan.comp" />

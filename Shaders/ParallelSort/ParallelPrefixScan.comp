@@ -13,9 +13,9 @@ Creator:    John Cox, 3/11/2017
 ------------------------------------------------------------------------------------------------*/
 
 // REQUIRES Version.comp
-// REQUIRES ParallelSortConstants.comp
+// REQUIRES ComputeShaderWorkGroupSizes.comp
 // - PARALLEL_SORT_WORK_GROUP_SIZE_X
-// - ITEMS_PER_WORK_GROUP
+// - PARALLEL_SORT_ITEMS_PER_WORK_GROUP
 // REQUIRES UniformLocations.comp
 // REQUIRES SsboBufferBindings.comp
 // REQUIRES PrefixScanBuffer.comp.comp
@@ -27,7 +27,7 @@ layout (local_size_x = PARALLEL_SORT_WORK_GROUP_SIZE_X) in;
 // thread
 // Note: By definition of keyword "shared", this is shared amongst all threads in a work group.
 // Also Note: Every item gets written before it is read, so don't bother initializing the 0.
-shared uint[ITEMS_PER_WORK_GROUP] fastTempArr;// = uint[ITEMS_PER_WORK_GROUP](0);
+shared uint[PARALLEL_SORT_ITEMS_PER_WORK_GROUP] fastTempArr;// = uint[PARALLEL_SORT_ITEMS_PER_WORK_GROUP](0);
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -42,7 +42,7 @@ void CalculatePrefixSumsWithinGroup()
 {
     // wait for all the threads in this group to do the shared memory initialization
     // Note: Consider this code: 
-    //  shared uint[ITEMS_PER_WORK_GROUP] fastTempArr = uint[ITEMS_PER_WORK_GROUP](0);
+    //  shared uint[PARALLEL_SORT_ITEMS_PER_WORK_GROUP] fastTempArr = uint[PARALLEL_SORT_ITEMS_PER_WORK_GROUP](0);
     // The left side of that statement is shared between all values of the work group, but after 
     // some frustration and experimentation, I found that the right side seems to be run per 
     // thread.  Not all the threads in a group will run simultaneously, so to prevent some 
@@ -67,7 +67,7 @@ void CalculatePrefixSumsWithinGroup()
     uint indexMultiplierDueToDepth = 1;
 
     // going up divides pair count in half with each level
-    for (uint dataPairs = ITEMS_PER_WORK_GROUP >> 1; dataPairs > 0; dataPairs >>= 1)
+    for (uint dataPairs = PARALLEL_SORT_ITEMS_PER_WORK_GROUP >> 1; dataPairs > 0; dataPairs >>= 1)
     {
         // wait for other threads in the group to catch up
         barrier();
@@ -97,21 +97,21 @@ void CalculatePrefixSumsWithinGroup()
         // has the sum of all items in the entire array.  The following "going down" loop will 
         // change the data into a prefix-only sums array, so record the entire sum while it is 
         // still available.
-        PrefixSumsByGroup[gl_WorkGroupID.x] = fastTempArr[ITEMS_PER_WORK_GROUP - 1];
+        PrefixSumsByGroup[gl_WorkGroupID.x] = fastTempArr[PARALLEL_SORT_ITEMS_PER_WORK_GROUP - 1];
        
         // this is just part of the algorithm; I don't have an intuitive explanation
-        fastTempArr[ITEMS_PER_WORK_GROUP - 1] = 0;
+        fastTempArr[PARALLEL_SORT_ITEMS_PER_WORK_GROUP - 1] = 0;
     }
 
     // undo the last loop's indexMultiplierDueToDepth
     // Note: After the last loop, indexMultiplierDueToDepth had been multiplied by 2 as many 
-    // times as dataPairs had been divided by 2, so it is now equivalent to ITEMS_PER_WORK_GROUP 
+    // times as dataPairs had been divided by 2, so it is now equivalent to PARALLEL_SORT_ITEMS_PER_WORK_GROUP 
     // (assuming that it is a power of 2).  Divide by 2 so that it can be used to calculate the 
     // indices of the first data pair off the root.
     indexMultiplierDueToDepth >>= 1;
 
     // going down multiplies pair count in half with each level
-    for (uint dataPairs = 1; dataPairs < ITEMS_PER_WORK_GROUP; dataPairs *= 2)
+    for (uint dataPairs = 1; dataPairs < PARALLEL_SORT_ITEMS_PER_WORK_GROUP; dataPairs *= 2)
     {
         // wait for the other threads in the group to catch up
         barrier();
@@ -155,7 +155,7 @@ void PrefixSumOnPrefixSumsByGroup()
     uint doubleGroupThreadIndex = gl_LocalInvocationID.x * 2;
 
     uint indexMultiplierDueToDepth = 1;
-    for (int dataPairs = ITEMS_PER_WORK_GROUP >> 1; dataPairs > 0; dataPairs >>= 1)
+    for (int dataPairs = PARALLEL_SORT_ITEMS_PER_WORK_GROUP >> 1; dataPairs > 0; dataPairs >>= 1)
     {
         barrier();
 
@@ -172,12 +172,12 @@ void PrefixSumOnPrefixSumsByGroup()
     // only one thread should do these (prevents unnecessary writes)
     if (doubleGroupThreadIndex == 0)
     {
-        totalNumberOfOnes = PrefixSumsByGroup[ITEMS_PER_WORK_GROUP - 1];
-        PrefixSumsByGroup[ITEMS_PER_WORK_GROUP - 1] = 0;
+        totalNumberOfOnes = PrefixSumsByGroup[PARALLEL_SORT_ITEMS_PER_WORK_GROUP - 1];
+        PrefixSumsByGroup[PARALLEL_SORT_ITEMS_PER_WORK_GROUP - 1] = 0;
     }
     indexMultiplierDueToDepth >>= 1;
     
-    for (int dataPairs = 1; dataPairs < ITEMS_PER_WORK_GROUP; dataPairs *= 2)
+    for (int dataPairs = 1; dataPairs < PARALLEL_SORT_ITEMS_PER_WORK_GROUP; dataPairs *= 2)
     {
         barrier();
         
