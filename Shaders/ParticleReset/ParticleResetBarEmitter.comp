@@ -1,0 +1,88 @@
+// REQUIRES Version.comp
+// REQUIRES ComputeShaderWorkGroupSizes.comp
+// - PARALLEL_SORT_WORK_GROUP_SIZE_X
+// REQUIRES SsboBufferBindings.comp
+// REQUIRES CrossShaderUniformLocations.comp
+// REQUIRES ParticleBuffer.comp
+// REQUIRES Random.comp
+// REQUIRES NewVelocityBetweenMinAndMax.comp
+// REQUIRES QuickNormalize.comp
+// REQUIRES LinearBlend.comp
+
+// Y and Z work group sizes default to 1
+layout (local_size_x = PARTICLE_OPERATIONS_WORK_GROUP_SIZE_X) in;
+
+// unlike SSBOs, atomic counter buffers seem to need a declaration like this and cannot be bound 
+// dynamically as in ParticleSsbo and PolygonSsbo, so declare the atomic counters up front to 
+// make it easier to keep the numbers straight.
+// Note: Discovered by experience and through this: https://www.opengl.org/wiki/Atomic_Counter.
+layout (binding = 0, offset = 0) uniform atomic_uint acResetParticleCounter;
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Like PointEmitterResetPos(...), but for a bar emitter.
+Parameters:
+    pCopy   GLSL doesn't do references, so values are passed by copy in GPU shared memory (fast 
+            memory).  Change this and return the result.
+Returns:
+    A Particle object with a 2D velocity on the range min + (rand * delta) and a position 
+    randomly placed between the bar emitter's start and end points.
+Creator:    John Cox (10-10-2016)
+------------------------------------------------------------------------------------------------*/
+uniform vec4 uBarEmitterP1;
+uniform vec4 uBarEmitterP2;
+uniform vec4 uBarEmitterEmitDir;
+Particle BarEmitterResetPos(Particle pCopy)
+{
+    // position
+    vec4 start = uBarEmitterP1;
+    vec4 end = uBarEmitterP2;
+    vec4 startToEnd = end - start;
+    pCopy._pos = start + (RandomOnRange0To1() * startToEnd);
+
+    // velocity
+    vec4 velocityDir = QuickNormalize(uBarEmitterEmitDir);
+    pCopy._vel = velocityDir * NewVelocityBetweenMinAndMax();
+
+    return pCopy;
+}
+
+
+// this value is used to prevent uParticleBufferSize particles from being emitted all at once
+// Note: This is particularly helpful when the particles are spread out on multiple emitters.
+uniform uint uMaxParticleEmitCount;
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    The compute shader's startup function.
+Parameters: None
+Returns:    None
+Creator:    John Cox, 4/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    uint index = gl_GlobalInvocationID.x;
+    if (index < uParticleBufferSize)
+    {
+        Particle p = AllParticles[index];
+
+        if (p._isActive == 0)
+        {
+            // only reactivate the particle if there is enough left in the particle limit for 
+            // this update
+            if (atomicCounterIncrement(acResetParticleCounter) < uMaxParticleEmitCount)
+            {
+                p = BarEmitterResetPos(p);
+                p._isActive = 1;
+            }
+
+            // copy the updated particle back into the array
+            AllParticles[index] = p;
+        }
+        else
+        {
+            // particle active, so don't reset it; just return;
+        }
+    }
+}

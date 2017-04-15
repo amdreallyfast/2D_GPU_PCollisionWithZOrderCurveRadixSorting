@@ -35,7 +35,9 @@
 
 #include <stdio.h>
 #include <memory>
-#include <algorithm>    // for generating demo data
+#include <random>   // for generating initial data
+#include <time.h>
+//#include <algorithm>    // for generating demo data
 
 // for basic OpenGL stuff
 #include "Include/OpenGlErrorHandling.h"
@@ -44,8 +46,8 @@
 // for particles, where they live, and how to update them
 #include "ThirdParty/glm/vec2.hpp"
 
-#include "Include/SSBOs/originalData.h"
-#include "Include/SSBOs/OriginalData.h" // for generating demo data
+#include "Include/Particles/Particle.h"
+#include "Include/SSBOs/ParticleSsbo.h"
 #include "Include/ShaderControllers/ParallelSort.h"
 
 // for the frame rate counter
@@ -59,6 +61,43 @@ OriginalDataSsbo::SHARED_PTR originalData = nullptr;
 std::unique_ptr<ShaderControllers::ParallelSort> parallelSort = nullptr;
 
 const unsigned int MAX_DATA_COUNT = 1000000;
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Particle resetting on the GPU requires several random numbers.  GLSL doesn't have GPU 
+    clock-reading functions, so the next best thing is a chaotic hash function 
+    (see Random.comp).  Being a hash function though, if the same values are put into it (like 
+    the Particle's default position XY and velocity XY values of 0), then the result won't 
+    change.  
+
+    This method gives the particle position and velocity initial random values.
+
+    All particles start as "inactive", so they'll be reset immediately.  This method just gives 
+    them a bump toward randomization.
+Parameters: 
+    initThese   Self-explanatory.
+Returns:    None
+Creator:    John Cox, 4/2017
+------------------------------------------------------------------------------------------------*/
+void InitializeWithRandomData(std::vector<Particle> &initThese)
+{
+    srand(static_cast<unsigned int>(time(0)));
+
+    float inverseRandMax = 1.0f / RAND_MAX;
+    for (size_t particleIndex = 0; particleIndex < initThese.size(); particleIndex++)
+    {
+        // randomized X and Y values
+        // Note: The 0-1 range isn't technically necessary, but the position and velocity values 
+        // are floats, and dividing by RAND_MAX is an easy way to get a float.  It just so 
+        // happens to be along the range 0-1.
+        initThese[particleIndex]._position.x = static_cast<float>(rand()) * inverseRandMax;
+        initThese[particleIndex]._position.y = static_cast<float>(rand()) * inverseRandMax;
+        initThese[particleIndex]._velocity.x = static_cast<float>(rand()) * inverseRandMax;
+        initThese[particleIndex]._velocity.y = static_cast<float>(rand()) * inverseRandMax;
+    }
+}
+
 
 /*------------------------------------------------------------------------------------------------
 Description:

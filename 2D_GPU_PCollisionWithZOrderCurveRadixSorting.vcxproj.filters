@@ -141,6 +141,9 @@
     <Filter Include="Include\Particles">
       <UniqueIdentifier>{d357cb74-d829-434b-821c-4223fcc76f76}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\ParticleReset">
+      <UniqueIdentifier>{ce113326-66ad-4566-a7bf-ddcbaaa9cd79}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\FreeType.frag">
@@ -191,5 +194,34 @@
     <None Include="Shaders\ComputeHeaders\CrossShaderUniformLocations.comp">
       <Filter>Shaders\ComputeHeaders</Filter>
     </None>
+    <None Include="Shaders\ParticleReset\LinearBlend.comp">
+      <Filter>Shaders\ParticleReset</Filter>
+    </None>
+    <None Include="Shaders\ParticleReset\NewVelocityBetweenMinAndMax.comp">
+      <Filter>Shaders\ParticleReset</Filter>
+    </None>
+    <None Include="Shaders\ParticleReset\ParticleReset.comp">
+      <Filter>Shaders\ParticleReset</Filter>
+    </None>
+    <None Include="Shaders\ParticleReset\ParticleResetBarEmitter.comp">
+      <Filter>Shaders\ParticleReset</Filter>
+    </None>
+    <None Include="Shaders\ParticleReset\ParticleResetPointEmitter.comp">
+      <Filter>Shaders\ParticleReset</Filter>
+    </None>
+    <None Include="Shaders\ParticleReset\QuickNormalize.comp">
+      <Filter>Shaders\ParticleReset</Filter>
+    </None>
+    <None Include="Shaders\ParticleReset\Random.comp">
+      <Filter>Shaders\ParticleReset</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Shaders\ParticleReset\ReadMe.txt">
+      <Filter>Shaders\ParticleReset</Filter>
+    </Text>
+    <Text Include="Shaders\ParallelSort\ReadMe.txt">
+      <Filter>Shaders\ParallelSort</Filter>
+    </Text>
   </ItemGroup>
 </Project>

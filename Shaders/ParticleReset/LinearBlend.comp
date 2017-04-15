@@ -1,0 +1,26 @@
+/*------------------------------------------------------------------------------------------------
+Description:
+    Helps to generate a random displacement region around a particle's spawn point.  It's a 
+    "looks nice" feature.
+    
+    For point emitters, it gives the illusion that the particles come from a cloud instead of a 
+    point.  
+    
+    For bar emitters, particles are dispersed along a vector between the bar's start and end 
+    points.
+
+    Eventually, when this demo moves into 3D, this function can be called twice for a quad plane 
+    (once from some edge to the oppoiste edge, again for the orthogonal pair of edges) to make 
+    particles emit from a surface in 3D space.
+Parameters:
+    v1              The start of the linear blend.
+    v2              The end of the linear blend.
+    Between0And1    Some fraction of the difference between v1 and v2.  Use Random.comp.
+Returns:
+    A vec4 that is linearly blended according to Between0and1.
+Creator:    John Cox (9-25-2016)
+------------------------------------------------------------------------------------------------*/
+vec4 LinearMix(vec4 v1, vec4 v2, float Between0And1)
+{
+    return (v1 * (1 - Between0And1)) + (v2 * Between0And1);
+}
