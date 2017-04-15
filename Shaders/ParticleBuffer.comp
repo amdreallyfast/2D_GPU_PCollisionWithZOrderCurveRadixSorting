@@ -1,0 +1,54 @@
+// REQUIRES SsboBufferBindings.comp
+//  PREFIX_SCAN_BUFFER_BINDING
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Stores info about a single particle.  Must match the value type and order in Particle.h.
+Creator:    John Cox, 4/2017 (original from 9-25-2016)
+------------------------------------------------------------------------------------------------*/
+struct Particle
+{
+    vec4 _pos;
+    vec4 _vel;
+    float _mass;
+    float _radiusOfInfluence;
+    uint _hasCollidedAlreadyThisFrame;
+    int _isActive;
+};
+
+// whatever size the user wants
+layout(location = UNIFORM_LOCATION_ORIGINAL_DATA_BUFFER_SIZE) uniform uint uParticleBufferSize;
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    This is the array of particles that the compute shader will be accessing.  It is set up on 
+    the CPU side in ParticleSsbo::Init(...).
+
+    Note: Without the binding point specifier, which implicitly assumed std430, then the 
+    layout standard needs to be specified explicitly.  According to this website under heading 
+    "Layout std430, new and better std140", std430 is the ONLY layout specifier available for 
+    SSBOs.  I don't know what it does, but it is necessary.  
+    http://malideveloper.arm.com/resources/sample-code/introduction-compute-shaders-2/
+Creator:    John Cox, 9-25-2016
+------------------------------------------------------------------------------------------------*/
+layout (std430, binding = PARTICLE_BUFFER_BINDING) buffer ParticleBuffer
+{
+    ParticleStructure AllParticles[];
+};
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    At the end of the parallel Radix Sort, the original data needs to be sorted.  Doing this in 
+    parallel requires making a copy of the original data and then writing back to wherever in 
+    the original buffer.  This buffer serves that purpose.
+
+    Note: It should be in its own buffer so that it can easily be used with 
+    glCopyBufferSubData(...).
+Creator:    John Cox, 3/2017
+------------------------------------------------------------------------------------------------*/
+layout (std430, binding = PARTICLE_BUFFER_BINDING) buffer ParticleCopyBuffer
+{
+    ParticleStructure AllParticlesCopy[];
+};
+

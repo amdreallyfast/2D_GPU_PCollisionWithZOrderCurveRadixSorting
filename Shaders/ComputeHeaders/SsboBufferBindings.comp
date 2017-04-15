@@ -16,8 +16,8 @@ Description:
 Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
 
-#define ORIGINAL_DATA_BUFFER_BINDING 0
-#define ORIGINAL_DATA_COPY_BUFFER_BINDING 1
+#define PARTICLE_BUFFER_BINDING 0
+#define PARTICLE_COPY_BUFFER_BINDING 1
 #define PREFIX_SCAN_BUFFER_BINDING 2
 #define INTERMEDIATE_SORT_BUFFERS_BINDING 3
 

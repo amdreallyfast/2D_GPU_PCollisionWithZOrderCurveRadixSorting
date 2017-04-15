@@ -2,6 +2,8 @@
 
 /*------------------------------------------------------------------------------------------------
 Description:
+    Used during during the parallel sorting routine in the ParallelSort shader controller.
+
     Make sure that it matches the structure of the one with the same name in 
     IntermediateSortBuffers.comp.
 
