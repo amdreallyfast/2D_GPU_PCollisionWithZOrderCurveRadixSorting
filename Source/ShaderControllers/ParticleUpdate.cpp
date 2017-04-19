@@ -3,9 +3,12 @@
 #include <string>
 
 #include "Shaders/ShaderStorage.h"
+#include "Shaders/ComputeHeaders/ComputeShaderWorkGroupSizes.comp"
+#include "Shaders/ComputeHeaders/SsboBufferBindings.comp"
+
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 #include "ThirdParty/glm/gtc/type_ptr.hpp"
-#include "Shaders/ComputeHeaders/ComputeShaderWorkGroupSizes.comp"
+
 
 
 namespace ShaderControllers
@@ -91,8 +94,7 @@ namespace ShaderControllers
         // Note: It seems that atomic counters must be bound where they are declared and cannot 
         // be bound dynamically like the ParticleSsbo and PolygonSsbo.  So remember to use the 
         // SAME buffer binding base as specified in the shader.
-        //??is this buffer binding location overlapping with the buffers in SsboBufferBindings.comp??
-        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, _activeParticlesAtomicCounterBufferId);
+        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, ATOMIC_COUNTER_BUFFER_BINDING, _activeParticlesAtomicCounterBufferId);
 
         // Note: Do NOT bind a buffer base for the "particle counter copy" atomic counter 
         // because it is not used in the shader itself.  It is instead meant to copy the 
@@ -127,6 +129,11 @@ namespace ShaderControllers
     --------------------------------------------------------------------------------------------*/
     void ParticleUpdate::Update(float deltaTimeSec)
     {
+
+        // TODO: use std::chrono to profile
+
+
+
         // spread out the particles between lots of work items, but keep it 1-dimensional 
         // because the particle buffer is a 1-dimensional array
         // Note: +1 because integer division drops the remainder, and I want all the particles 

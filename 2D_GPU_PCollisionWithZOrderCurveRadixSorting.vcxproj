@@ -149,6 +149,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Shaders\ShaderStorage.cpp" />
     <ClCompile Include="Source\OpenGlErrorHandling.cpp" />
+    <ClCompile Include="Source\Particles\ParticleEmitterBar.cpp" />
+    <ClCompile Include="Source\Particles\ParticleEmitterPoint.cpp" />
     <ClCompile Include="Source\RenderFrameRate\FreeTypeAtlas.cpp" />
     <ClCompile Include="Source\RenderFrameRate\FreeTypeEncapsulated.cpp" />
     <ClCompile Include="Source\RenderFrameRate\Stopwatch.cpp" />

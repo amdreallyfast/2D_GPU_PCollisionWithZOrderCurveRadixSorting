@@ -36,13 +36,14 @@ namespace ShaderControllers
         ParticleReset(const ParticleSsbo::SHARED_PTR &ssboToReset);
         ~ParticleReset();
 
-        bool AddEmitter(const IParticleEmitter::SHARED_PTR &pEmitter);
+        bool AddEmitter(const IParticleEmitter::CONST_PTR &pEmitter);
 
         void ResetParticles(unsigned int particlesPerEmitterPerFrame);
 
     private:
         unsigned int _totalParticleCount;
-        unsigned int _computeProgramId;
+        unsigned int _computeProgramIdBarEmitters;
+        unsigned int _computeProgramIdPointEmitters;
 
         // this atomic counter is used to enforce the number of emitted particles per emitter 
         // per frame 
@@ -71,7 +72,7 @@ namespace ShaderControllers
         // collection of IParticleEmitter pointers and cast them to either point or bar emitters 
         // on every update, just store them separately.
         static const int MAX_EMITTERS = 4;
-        std::vector<const ParticleEmitterPoint::SHARED_PTR> _pointEmitters;
-        std::vector<const ParticleEmitterBar::SHARED_PTR> _barEmitters;
+        std::vector<ParticleEmitterPoint::CONST_PTR> _pointEmitters;
+        std::vector<ParticleEmitterBar::CONST_PTR> _barEmitters;
     };
 }

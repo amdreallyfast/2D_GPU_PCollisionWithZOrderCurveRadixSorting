@@ -47,6 +47,12 @@
     <ClCompile Include="Source\ShaderControllers\RenderParticles.cpp">
       <Filter>Source\ShaderControllers</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Particles\ParticleEmitterPoint.cpp">
+      <Filter>Source\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Particles\ParticleEmitterBar.cpp">
+      <Filter>Source\Particles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shaders\ShaderStorage.h">
@@ -149,6 +155,9 @@
     </Filter>
     <Filter Include="Shaders\ParticleReset">
       <UniqueIdentifier>{ce113326-66ad-4566-a7bf-ddcbaaa9cd79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Particles">
+      <UniqueIdentifier>{66bbd978-c998-4177-bcb5-0a213a4c3b54}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
