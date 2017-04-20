@@ -6,8 +6,8 @@
 #include "Include/SSBOs/SsboBase.h"
 #include "Include/SSBOs/PrefixSumSsbo.h"
 #include "Include/SSBOs/IntermediateDataSsbo.h"
-#include "Include/SSBOs/OriginalDataSsbo.h"
-#include "Include/SSBOs/OriginalDataCopySsbo.h"
+#include "Include/SSBOs/ParticleSsbo.h"
+#include "Include/SSBOs/ParticleCopySsbo.h"
 
 namespace ShaderControllers
 {
@@ -38,6 +38,7 @@ namespace ShaderControllers
         useful for a single OriginalDataSsbo.  Compute shaders are not as flexible as CPU-bound 
         shaders, so you have to hold their hand, and the consequence is high coupling.
 
+        // TODO: now that I am sorting particles instead of a simple, 1-integer structure like I was in the GpuRadixSort demo, I can sort 1,000,000 particles by position in X milliseconds
         The benefit is that it can sort 1,000,000 structures in less than 6 milliseconds (at 
         least for the OriginalData structures that I'm using in this demo).
     Creator:    John Cox, 3/2017
@@ -45,25 +46,25 @@ namespace ShaderControllers
     class ParallelSort
     {
     public:
-        ParallelSort(const OriginalDataSsbo::SHARED_PTR &dataToSort);
+        ParallelSort(const ParticleSsbo::SHARED_PTR &dataToSort);
 
-        void Sort();
+        void Sort() const;
 
     private:
-        unsigned int _originalDataToIntermediateDataProgramId;
+        unsigned int _particleDataToIntermediateDataProgramId;
         unsigned int _getBitForPrefixScansProgramId;
         unsigned int _parallelPrefixScanProgramId;
         unsigned int _sortIntermediateDataProgramId;
-        unsigned int _sortOriginalDataProgramId;
+        unsigned int _sortParticlesProgramId;
 
         // these are unique to this class and are needed for sorting
-        OriginalDataCopySsbo::SHARED_PTR _originalDataCopySsbo;
+        ParticleCopySsbo::SHARED_PTR _particleCopySsbo;
         IntermediateDataSsbo::SHARED_PTR _intermediateDataSsbo;
         PrefixSumSsbo::SHARED_PTR _prefixSumSsbo;
 
         // need to keep this around until the end of Sort() in order to copy the sorted data 
         // back to the original buffer
-        OriginalDataSsbo::SHARED_PTR _originalDataSsbo;
+        ParticleSsbo::SHARED_PTR _particleSsbo;
 
     };
 }

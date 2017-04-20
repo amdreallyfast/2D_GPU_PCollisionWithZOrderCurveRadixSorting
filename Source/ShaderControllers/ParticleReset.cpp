@@ -155,8 +155,8 @@ namespace ShaderControllers
     --------------------------------------------------------------------------------------------*/
     bool ParticleReset::AddEmitter(const IParticleEmitter::CONST_PTR &pEmitter)
     {
-        ParticleEmitterPoint::CONST_PTR &pointEmitter = std::dynamic_pointer_cast<const ParticleEmitterPoint>(pEmitter);
-        ParticleEmitterBar::CONST_PTR &barEmitter = std::dynamic_pointer_cast<const ParticleEmitterBar>(pEmitter);
+        ParticleEmitterPoint::CONST_PTR pointEmitter = std::dynamic_pointer_cast<const ParticleEmitterPoint>(pEmitter);
+        ParticleEmitterBar::CONST_PTR barEmitter = std::dynamic_pointer_cast<const ParticleEmitterBar>(pEmitter);
 
         if (pointEmitter != nullptr)
         {

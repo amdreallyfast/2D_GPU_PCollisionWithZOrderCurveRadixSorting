@@ -5,7 +5,7 @@
 
 #include "Include/SSBOs/PrefixSumSsbo.h"
 //#include "Include/SSBOs/IntermediateData.h" // for copying data back and verifying 
-#include "Include/SSBOs/OriginalData.h"     // for copying data back and verifying 
+#include "Include/Particles/Particle.h"     // for copying data back and verifying 
 
 #include "Shaders/ComputeHeaders/ComputeShaderWorkGroupSizes.comp"
 #include "Shaders/ComputeHeaders/CrossShaderUniformLocations.comp"
@@ -29,30 +29,30 @@ namespace ShaderControllers
 
         The original data's SSBO MUST be passed in so that:
         (1) The uniform specifying buffer size can be set for any compute shaders that use it.
-        (2) The sorted OriginalDataCopyBuffer can be copied back to the OriginalDataBuffer.
+        (2) The sorted OriginalDataCopyBuffer can be copied back to the ParticleBuffer.
     Parameters:
         dataToSort  See Description.
     Returns:    None
     Creator:    John Cox, 3/2017
     --------------------------------------------------------------------------------------------*/
-    ParallelSort::ParallelSort(const OriginalDataSsbo::SHARED_PTR &dataToSort) :
-        _originalDataToIntermediateDataProgramId(0),
+    ParallelSort::ParallelSort(const ParticleSsbo::SHARED_PTR &dataToSort) :
+        _particleDataToIntermediateDataProgramId(0),
         _getBitForPrefixScansProgramId(0),
         _parallelPrefixScanProgramId(0),
         _sortIntermediateDataProgramId(0),
-        _sortOriginalDataProgramId(0),
-        _originalDataCopySsbo(nullptr),
+        _sortParticlesProgramId(0),
+        _particleCopySsbo(nullptr),
         _intermediateDataSsbo(nullptr),
         _prefixSumSsbo(nullptr),
-        _originalDataSsbo(dataToSort)
+        _particleSsbo(dataToSort)
     {
         ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
         std::string shaderKey;
 
         // take a data structure that needs to be sorted by a value (must be unsigned int for 
         // radix sort to work) and put it into an intermediate structure that has the value and 
-        // the index of the original data structure in the OriginalDataBuffer
-        shaderKey = "original data to intermediate data";
+        // the index of the original data structure in the ParticleBuffer
+        shaderKey = "particle data to intermediate data";
         shaderStorageRef.NewCompositeShader(shaderKey);
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/Version.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/SsboBufferBindings.comp");
@@ -60,10 +60,10 @@ namespace ShaderControllers
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleBuffer.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/ComputeShaderWorkGroupSizes.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/IntermediateSortBuffers.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/OriginalDataToIntermediateData.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/ParticleDataToIntermediateData.comp");
         shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
-        _originalDataToIntermediateDataProgramId = shaderStorageRef.GetShaderProgram(shaderKey);
+        _particleDataToIntermediateDataProgramId = shaderStorageRef.GetShaderProgram(shaderKey);
 
         // on each loop in Sort(), pluck out a single bit and add it to the 
         // PrefixScanBuffer::PrefixSumsWithinGroup array
@@ -117,19 +117,19 @@ namespace ShaderControllers
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleBuffer.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/ComputeShaderWorkGroupSizes.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/IntermediateSortBuffers.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/SortOriginalData.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/SortParticleData.comp");
         shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
-        _sortOriginalDataProgramId = shaderStorageRef.GetShaderProgram(shaderKey);
+        _sortParticlesProgramId = shaderStorageRef.GetShaderProgram(shaderKey);
 
-        // the size of the OriginalDataBuffer is needed by these shaders, and it is known (as 
+        // the size of the ParticleBuffer is needed by these shaders, and it is known (as 
         // per my design) only by the OriginalDataSsbo object
-        dataToSort->ConfigureConstantUniforms(_originalDataToIntermediateDataProgramId);
-        dataToSort->ConfigureConstantUniforms(_sortOriginalDataProgramId);
+        dataToSort->ConfigureConstantUniforms(_particleDataToIntermediateDataProgramId);
+        dataToSort->ConfigureConstantUniforms(_sortParticlesProgramId);
 
-        unsigned int originalDataSize = dataToSort->NumItems();
-        _originalDataCopySsbo = std::make_unique<OriginalDataCopySsbo>(originalDataSize);
-        _prefixSumSsbo = std::make_unique<PrefixSumSsbo>(originalDataSize);
+        unsigned int numParticles = dataToSort->NumItems();
+        _particleCopySsbo = std::make_unique<ParticleCopySsbo>(numParticles);
+        _prefixSumSsbo = std::make_unique<PrefixSumSsbo>(numParticles);
 
         // the PrefixScanBuffer is used in three shaders
         _prefixSumSsbo->ConfigureConstantUniforms(_getBitForPrefixScansProgramId);
@@ -141,7 +141,7 @@ namespace ShaderControllers
         // that need sorting
         unsigned int numEntriesInPrefixSumBuffer = _prefixSumSsbo->NumDataEntries();
         _intermediateDataSsbo = std::make_unique<IntermediateDataSsbo>(numEntriesInPrefixSumBuffer);
-        _intermediateDataSsbo->ConfigureConstantUniforms(_originalDataToIntermediateDataProgramId);
+        _intermediateDataSsbo->ConfigureConstantUniforms(_particleDataToIntermediateDataProgramId);
         _intermediateDataSsbo->ConfigureConstantUniforms(_getBitForPrefixScansProgramId);
         _intermediateDataSsbo->ConfigureConstantUniforms(_sortIntermediateDataProgramId);
 
@@ -161,14 +161,14 @@ namespace ShaderControllers
             - Run the parallel prefix scan over each work group's sum
             - Sort the IntermediateData structures using the resulting prefix sums
         - Sort the OriginalData items into a copy buffer using sorted IntermediateData objects
-        - Copy the sorted copy buffer back into OriginalDataBuffer
+        - Copy the sorted copy buffer back into ParticleBuffer
 
-        The OriginalDataBuffer is now sorted.
+        The ParticleBuffer is now sorted.
     Parameters: None
     Returns:    None
     Creator:    John Cox, 3/2017
     --------------------------------------------------------------------------------------------*/
-    void ParallelSort::Sort()
+    void ParallelSort::Sort() const
     {
         unsigned int numItemsInPrefixScanBuffer = _prefixSumSsbo->NumDataEntries();
 
@@ -206,30 +206,11 @@ namespace ShaderControllers
         int numWorkGroupsY = 1;
         int numWorkGroupsZ = 1;
 
-        GLuint query = 0;
-        glGenQueries(1, &query);
-
         // moving original data to intermediate data is 1 item per thread
         start = high_resolution_clock::now();
-        glBeginQuery(GL_TIME_ELAPSED, query);
-        glUseProgram(_originalDataToIntermediateDataProgramId);
-        glFinish();
-        glEndQuery(GL_TIME_ELAPSED);
-
-        GLuint64 elapsed = 0;
-        glGetQueryObjectui64v(query, GL_QUERY_RESULT, &elapsed);
-        double milliseconds = elapsed / 1000000.0;
-
-        glBeginQuery(GL_TIME_ELAPSED, query);
+        glUseProgram(_particleDataToIntermediateDataProgramId);
         glDispatchCompute(numWorkGroupsXByWorkGroupSize, numWorkGroupsY, numWorkGroupsZ);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-        glEndQuery(GL_TIME_ELAPSED);
-
-        elapsed = 0;
-        glGetQueryObjectui64v(query, GL_QUERY_RESULT, &elapsed);
-        milliseconds = elapsed / 1000000.0;
-
-
         end = high_resolution_clock::now();
         durationOriginalDataToIntermediateData = duration_cast<microseconds>(end - start).count();
     
@@ -303,25 +284,25 @@ namespace ShaderControllers
         // copy buffer (there is no "swap" in parallel sorting, so must write to a dedicated 
         // copy buffer
         start = high_resolution_clock::now();
-        glUseProgram(_sortOriginalDataProgramId);
+        glUseProgram(_sortParticlesProgramId);
         unsigned int intermediateDataReadBufferOffset = (unsigned int)!writeToSecondBuffer * numItemsInPrefixScanBuffer;
         glUniform1ui(UNIFORM_LOCATION_INTERMEDIATE_BUFFER_READ_OFFSET, intermediateDataReadBufferOffset);
         glDispatchCompute(numWorkGroupsXByWorkGroupSize, numWorkGroupsY, numWorkGroupsZ);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         end = high_resolution_clock::now();
-        unsigned int durationSortOriginalData = duration_cast<microseconds>(end - start).count();
+        long long durationSortParticleData = duration_cast<microseconds>(end - start).count();
 
         // and finally, move the sorted original data from the copy buffer back to the 
-        // OriginalDataBuffer
+        // ParticleBuffer
         start = high_resolution_clock::now();
-        glBindBuffer(GL_COPY_READ_BUFFER, _originalDataCopySsbo->BufferId());
-        glBindBuffer(GL_COPY_WRITE_BUFFER, _originalDataSsbo->BufferId());
-        unsigned int originalDataBufferSizeBytes = _originalDataSsbo->NumItems() * sizeof(OriginalData);
-        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, originalDataBufferSizeBytes);
+        glBindBuffer(GL_COPY_READ_BUFFER, _particleCopySsbo->BufferId());
+        glBindBuffer(GL_COPY_WRITE_BUFFER, _particleSsbo->BufferId());
+        unsigned int ParticleBufferSizeBytes = _particleSsbo->NumItems() * sizeof(Particle);
+        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, ParticleBufferSizeBytes);
         glBindBuffer(GL_COPY_READ_BUFFER, 0);
         glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
         end = high_resolution_clock::now();
-        unsigned int durationCopySortedOriginalData = duration_cast<microseconds>(end - start).count();
+        long long durationCopySortedOriginalData = duration_cast<microseconds>(end - start).count();
 
         // end sorting
         steady_clock::time_point parallelSortEnd = high_resolution_clock::now();
@@ -329,9 +310,9 @@ namespace ShaderControllers
         // verify sorted data
         start = high_resolution_clock::now();
         unsigned int startingIndex = 0;
-        std::vector<OriginalData> checkOriginalData(_originalDataSsbo->NumItems());
-        unsigned int bufferSizeBytes = checkOriginalData.size() * sizeof(OriginalData);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _originalDataSsbo->BufferId());
+        std::vector<Particle> checkOriginalData(_particleSsbo->NumItems());
+        unsigned int bufferSizeBytes = checkOriginalData.size() * sizeof(Particle);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, _particleSsbo->BufferId());
         void *bufferPtr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, startingIndex, bufferSizeBytes, GL_MAP_READ_BIT);
         memcpy(checkOriginalData.data(), bufferPtr, bufferSizeBytes);
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
@@ -339,8 +320,8 @@ namespace ShaderControllers
         // check
         for (unsigned int i = 1; i < checkOriginalData.size(); i++)
         {
-            unsigned int val = checkOriginalData[i]._value;
-            unsigned int prevVal = checkOriginalData[i - 1]._value;
+            unsigned int val = checkOriginalData[i]._hasCollidedAlreadyThisFrame;
+            unsigned int prevVal = checkOriginalData[i - 1]._hasCollidedAlreadyThisFrame;
 
             if (val == 0xffffffff)
             {
@@ -369,8 +350,8 @@ namespace ShaderControllers
             cout << "original data to intermediate data: " << durationOriginalDataToIntermediateData << "\tmicroseconds" << endl;
             outFile << "original data to intermediate data: " << durationOriginalDataToIntermediateData << "\tmicroseconds" << endl;
         
-            cout << "duration sort original data into copy buffer: " << durationSortOriginalData << "\tmicroseconds" << endl;
-            outFile << "duration sort original data into copy buffer: " << durationSortOriginalData << "\tmicroseconds" << endl;
+            cout << "duration sort original data into copy buffer: " << durationSortParticleData << "\tmicroseconds" << endl;
+            outFile << "duration sort original data into copy buffer: " << durationSortParticleData << "\tmicroseconds" << endl;
 
             cout << "duration copy sorted original data: " << durationCopySortedOriginalData << "\tmicroseconds" << endl;
             outFile << "duration copy sorted original data: " << durationCopySortedOriginalData << "\tmicroseconds" << endl;

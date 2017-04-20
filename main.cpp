@@ -35,7 +35,7 @@
 
 #include <stdio.h>
 #include <memory>
-//#include <algorithm>    // for generating demo data
+#include <algorithm>    // for generating demo data
 
 // for basic OpenGL stuff
 #include "Include/OpenGlErrorHandling.h"
@@ -55,10 +55,10 @@
 Stopwatch gTimer;
 FreeTypeEncapsulated gTextAtlases;
 
-OriginalDataSsbo::SHARED_PTR originalData = nullptr;
+ParticleSsbo::SHARED_PTR particleSsbo = nullptr;
 std::unique_ptr<ShaderControllers::ParallelSort> parallelSort = nullptr;
 
-const unsigned int MAX_DATA_COUNT = 1000000;
+const unsigned int MAX_PARTICLE_COUNT = 1000000;
 
 
 /*------------------------------------------------------------------------------------------------
@@ -115,15 +115,15 @@ void Init()
     // needing to pass the SSBO into it.  GPU computing in multiple steps creates coupling 
     // between the SSBOs and the shaders, but the compute headers lessen the coupling that needs 
     // to happen on the CPU side.
-    originalData = std::make_unique<OriginalDataSsbo>(MAX_DATA_COUNT);
+    particleSsbo = std::make_unique<ParticleSsbo>(MAX_PARTICLE_COUNT);
 
     // generate data for this demo, then scramble it
-    std::vector<OriginalData> demoData(originalData->NumItems());
+    std::vector<Particle> demoData(particleSsbo->NumItems());
     for (size_t dataIndex = 0; dataIndex < demoData.size(); dataIndex++)
     {
-        demoData[dataIndex]._value = dataIndex;
+        demoData[dataIndex]._hasCollidedAlreadyThisFrame = dataIndex;
     }
-    std::random_shuffle(demoData.begin(), demoData.end());
+    //std::random_shuffle(demoData.begin(), demoData.end());
 
     // for debugging
     //demoData[0]._value = 12;
@@ -144,13 +144,13 @@ void Init()
     //demoData[15]._value = 6;
 
     // upload the data
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, originalData->BufferId());
-    unsigned int bufferSizeBytes = demoData.size() * sizeof(OriginalData);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, particleSsbo->BufferId());
+    unsigned int bufferSizeBytes = demoData.size() * sizeof(Particle);
     glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, bufferSizeBytes, demoData.data());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 
-    parallelSort = std::make_unique<ShaderControllers::ParallelSort>(originalData);
+    parallelSort = std::make_unique<ShaderControllers::ParallelSort>(particleSsbo);
 
     // the sort's so nice, I did it twice
     // Note: Actually, I did it twice because the first time is slowed down on the first calls 

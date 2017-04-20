@@ -37,11 +37,11 @@ void main()
     uint threadIndex = gl_GlobalInvocationID.x;
     newThing._globalIndexOfOriginalData = threadIndex;
 
-    if (threadIndex < uOriginalDataBufferSize)
+    if (threadIndex < uParticleBufferSize)
     {
-        newThing._data = AllOriginalData[threadIndex]._value;
+        newThing._data = AllParticles[threadIndex]._hasCollidedAlreadyThisFrame;
     }
-    else    // >= uOriginalDataBufferSize
+    else    // >= uParticleBufferSize
     {
         newThing._data = 0xffffffff;
     }

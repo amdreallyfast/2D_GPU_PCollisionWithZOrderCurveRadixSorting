@@ -4,7 +4,7 @@ The intermediate sort buffers and PrefixScanBuffer::AllPrefixSums buffer are the
 DataToIntermediateDataForSorting.comp 
 - launched with 1 thread for each item in PrefixScanBuffer::AllPrefixSums
 - excess threads create IntermediateData structures with value of maximum uint so that these entries will stay at the back after sorting sorted to the back.
-- reading from OriginalDataBuffer.comp
+- reading from ParticleBuffer.comp
 - fill out the first of buffers in IntermediateSortBuffers.comp
 
 Set IntermediateSortBuffers.comp's uReadFromFirstBuffer to 1.  
@@ -33,9 +33,9 @@ radix sort loop through 32 bits
     Switch Set IntermediateSortBuffers.comp's uReadFromFirstBuffer (if 1 set to 0; if 0, set to 1)
 }
 
-glCopyBufferSubData(...) from OriginalDataBuffer to OriginalDataBufferCopyForSorting
+glCopyBufferSubData(...) from ParticleBuffer to ParticleBufferCopyForSorting
 
 SortDataWithSortedIntermediateData.comp
-- launched with 1 thread for each item in OriginalDataBuffer (NOT 1 for each item in PrefixScanBuffer::AllPrefixSums like DataToIntermediateDataForSorting.comp did)
-- copy the original data structure from OriginalDataBufferCopyForSorting (index from IntermediateData structure) to OriginalDataBuffer (index is current thread's global ID)
+- launched with 1 thread for each item in ParticleBuffer (NOT 1 for each item in PrefixScanBuffer::AllPrefixSums like DataToIntermediateDataForSorting.comp did)
+- copy the original data structure from ParticleBufferCopyForSorting (index from IntermediateData structure) to ParticleBuffer (index is current thread's global ID)
 
