@@ -32,11 +32,11 @@ void main()
     // Also Note: Pad with max integer instead of 0s because the sorting will put items with the 
     // smallest value first, but entries that don't refer to any real data should be put at the 
     // back.  
-
+    
     IntermediateData newThing;
     uint threadIndex = gl_GlobalInvocationID.x;
     newThing._globalIndexOfOriginalData = threadIndex;
-
+    
     if (threadIndex < uParticleBufferSize)
     {
         newThing._data = AllParticles[threadIndex]._hasCollidedAlreadyThisFrame;
@@ -45,7 +45,7 @@ void main()
     {
         newThing._data = 0xffffffff;
     }
-
+    
     // this is the beginning of the sorting, so put the values into the first buffer, no 
     // questions asked
     IntermediateDataBuffer[threadIndex] = newThing;
