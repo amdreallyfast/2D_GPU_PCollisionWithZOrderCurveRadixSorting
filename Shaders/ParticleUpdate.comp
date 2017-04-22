@@ -13,7 +13,7 @@ layout (local_size_x = PARTICLE_OPERATIONS_WORK_GROUP_SIZE_X) in;
 // dynamically as in ParticleSsbo and PolygonSsbo, so declare the atomic counters up front to 
 // make it easier to keep the numbers straight.
 // Note: Discovered by experience and through this: https://www.opengl.org/wiki/Atomic_Counter.
-layout (binding = ATOMIC_COUNTER_BUFFER_BINDING, offset = 0) uniform atomic_uint acActiveParticleCounter;
+layout (binding = PARTICLE_UPDATE_ATOMIC_COUNTER_BUFFER_BINDING, offset = 0) uniform atomic_uint acActiveParticleCounter;
 
 
 /*------------------------------------------------------------------------------------------------
@@ -28,21 +28,21 @@ Creator:    John Cox (1-7-2016)
 ------------------------------------------------------------------------------------------------*/
 uniform vec4 uParticleRegionCenter;
 uniform float uParticleRegionRadiusSqr;
-bool ParticleOutOfBoundsPolygon(uint particleIndex)
-{
-    vec4 regionCenterToParticle = AllParticles[particleIndex]._pos - uParticleRegionCenter;
-
-    //float x = regionCenterToParticle.x;
-    //float y = regionCenterToParticle.y;
-    //float distToParticleSqr = (x * x) + (y * y);
-    float distToParticleSqr = dot(regionCenterToParticle, regionCenterToParticle);
-    if (distToParticleSqr > uParticleRegionRadiusSqr)
-    {
-        return true;
-    }
-
-    return false;
-}
+//bool ParticleOutOfBoundsPolygon(vec4 particleIndex)
+//{
+//    vec4 regionCenterToParticle = AllParticles[particleIndex]._pos - uParticleRegionCenter;
+//
+//    //float x = regionCenterToParticle.x;
+//    //float y = regionCenterToParticle.y;
+//    //float distToParticleSqr = (x * x) + (y * y);
+//    float distToParticleSqr = dot(regionCenterToParticle, regionCenterToParticle);
+//    if (distToParticleSqr > uParticleRegionRadiusSqr)
+//    {
+//        return true;
+//    }
+//
+//    return false;
+//}
 
 uniform float uDeltaTimeSec;
 
@@ -58,10 +58,10 @@ void main()
     uint index = gl_GlobalInvocationID.x;
     if (index < uParticleBufferSize)
     {
-        Particle p = AllParticles[index];
+        Particle pCopy = AllParticles[index];
 
         // only update active particles 
-        if (p._isActive == 0)
+        if (pCopy._isActive == 0)
         {
             return;
         }
@@ -70,18 +70,20 @@ void main()
         // give a count of how many active particles exist
         atomicCounterIncrement(acActiveParticleCounter);
 
-        vec4 acceleration = p._netForceThisFrame / p._mass;
-        p._vel += (acceleration * uDeltaTimeSec);
-        p._pos += (p._vel * uDeltaTimeSec);
+        //vec4 acceleration = pCopy._netForceThisFrame / pCopy._mass;
+        //pCopy._vel += (acceleration * uDeltaTimeSec);
+        pCopy._pos += (pCopy._vel * uDeltaTimeSec);
 
-        // if it went out of bounds, reset it
-        if (ParticleOutOfBoundsPolygon(index))
+        // if it went out of bounds, turn it off
+        vec4 regionCenterToParticle = AllParticles[index]._pos - uParticleRegionCenter;
+        float distToParticleSqr = dot(regionCenterToParticle, regionCenterToParticle);
+        if (distToParticleSqr > uParticleRegionRadiusSqr)
         {
-            p._isActive = 0;
+            pCopy._isActive = 0;
         }
 
-        // copy the updated one back into the array
-        AllParticles[index] = p;
+        // copy the particle back into global memory
+        AllParticles[index] = pCopy;
     }
 }
 

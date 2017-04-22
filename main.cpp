@@ -156,11 +156,10 @@ void Init()
     barEmitter2->SetTransform(windowSpaceTransform);
     particleResetter->AddEmitter(barEmitter2);
 
-
-    //// for moving particles
-    //glm::vec4 particleRegionCenter = windowSpaceTransform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    //float particleRegionRadius = 0.8f;
-    //particleUpdater = std::make_unique<ShaderControllers::ParticleUpdate>(particleSsbo, particleRegionCenter, particleRegionRadius);
+    // for moving particles
+    glm::vec4 particleRegionCenter = windowSpaceTransform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    float particleRegionRadius = 0.8f;
+    particleUpdater = std::make_unique<ShaderControllers::ParticleUpdate>(particleSsbo, particleRegionCenter, particleRegionRadius);
 
     //// for sorting particles once they've been updated
     //parallelSort = std::make_unique<ShaderControllers::ParallelSort>(particleSsbo);
@@ -198,6 +197,7 @@ void UpdateAllTheThings()
     float deltaTimeSec = 0.01f;
 
     particleResetter->ResetParticles(10);
+    particleUpdater->Update(deltaTimeSec);
 
     //// sort the particles 
     //parallelSort->SortWithoutProfiling();

@@ -22,4 +22,6 @@ Creator:    John Cox, 3/2017
 #define INTERMEDIATE_SORT_BUFFERS_BINDING 3
 
 // TODO: make one atomic counter buffer and bind it persistently (I'm reding the results of it on every frame)
-#define ATOMIC_COUNTER_BUFFER_BINDING 4
+//#define ATOMIC_COUNTER_BUFFER_BINDING 4
+#define PARTICLE_RESET_ATOMIC_COUNTER_BUFFER_BINDING 4
+#define PARTICLE_UPDATE_ATOMIC_COUNTER_BUFFER_BINDING 5

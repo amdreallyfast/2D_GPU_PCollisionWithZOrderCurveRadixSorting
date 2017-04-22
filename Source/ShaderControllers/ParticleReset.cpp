@@ -112,7 +112,7 @@ namespace ShaderControllers
         // Note: It seems that atomic counters must be bound where they are declared and cannot 
         // be bound dynamically like the ParticleSsbo and PolygonSsbo.  So remember to use the 
         // SAME buffer binding base as specified in the shader.
-        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, ATOMIC_COUNTER_BUFFER_BINDING, _particleResetAtomicCounterBufferId);
+        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, PARTICLE_RESET_ATOMIC_COUNTER_BUFFER_BINDING, _particleResetAtomicCounterBufferId);
     }
     
     /*--------------------------------------------------------------------------------------------
