@@ -230,6 +230,9 @@
     <None Include="Shaders\ParticleRender.frag">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\ParticleCollisions.comp">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shaders\ParticleReset\ReadMe.txt">

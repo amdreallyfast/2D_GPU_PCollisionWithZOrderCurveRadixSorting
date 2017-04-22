@@ -108,7 +108,7 @@ namespace ShaderControllers
         Cleans up buffers and shader programs that were created for this shader controller.
     Parameters: None
     Returns:    None
-    Creator:    John Cox (10-10-2016)
+    Creator:    John Cox, 4/2017
     --------------------------------------------------------------------------------------------*/
     ParticleUpdate::~ParticleUpdate()
     {
@@ -130,11 +130,6 @@ namespace ShaderControllers
     --------------------------------------------------------------------------------------------*/
     void ParticleUpdate::Update(float deltaTimeSec)
     {
-
-        // TODO: use std::chrono to profile
-
-
-
         // spread out the particles between lots of work items, but keep it 1-dimensional 
         // because the particle buffer is a 1-dimensional array
         // Note: +1 because integer division drops the remainder, and I want all the particles 

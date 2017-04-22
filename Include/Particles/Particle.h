@@ -25,7 +25,7 @@ struct Particle
         // glm structures already have "set to 0" constructors
         //_collisionCountThisFrame(0),
         _mass(0.1f),
-        _collisionRadius(0.01f),
+        _collisionRadius(0.05f),
         _mortonCode(0),
         _hasCollidedAlreadyThisFrame(0),
         _isActive(0)

@@ -44,6 +44,10 @@ static void InitializeWithRandomData(std::vector<Particle> &initThese)
         // It just so happens to be along the range 0-1.
         initThese[particleIndex]._position.x = static_cast<float>(rand()) * inverseRandMax;
         initThese[particleIndex]._position.y = static_cast<float>(rand()) * inverseRandMax;
+        
+        // just outside the Z buffer (0 (far) to -1 (near)), so it won't draw
+        initThese[particleIndex]._position.z = +0.1f;
+
         initThese[particleIndex]._velocity.x = static_cast<float>(rand()) * inverseRandMax;
         initThese[particleIndex]._velocity.y = static_cast<float>(rand()) * inverseRandMax;
     }

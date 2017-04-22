@@ -49,8 +49,9 @@
 #include "Include/SSBOs/ParticleSsbo.h"
 #include "Include/ShaderControllers/ParticleReset.h"
 #include "Include/ShaderControllers/ParticleUpdate.h"
-#include "Include/ShaderControllers/RenderParticles.h"
 #include "Include/ShaderControllers/ParallelSort.h"
+#include "Include/ShaderControllers/ParticleCollide.h"
+#include "Include/ShaderControllers/RenderParticles.h"
 
 
 // for the frame rate counter
@@ -63,8 +64,9 @@ FreeTypeEncapsulated gTextAtlases;
 ParticleSsbo::SHARED_PTR particleSsbo = nullptr;
 std::unique_ptr<ShaderControllers::ParticleReset> particleResetter = nullptr;
 std::unique_ptr<ShaderControllers::ParticleUpdate> particleUpdater = nullptr;
-std::unique_ptr<ShaderControllers::RenderParticles> particleRenderer = nullptr;
 std::unique_ptr<ShaderControllers::ParallelSort> parallelSort = nullptr;
+std::unique_ptr<ShaderControllers::ParticleCollide> particleCollisions = nullptr;
+std::unique_ptr<ShaderControllers::RenderParticles> particleRenderer = nullptr;
 
 const unsigned int MAX_PARTICLE_COUNT = 100000;
 
@@ -164,6 +166,9 @@ void Init()
     // for sorting particles once they've been updated
     parallelSort = std::make_unique<ShaderControllers::ParallelSort>(particleSsbo);
 
+    // for detecting and resolving collisions once the particles have been sorted
+    particleCollisions = std::make_unique<ShaderControllers::ParticleCollide>(particleSsbo);
+
     // for rendering particles
     particleRenderer = std::make_unique<ShaderControllers::RenderParticles>(particleSsbo);
 
@@ -196,11 +201,10 @@ void UpdateAllTheThings()
     // just hard-code it for this demo
     float deltaTimeSec = 0.01f;
 
-    particleResetter->ResetParticles(10);
+    particleResetter->ResetParticles(20);
     particleUpdater->Update(deltaTimeSec);
-
-    // sort the particles 
     parallelSort->SortWithoutProfiling();
+    particleCollisions->DetectAndResolveCollisions();
 
 
 
@@ -244,6 +248,8 @@ void Display()
 
 
     // draw the frame rate once per second in the lower left corner
+    glUseProgram(ShaderStorage::GetInstance().GetShaderProgram("freetype"));
+
     GLfloat color[4] = { 0.5f, 0.5f, 0.0f, 1.0f };
     char str[32];
     static int elapsedFramesPerSecond = 0;
@@ -264,9 +270,15 @@ void Display()
     float xy[2] = { -0.99f, -0.99f };
     float scaleXY[2] = { 1.0f, 1.0f };
 
-    // the first time that "get shader program" runs, it will load the atlas
-    glUseProgram(ShaderStorage::GetInstance().GetShaderProgram("freetype"));
+    // frame rate
     gTextAtlases.GetAtlas(48)->RenderText(str, xy, scaleXY, color);
+
+    // now show number of active particles
+    // Note: For some reason, lower case "i" seems to appear too close to the other letters.
+    sprintf(str, "active: %d", particleUpdater->NumActiveParticles());
+    float numActiveParticlesXY[2] = { -0.99f, +0.7f };
+    gTextAtlases.GetAtlas(48)->RenderText(str, numActiveParticlesXY, scaleXY, color);
+
 
     // clean up bindings
     glUseProgram(0);
