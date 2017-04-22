@@ -38,20 +38,29 @@ void main()
     uint threadIndex = gl_GlobalInvocationID.x;
     newThing._globalIndexOfOriginalData = threadIndex;
     
-    if (threadIndex < uParticleBufferSize)
+    if (threadIndex >= uParticleBufferSize)
     {
+        // dud thread
+        newThing._data = 0xffffffff;
+    }
+    else if (AllParticles[ThreadIndex]._isActive == 0)
+    {
+        // sort it to the back, but not as far back as the extra threads' data
+        // Note: I don't want an IntermediateData object with a _globalIndexOfOriginalData that
+        // is greater than the total particle count getting into the final sort.
+        newThing._data = 0xfffffff0;
+    }
+    else
+    {
+        // this particle is active
         uint mortonCode = PositionToMortonCode(AllParticles[threadIndex]._pos);
         newThing._data = mortonCode;
 
         // also record in the particle (for use later in verification (??anywhere else??))
         AllParticles[threadIndex]._mortonCode = mortonCode;
     }
-    else    // >= uParticleBufferSize
-    {
-        newThing._data = 0xffffffff;
-    }
     
-    // this is the beginning of the sorting, so put the values into the first buffer, no 
-    // questions asked
+    // this is the beginning of the sorting, so put the values into the first buffer (note the 
+    // lack of an offset), no questions asked
     IntermediateDataBuffer[threadIndex] = newThing;
 }

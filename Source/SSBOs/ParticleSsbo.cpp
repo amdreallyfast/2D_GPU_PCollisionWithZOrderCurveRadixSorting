@@ -83,8 +83,6 @@ ParticleSsbo::ParticleSsbo(unsigned int numItems) :
     // and fill it with the new data
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bufferId);
     glBufferData(GL_SHADER_STORAGE_BUFFER, v.size() * sizeof(Particle), v.data(), GL_DYNAMIC_DRAW);
-    glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
-
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 

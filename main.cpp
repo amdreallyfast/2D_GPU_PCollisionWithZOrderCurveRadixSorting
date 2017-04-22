@@ -43,6 +43,7 @@
 
 // for particles, where they live, and how to update them
 #include "ThirdParty/glm/vec2.hpp"
+#include "ThirdParty/glm/gtc/matrix_transform.hpp"
 
 #include "Include/Particles/Particle.h"
 #include "Include/SSBOs/ParticleSsbo.h"
@@ -60,8 +61,10 @@ Stopwatch gTimer;
 FreeTypeEncapsulated gTextAtlases;
 
 ParticleSsbo::SHARED_PTR particleSsbo = nullptr;
-std::unique_ptr<ShaderControllers::ParallelSort> parallelSort = nullptr;
+std::unique_ptr<ShaderControllers::ParticleReset> particleResetter = nullptr;
+std::unique_ptr<ShaderControllers::ParticleUpdate> particleUpdater = nullptr;
 std::unique_ptr<ShaderControllers::RenderParticles> particleRenderer = nullptr;
+std::unique_ptr<ShaderControllers::ParallelSort> parallelSort = nullptr;
 
 const unsigned int MAX_PARTICLE_COUNT = 100000;
 
@@ -121,8 +124,51 @@ void Init()
     // between the SSBOs and the shaders, but the compute headers lessen the coupling that needs 
     // to happen on the CPU side.
     particleSsbo = std::make_unique<ParticleSsbo>(MAX_PARTICLE_COUNT);
+
+    // set up the particle region
+    // Note: This mat4 is a convenience for easily moving the particle region center and all 
+    // emitters.
+    //glm::mat4 windowSpaceTransform = glm::rotate(glm::mat4(), 45.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+    //windowSpaceTransform *= glm::translate(glm::mat4(), glm::vec3(-0.1f, -0.05f, 0.0f));
+    glm::mat4 windowSpaceTransform = glm::rotate(glm::mat4(), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+    windowSpaceTransform *= glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, 0.0f));
+
+    // for resetting particles
+    // Note: Put the bar emitters across from each and spraying particles toward each other and 
+    // up so that the particles collide near the middle with a slight upward velocity.
+    particleResetter = std::make_unique<ShaderControllers::ParticleReset>(particleSsbo);
+
+    // bar on the left and emitting up and right
+    glm::vec2 bar1P1(-0.5f, +0.1f);
+    glm::vec2 bar1P2(-0.5f, -0.1f);
+    glm::vec2 emitDir1(+1.0f, +0.5f);
+    float minVel = 0.1f;
+    float maxVel = 0.5f;
+    ParticleEmitterBar::SHARED_PTR barEmitter1 = std::make_shared<ParticleEmitterBar>(bar1P1, bar1P2, emitDir1, minVel, maxVel);
+    barEmitter1->SetTransform(windowSpaceTransform);
+    particleResetter->AddEmitter(barEmitter1);
+
+    // bar on the right and emitting up and left
+    glm::vec2 bar2P1 = glm::vec2(+0.5f, +0.1f);
+    glm::vec2 bar2P2 = glm::vec2(+0.5f, -0.1f);
+    glm::vec2 emitDir2 = glm::vec2(-1.0f, +0.5f);
+    ParticleEmitterBar::SHARED_PTR barEmitter2 = std::make_shared<ParticleEmitterBar>(bar2P1, bar2P2, emitDir2, minVel, maxVel);
+    barEmitter2->SetTransform(windowSpaceTransform);
+    particleResetter->AddEmitter(barEmitter2);
+
+
+    //// for moving particles
+    //glm::vec4 particleRegionCenter = windowSpaceTransform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    //float particleRegionRadius = 0.8f;
+    //particleUpdater = std::make_unique<ShaderControllers::ParticleUpdate>(particleSsbo, particleRegionCenter, particleRegionRadius);
+
+    //// for sorting particles once they've been updated
+    //parallelSort = std::make_unique<ShaderControllers::ParallelSort>(particleSsbo);
+
+    // for rendering particles
     particleRenderer = std::make_unique<ShaderControllers::RenderParticles>(particleSsbo);
-    parallelSort = std::make_unique<ShaderControllers::ParallelSort>(particleSsbo);
+
+
 
     //// first time just to upload everything 
     //parallelSort->SortWithProfiling();
@@ -151,7 +197,8 @@ void UpdateAllTheThings()
     // just hard-code it for this demo
     float deltaTimeSec = 0.01f;
 
-    
+    particleResetter->ResetParticles(10);
+
     //// sort the particles 
     //parallelSort->SortWithoutProfiling();
 

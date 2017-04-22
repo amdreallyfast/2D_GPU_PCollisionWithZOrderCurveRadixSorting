@@ -13,12 +13,12 @@ Creator:    John Cox (7-2-2016)
 ParticleEmitterPoint::ParticleEmitterPoint(const glm::vec2 &emitterPos, const float minVel, 
     const float maxVel) :
     _minVel(0.0f),
-    _deltaVelocity(0.0f)
+    _maxVel(0.0f)
 {
     // this demo is in window space, so Z pos is 0, but let it be translatable (4th value is 1)
     _pos = glm::vec4(emitterPos, 0.0f, 1.0f);
     _minVel = minVel;
-    _deltaVelocity = maxVel - minVel;
+    _maxVel = maxVel;
 
     // the transformed variants begin equal to the original points, then diverge after 
     // SetTransform(...) is called
@@ -69,15 +69,15 @@ float ParticleEmitterPoint::GetMinVelocity() const
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    A simple getter for the emitter's delta velocity.  
+    A simple getter for the emitter's max velocity.  
 Parameters: None
 Returns:
     A float.
 Creator:    John Cox (10-10-2016)
 ------------------------------------------------------------------------------------------------*/
-float ParticleEmitterPoint::GetDeltaVelocity() const
+float ParticleEmitterPoint::GetMaxVelocity() const
 {
-    return _deltaVelocity;
+    return _maxVel;
 }
 
 

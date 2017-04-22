@@ -33,13 +33,13 @@ namespace ShaderControllers
         _unifLocPointEmitterCenter(-1),
         _unifLocPointMaxParticleEmitCount(-1),
         _unifLocPointMinParticleVelocity(-1),
-        _unifLocPointDeltaParticleVelocity(-1),
+        _unifLocPointMaxParticleVelocity(-1),
         _unifLocBarEmitterP1(-1),
         _unifLocBarEmitterP2(-1),
         _unifLocBarEmitterEmitDir(-1),
         _unifLocBarMaxParticleEmitCount(-1),
         _unifLocBarMinParticleVelocity(-1),
-        _unifLocBarDeltaParticleVelocity(-1)
+        _unifLocBarMaxParticleVelocity(-1)
     {
         _totalParticleCount = ssboToReset->NumItems();
 
@@ -55,23 +55,21 @@ namespace ShaderControllers
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/SsboBufferBindings.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/CrossShaderUniformLocations.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleBuffer.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Random.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/NewVelocityBetweenMinAndMax.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/QuickNormalize.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/LinearBlend.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleResetPointEmitter.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/Random.comp");
+        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/NewVelocityBetweenMinAndMax.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/QuickNormalize.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/LinearBlend.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/ParticleResetPointEmitter.comp");
         shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _computeProgramIdPointEmitters = shaderStorageRef.GetShaderProgram(shaderKey);
         ssboToReset->ConfigureConstantUniforms(_computeProgramIdPointEmitters);
 
-        // for ParticleResetPointEmitter.comp
+        // uniform lookups for the point emitter shader
         _unifLocPointEmitterCenter = shaderStorageRef.GetUniformLocation(shaderKey, "uPointEmitterCenter");
         _unifLocPointMaxParticleEmitCount = shaderStorageRef.GetUniformLocation(shaderKey, "uMaxParticleEmitCount");
-
-        // for NewVelocityBetweenMinAndMax.comp
         _unifLocPointMinParticleVelocity = shaderStorageRef.GetUniformLocation(shaderKey, "uMinParticleVelocity");
-        _unifLocPointDeltaParticleVelocity = shaderStorageRef.GetUniformLocation(shaderKey, "uDeltaParticleVelocity");
+        _unifLocPointMaxParticleVelocity = shaderStorageRef.GetUniformLocation(shaderKey, "uMaxParticleVelocity");
 
         // now for the bar emitters
         shaderKey = "particle reset bar emitter";
@@ -81,28 +79,24 @@ namespace ShaderControllers
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/SsboBufferBindings.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/CrossShaderUniformLocations.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleBuffer.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/Random.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/NewVelocityBetweenMinAndMax.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/QuickNormalize.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/LinearBlend.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleResetBarEmitter.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/Random.comp");
+        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/NewVelocityBetweenMinAndMax.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/QuickNormalize.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/LinearBlend.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/ParticleResetBarEmitter.comp");
         shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _computeProgramIdBarEmitters = shaderStorageRef.GetShaderProgram(shaderKey);
         ssboToReset->ConfigureConstantUniforms(_computeProgramIdBarEmitters);
 
-        // for ParticleResetBarEmitter.comp
+        // uniform lookups for the bar emitter shader
+        // Note: This also requires a "min velocity between min and max".
         _unifLocBarEmitterP1 = shaderStorageRef.GetUniformLocation(shaderKey, "uBarEmitterP1");
         _unifLocBarEmitterP2 = shaderStorageRef.GetUniformLocation(shaderKey, "uBarEmitterP2");
         _unifLocBarEmitterEmitDir = shaderStorageRef.GetUniformLocation(shaderKey, "uBarEmitterEmitDir");
         _unifLocBarMaxParticleEmitCount = shaderStorageRef.GetUniformLocation(shaderKey, "uMaxParticleEmitCount");
-
-        // for NewVelocityBetweenMinAndMax.comp
-        // Note: This function requirs a min and max, and in going with two shaders, both of 
-        // which use this function, the min and max uniforms may have different locations in the 
-        // different shaders, so they have to be stored separately.
         _unifLocBarMinParticleVelocity = shaderStorageRef.GetUniformLocation(shaderKey, "uMinParticleVelocity");
-        _unifLocBarDeltaParticleVelocity = shaderStorageRef.GetUniformLocation(shaderKey, "uDeltaParticleVelocity");
+        _unifLocBarMaxParticleVelocity = shaderStorageRef.GetUniformLocation(shaderKey, "uMaxParticleVelocity");
 
         // uniform values are set in ResetParticles(...)
         
@@ -140,40 +134,62 @@ namespace ShaderControllers
 
     /*--------------------------------------------------------------------------------------------
     Description:
-        Adds a point emitter to internal storage.  These are used to initialize particles.  If 
-        there multiple emitters, then the update will need to perform multiple calls to the 
-        compute shader, each with different emitter information.
-
-        If, for some reason, the particle emitter cannot be cast to either a point emitter or a 
-        bar emitter, then the emitter will not be added to either particle emitter collection 
-        and "false" is returned. 
-
-        Note: Particles are evenly split between all emitters.
+        An AddEmitter(...) overload that adds a point emitter to internal storage.  
     Parameters:
-        pEmitter    A pointer to a "particle emitter" interface.
-    Returns:    
-        True if the emitter was added, otherwise false.
-    Creator:    John Cox (9-18-2016)    (created prior to this class in an earlier design)
+        pointEmitter    A shared pointer to a const point emitter.
+    Returns:    None
+    Creator: John Cox, 4/2017
     --------------------------------------------------------------------------------------------*/
-    bool ParticleReset::AddEmitter(const IParticleEmitter::CONST_PTR &pEmitter)
+    void ParticleReset::AddEmitter(ParticleEmitterPoint::CONST_SHARED_PTR pointEmitter)
     {
-        ParticleEmitterPoint::CONST_PTR pointEmitter = std::dynamic_pointer_cast<const ParticleEmitterPoint>(pEmitter);
-        ParticleEmitterBar::CONST_PTR barEmitter = std::dynamic_pointer_cast<const ParticleEmitterBar>(pEmitter);
-
-        if (pointEmitter != nullptr)
-        {
-            _pointEmitters.push_back(pointEmitter);
-            return true;
-        }
-        else if (barEmitter != nullptr)
-        {
-            _barEmitters.push_back(barEmitter);
-            return true;
-        }
-
-        // neither point emitter nor bar emitter; don't know what it is
-        return false;
+        // make a copy of it
+        _pointEmitters.push_back(pointEmitter);
     }
+
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        An AddEmitter(...) overload that adds a point emitter to internal storage.  
+    Parameters:
+        barEmitter  A shared pointer to a const bar emitter.
+    Returns:    None
+    Creator: John Cox, 4/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParticleReset::AddEmitter(ParticleEmitterBar::CONST_SHARED_PTR barEmitter)
+    {
+        // make a copy of it
+        _barEmitters.push_back(barEmitter);
+    }
+
+    ///*--------------------------------------------------------------------------------------------
+    //Description:
+    //    Adds a point emitter to internal storage.  Used to initialize particles.  If 
+    //    there multiple emitters, then the update will need to perform multiple calls to the 
+    //    compute shader, each with different emitter information.
+    //Parameters:
+    //    pEmitter    A pointer to a "particle emitter" interface.
+    //Returns:    
+    //    True if the emitter was added, otherwise false.
+    //Creator:    John Cox (9-18-2016)    (created prior to this class in an earlier design)
+    //--------------------------------------------------------------------------------------------*/
+    //bool ParticleReset::AddEmitter(const IParticleEmitter::CONST_PTR &pEmitter)
+    //{
+    //    ParticleEmitterPoint::CONST_PTR pointEmitter = std::dynamic_pointer_cast<const ParticleEmitterPoint>(pEmitter);
+    //    ParticleEmitterBar::CONST_PTR barEmitter = std::dynamic_pointer_cast<const ParticleEmitterBar>(pEmitter);
+
+    //    if (pointEmitter != nullptr)
+    //    {
+    //        _pointEmitters.push_back(pointEmitter);
+    //        return true;
+    //    }
+    //    else if (barEmitter != nullptr)
+    //    {
+    //        _barEmitters.push_back(barEmitter);
+    //        return true;
+    //    }
+
+    //    // neither point emitter nor bar emitter; don't know what it is
+    //    return false;
+    //}
 
     /*--------------------------------------------------------------------------------------------
     Description:
@@ -227,10 +243,10 @@ namespace ShaderControllers
             // reset everything necessary to control the emission parameters for this emitter
             glBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), (void *)&atomicCounterResetValue);
 
-            ParticleEmitterPoint::CONST_PTR &emitter = _pointEmitters[pointEmitterCount];
+            ParticleEmitterPoint::CONST_SHARED_PTR &emitter = _pointEmitters[pointEmitterCount];
 
             glUniform1f(_unifLocPointMinParticleVelocity, emitter->GetMinVelocity());
-            glUniform1f(_unifLocPointDeltaParticleVelocity, emitter->GetDeltaVelocity());
+            glUniform1f(_unifLocPointMaxParticleVelocity, emitter->GetMaxVelocity());
             glUniform4fv(_unifLocPointEmitterCenter, 1, glm::value_ptr(emitter->GetPos()));
 
             // compute ALL the resets! (then make the results visible to the next use of the 
@@ -246,10 +262,10 @@ namespace ShaderControllers
         {
             glBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), (void *)&atomicCounterResetValue);
 
-            ParticleEmitterBar::CONST_PTR &emitter = _barEmitters[barEmitterCount];
+            ParticleEmitterBar::CONST_SHARED_PTR &emitter = _barEmitters[barEmitterCount];
 
             glUniform1f(_unifLocBarMinParticleVelocity, emitter->GetMinVelocity());
-            glUniform1f(_unifLocBarDeltaParticleVelocity, emitter->GetDeltaVelocity());
+            glUniform1f(_unifLocBarMaxParticleVelocity, emitter->GetMaxVelocity());
 
             // each bar needs to upload three position vectors (p1, p2, and emit direction)
             glUniform4fv(_unifLocBarEmitterP1, 1, glm::value_ptr(emitter->GetBarStart()));

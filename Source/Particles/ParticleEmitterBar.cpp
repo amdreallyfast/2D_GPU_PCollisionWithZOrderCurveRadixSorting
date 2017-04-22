@@ -17,13 +17,13 @@ Creator:    John Cox (7-2-2016)
 ParticleEmitterBar::ParticleEmitterBar(const glm::vec2 &p1, const glm::vec2 &p2, 
     const glm::vec2 &emitDir, const float minVel, const float maxVel) :
     _minVel(0.0f),
-    _deltaVelocity(0.0f)
+    _maxVel(0.0f)
 {
     // the start and end points should be translatable
     _start = glm::vec4(p1, 0.0f, 1.0f);
     _end = glm::vec4(p2, 0.0f, 1.0f);
     _minVel = minVel;
-    _deltaVelocity = maxVel - minVel;
+    _maxVel = maxVel;
 
     // emission direction should not be translatable; like a normal, it should only be rotatable
     _emitDir = glm::vec4(emitDir, 0.0f, 0.0f);
@@ -107,14 +107,14 @@ float ParticleEmitterBar::GetMinVelocity() const
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    A simple getter for the emitter's delta velocity.  
+    A simple getter for the emitter's max velocity.  
 Parameters: None
 Returns:
     A float.
 Creator:    John Cox (10-10-2016)
 ------------------------------------------------------------------------------------------------*/
-float ParticleEmitterBar::GetDeltaVelocity() const
+float ParticleEmitterBar::GetMaxVelocity() const
 {
-    return _deltaVelocity;
+    return _maxVel;
 }
 

@@ -17,8 +17,8 @@ class ParticleEmitterBar : public IParticleEmitter
 public:
     ParticleEmitterBar(const glm::vec2 &p1, const glm::vec2 &p2, const glm::vec2 &emitDir,
         const float minVel, const float maxVel);
-    using PTR = std::shared_ptr<ParticleEmitterBar>;
-    using CONST_PTR = std::shared_ptr<const ParticleEmitterBar>;
+    using SHARED_PTR = std::shared_ptr<ParticleEmitterBar>;
+    using CONST_SHARED_PTR = std::shared_ptr<const ParticleEmitterBar>;
 
     virtual void SetTransform(const glm::mat4 &emitterTransform) override;
 
@@ -26,14 +26,14 @@ public:
     glm::vec4 GetBarEnd() const;
     glm::vec4 GetEmitDir() const;
     float GetMinVelocity() const;
-    float GetDeltaVelocity() const;
+    float GetMaxVelocity() const;
 
 private:
     glm::vec4 _start;
     glm::vec4 _end;
     glm::vec4 _emitDir;
     float _minVel;
-    float _deltaVelocity;
+    float _maxVel;
 
     glm::vec4 _transformedStart;
     glm::vec4 _transformedEnd;

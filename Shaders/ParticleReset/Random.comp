@@ -23,14 +23,14 @@ Creator:    John Cox (9-25-2016)
 ------------------------------------------------------------------------------------------------*/
 float RandomOnRange0To1(vec2 randSeed)
 {
-    Modification to make it look nicer and to use the "mod" from here:
-    Note: I did NOT use the precision qualifier highp like this author does.  The OpenGL 
-    documentation says to not use precision qualifiers unless you want to be OpenGL ES 2.0 
-    compatable, which this author is.  I just took the "mod" part of it.  
-    His explanation: the existing hash function relies on some funky business with 
-    implementation of sin(...).  I'll take his warning an mod(...) the value like he does.
-    https://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Precision_qualifiers
-    http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
+    // Modification to make it look nicer and to use the "mod" from here:
+    // Note: I did NOT use the precision qualifier highp like this author does.  The OpenGL 
+    // documentation says to not use precision qualifiers unless you want to be OpenGL ES 2.0 
+    // compatable, which this author is.  I just took the "mod" part of it.  
+    // His explanation: the existing hash function relies on some funky business with 
+    // implementation of sin(...).  I'll take his warning an mod(...) the value like he does.
+    // https://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Precision_qualifiers
+    // http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
     float a = 12.9898;
     float b = 78.233;
     float c = 43758.5453;

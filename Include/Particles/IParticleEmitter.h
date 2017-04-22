@@ -13,8 +13,6 @@ Creator:    John Cox (7-2-2016)
 class IParticleEmitter
 {
 public:
-    using PTR = std::shared_ptr<IParticleEmitter>;
-    using CONST_PTR = std::shared_ptr<const IParticleEmitter>;
     virtual void SetTransform(const glm::mat4 &emitterTransform) = 0;
 };
 
