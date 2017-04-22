@@ -17,12 +17,23 @@ smooth out vec4 particleColor;
 
 void main()
 {
-    // cyan
-    particleColor = vec4(0.5f, 1.0f, 1.0f, 1.0f);
+    if (isActive == 0)
+    {
+        // invisible (alpha = 0), but "fully transparent" does not mean "no color", it merely 
+        // means that the color of this thing will be added to the thing behind it (see Z 
+        // adjustment later)
+        particleColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+        gl_Position = vec4(pos.xy, -0.6f, 1.0f);
+    }
+    else
+    {
+        // cyan
+        particleColor = vec4(0.5f, 1.0f, 1.0f, 1.0f);
     
-    // Note: The W position seems to be used as a scaling factor (I must have forgotten this 
-    // from the graphical math; it's been awhile since I examined it in detail).  If I do any 
-    // position normalization, I should make sure that gl_Position's W value is always 1.
-    gl_Position = vec4(pos.xyz, 1.0f);    
+        // Note: The W position seems to be used as a scaling factor (I must have forgotten this 
+        // from the graphical math; it's been awhile since I examined it in detail).  If I do any 
+        // position normalization, I should make sure that gl_Position's W value is always 1.
+        gl_Position = vec4(pos.xy, -0.7f, 1.0f);    
+    }
 }
 

@@ -43,7 +43,7 @@ void main()
         // dud thread
         newThing._data = 0xffffffff;
     }
-    else if (AllParticles[ThreadIndex]._isActive == 0)
+    else if (AllParticles[threadIndex]._isActive == 0)
     {
         // sort it to the back, but not as far back as the extra threads' data
         // Note: I don't want an IntermediateData object with a _globalIndexOfOriginalData that

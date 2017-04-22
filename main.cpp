@@ -161,8 +161,8 @@ void Init()
     float particleRegionRadius = 0.8f;
     particleUpdater = std::make_unique<ShaderControllers::ParticleUpdate>(particleSsbo, particleRegionCenter, particleRegionRadius);
 
-    //// for sorting particles once they've been updated
-    //parallelSort = std::make_unique<ShaderControllers::ParallelSort>(particleSsbo);
+    // for sorting particles once they've been updated
+    parallelSort = std::make_unique<ShaderControllers::ParallelSort>(particleSsbo);
 
     // for rendering particles
     particleRenderer = std::make_unique<ShaderControllers::RenderParticles>(particleSsbo);
@@ -199,8 +199,8 @@ void UpdateAllTheThings()
     particleResetter->ResetParticles(10);
     particleUpdater->Update(deltaTimeSec);
 
-    //// sort the particles 
-    //parallelSort->SortWithoutProfiling();
+    // sort the particles 
+    parallelSort->SortWithoutProfiling();
 
 
 

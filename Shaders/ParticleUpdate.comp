@@ -15,35 +15,8 @@ layout (local_size_x = PARTICLE_OPERATIONS_WORK_GROUP_SIZE_X) in;
 // Note: Discovered by experience and through this: https://www.opengl.org/wiki/Atomic_Counter.
 layout (binding = PARTICLE_UPDATE_ATOMIC_COUNTER_BUFFER_BINDING, offset = 0) uniform atomic_uint acActiveParticleCounter;
 
-
-/*------------------------------------------------------------------------------------------------
-Description:
-    Checks if the provided particle has gone outside the circle that defines where particles are 
-    "active".
-Parameters:
-    particleIndex   An index into the AllParticles array.
-Returns:
-    True if the particle is out of bounds and should be reset, otherwise false.
-Creator:    John Cox (1-7-2016)
-------------------------------------------------------------------------------------------------*/
 uniform vec4 uParticleRegionCenter;
 uniform float uParticleRegionRadiusSqr;
-//bool ParticleOutOfBoundsPolygon(vec4 particleIndex)
-//{
-//    vec4 regionCenterToParticle = AllParticles[particleIndex]._pos - uParticleRegionCenter;
-//
-//    //float x = regionCenterToParticle.x;
-//    //float y = regionCenterToParticle.y;
-//    //float distToParticleSqr = (x * x) + (y * y);
-//    float distToParticleSqr = dot(regionCenterToParticle, regionCenterToParticle);
-//    if (distToParticleSqr > uParticleRegionRadiusSqr)
-//    {
-//        return true;
-//    }
-//
-//    return false;
-//}
-
 uniform float uDeltaTimeSec;
 
 /*------------------------------------------------------------------------------------------------
@@ -70,12 +43,10 @@ void main()
         // give a count of how many active particles exist
         atomicCounterIncrement(acActiveParticleCounter);
 
-        //vec4 acceleration = pCopy._netForceThisFrame / pCopy._mass;
-        //pCopy._vel += (acceleration * uDeltaTimeSec);
         pCopy._pos += (pCopy._vel * uDeltaTimeSec);
 
         // if it went out of bounds, turn it off
-        vec4 regionCenterToParticle = AllParticles[index]._pos - uParticleRegionCenter;
+        vec4 regionCenterToParticle = pCopy._pos - uParticleRegionCenter;
         float distToParticleSqr = dot(regionCenterToParticle, regionCenterToParticle);
         if (distToParticleSqr > uParticleRegionRadiusSqr)
         {
