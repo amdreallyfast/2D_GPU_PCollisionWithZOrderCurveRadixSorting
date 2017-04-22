@@ -37,27 +37,15 @@ static void InitializeWithRandomData(std::vector<Particle> &initThese)
     for (size_t particleIndex = 0; particleIndex < initThese.size(); particleIndex++)
     {
         // randomized X and Y values
-        // Note: The 0-1 range isn't technically necessary, but the position and velocity values 
-        // are floats, and dividing by RAND_MAX is an easy way to get a float.  It just so 
-        // happens to be along the range 0-1.
-        int posNegMultiplier = 0;
-
-        posNegMultiplier = ((rand() * inverseRandMax) > 0.5f) ? +1 : -1;
-        initThese[particleIndex]._position.x = static_cast<float>(rand() * posNegMultiplier) * inverseRandMax;
-
-        posNegMultiplier = ((rand() * inverseRandMax) > 0.5f) ? +1 : -1;
-        initThese[particleIndex]._position.y = static_cast<float>(rand() * posNegMultiplier) * inverseRandMax;
-
-        posNegMultiplier = ((rand() * inverseRandMax) > 0.5f) ? +1 : -1;
-        initThese[particleIndex]._velocity.x = static_cast<float>(rand() * posNegMultiplier) * inverseRandMax;
-
-        posNegMultiplier = ((rand() * inverseRandMax) > 0.5f) ? +1 : -1;
-        initThese[particleIndex]._velocity.y = static_cast<float>(rand() * posNegMultiplier) * inverseRandMax;
-
-
-        // for early sorting checking
-        // TODO: remove this
-        initThese[particleIndex]._hasCollidedAlreadyThisFrame = particleIndex;
+        // Note: Once the sim gets running, the particles will be in window space (X and Y along 
+        // the range [-1,+1]), but for initialiation, this 0-1 range will suffice for 
+        // randomizing float values.  The 0-1 range isn't necessary, but the position and 
+        // velocity values are floats, and dividing by RAND_MAX is an easy way to get a float.  
+        // It just so happens to be along the range 0-1.
+        initThese[particleIndex]._position.x = static_cast<float>(rand()) * inverseRandMax;
+        initThese[particleIndex]._position.y = static_cast<float>(rand()) * inverseRandMax;
+        initThese[particleIndex]._velocity.x = static_cast<float>(rand()) * inverseRandMax;
+        initThese[particleIndex]._velocity.y = static_cast<float>(rand()) * inverseRandMax;
     }
 }
 

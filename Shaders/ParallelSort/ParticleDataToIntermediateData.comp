@@ -40,11 +40,10 @@ void main()
     
     if (threadIndex < uParticleBufferSize)
     {
-        //newThing._data = AllParticles[threadIndex]._hasCollidedAlreadyThisFrame;
         uint mortonCode = PositionToMortonCode(AllParticles[threadIndex]._pos);
         newThing._data = mortonCode;
 
-        // also record in the particle (for use later (??when??))
+        // also record in the particle (for use later in verification (??anywhere else??))
         AllParticles[threadIndex]._mortonCode = mortonCode;
     }
     else    // >= uParticleBufferSize

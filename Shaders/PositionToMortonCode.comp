@@ -88,8 +88,9 @@ uint PositionToMortonCode(vec4 pos)
 
     // make sure that the W won't interfere with the position normalization
     // Note: In GLSL, all values are passed in by copy.  It is ok to reuse the argument.
-    // Also Note: I don't think that re-using the argument will actually improve performance.  
-    // It is only 16 bytes per thread.
+    // Also Note: I thought that re-using the argument would make stack operations faster when 
+    // calling the ExpandBits(...) function, but it is only 16 bytes per thread.  I haven't 
+    // noticed a measurable difference.  I'll re-use because it's already there.
     pos.w = 0.0f;
 
     // normalize it

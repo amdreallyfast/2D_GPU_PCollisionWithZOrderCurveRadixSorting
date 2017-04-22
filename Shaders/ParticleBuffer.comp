@@ -18,9 +18,7 @@ struct Particle
     uint _hasCollidedAlreadyThisFrame;
     int _isActive;
 
-    // needs 3bytes padding
-
-    // vec4s are 16 bytes, +4 individual 4byte items, so no padding necessary on CPU side
+    // vec4s are 16 bytes, +5 individual 4-byte items, so needs 3 bytes padding on the CPU side
 };
 
 // whatever size the user wants

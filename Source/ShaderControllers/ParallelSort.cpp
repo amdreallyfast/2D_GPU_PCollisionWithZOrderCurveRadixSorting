@@ -318,21 +318,11 @@ namespace ShaderControllers
         memcpy(checkOriginalData.data(), bufferPtr, bufferSizeBytes);
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
-        // tODO: remove this
-        unsigned int highestMortonCode = 0;
-
         // check
         for (unsigned int i = 1; i < checkOriginalData.size(); i++)
         {
-            //unsigned int val = checkOriginalData[i]._hasCollidedAlreadyThisFrame;
-            //unsigned int prevVal = checkOriginalData[i - 1]._hasCollidedAlreadyThisFrame;
             unsigned int val = checkOriginalData[i]._mortonCode;
             unsigned int prevVal = checkOriginalData[i - 1]._mortonCode;
-
-            if (checkOriginalData[i]._mortonCode > highestMortonCode)
-            {
-                highestMortonCode = checkOriginalData[i]._mortonCode;
-            }
 
             if (val == 0xffffffff)
             {

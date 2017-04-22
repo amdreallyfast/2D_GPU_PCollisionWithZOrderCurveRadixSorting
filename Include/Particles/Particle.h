@@ -55,6 +55,9 @@ struct Particle
     // particles' position are almost never going to be exactly equal
     float _radiusOfInfluence;
 
+    // generated in the shader and stored for later use
+    // Note: This value allows for proximity comparison of two 3-dimensional coordinates as if 
+    // they were 1-dimensional coordinates.  Particles are sorted over this value.
     unsigned int _mortonCode;
 
     // collision detection in the current demo (4-15-2017) runs twice:

@@ -116,47 +116,13 @@ void Init()
     // between the SSBOs and the shaders, but the compute headers lessen the coupling that needs 
     // to happen on the CPU side.
     particleSsbo = std::make_unique<ParticleSsbo>(MAX_PARTICLE_COUNT);
-
-    // generate data for this demo, then scramble it
-    //std::vector<Particle> demoData(particleSsbo->NumItems());
-    //for (size_t dataIndex = 0; dataIndex < demoData.size(); dataIndex++)
-    //{
-    //    demoData[dataIndex]._hasCollidedAlreadyThisFrame = dataIndex;
-    //}
-    //std::random_shuffle(demoData.begin(), demoData.end());
-
-    // for debugging
-    //demoData[0]._value = 12;
-    //demoData[1]._value = 1;
-    //demoData[2]._value = 9;
-    //demoData[3]._value = 2;
-    //demoData[4]._value = 0;
-    //demoData[5]._value = 11;
-    //demoData[6]._value = 7;
-    //demoData[7]._value = 3;
-    //demoData[8]._value = 4;
-    //demoData[9]._value = 15;
-    //demoData[10]._value = 8;
-    //demoData[11]._value = 5;
-    //demoData[12]._value = 14;
-    //demoData[13]._value = 13;
-    //demoData[14]._value = 10;
-    //demoData[15]._value = 6;
-
-    //// upload the data
-    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, particleSsbo->BufferId());
-    //unsigned int bufferSizeBytes = demoData.size() * sizeof(Particle);
-    //glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, bufferSizeBytes, demoData.data());
-    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-
     parallelSort = std::make_unique<ShaderControllers::ParallelSort>(particleSsbo);
 
     // the sort's so nice, I did it twice
     // Note: Actually, I did it twice because the first time is slowed down on the first calls 
     // to the compute shaders as any data that OpenGL has staged in system memory is copied to 
-    // the GPU.  That doesn't happen on the second run through the shaders, so I just run the 
-    // whole sort a second run
+    // the GPU.  That doesn't happen on the second run through the shaders, so the second run 
+    // will give me a better idea of real-time performance.
     parallelSort->Sort();
     parallelSort->Sort();
 
