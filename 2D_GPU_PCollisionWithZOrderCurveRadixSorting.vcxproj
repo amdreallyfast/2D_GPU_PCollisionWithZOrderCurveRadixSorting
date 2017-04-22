@@ -205,7 +205,6 @@
     <None Include="Shaders\ParticleRender.frag" />
     <None Include="Shaders\ParticleRender.vert" />
     <None Include="Shaders\ParticleReset\LinearBlend.comp" />
-    <None Include="Shaders\ParticleReset\NewVelocityBetweenMinAndMax.comp" />
     <None Include="Shaders\ParticleReset\ParticleResetBarEmitter.comp" />
     <None Include="Shaders\ParticleReset\ParticleResetPointEmitter.comp" />
     <None Include="Shaders\ParticleReset\QuickNormalize.comp" />

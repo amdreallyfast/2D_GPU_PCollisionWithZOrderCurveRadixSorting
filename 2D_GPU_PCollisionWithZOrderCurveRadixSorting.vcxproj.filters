@@ -209,9 +209,6 @@
     <None Include="Shaders\ParticleReset\LinearBlend.comp">
       <Filter>Shaders\ParticleReset</Filter>
     </None>
-    <None Include="Shaders\ParticleReset\NewVelocityBetweenMinAndMax.comp">
-      <Filter>Shaders\ParticleReset</Filter>
-    </None>
     <None Include="Shaders\ParticleReset\ParticleResetBarEmitter.comp">
       <Filter>Shaders\ParticleReset</Filter>
     </None>

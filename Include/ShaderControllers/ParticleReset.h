@@ -37,8 +37,6 @@ namespace ShaderControllers
         ParticleReset(const ParticleSsbo::SHARED_PTR &ssboToReset);
         ~ParticleReset();
 
-        //bool AddEmitter(const IParticleEmitter::CONST_PTR &pEmitter);
-        
         // Note: Have to use a copy, not a reference, in order for a shared pointer argument to 
         // be turned into a shared pointer to const data.  A shared pointer is castable to a 
         // shared pointer to const data, but they are two different object types, hence the need

@@ -217,7 +217,7 @@ void UpdateAllTheThings()
     glutPostRedisplay();
 
     steady_clock::time_point end = high_resolution_clock::now();
-    //std::cout << "UpdateAllTheThings(): " << duration_cast<milliseconds>(end - start).count() << " milliseconds" << std::endl;
+    std::cout << "UpdateAllTheThings(): " << duration_cast<milliseconds>(end - start).count() << " milliseconds" << std::endl;
 }
 
 /*------------------------------------------------------------------------------------------------

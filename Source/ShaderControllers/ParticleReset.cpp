@@ -56,7 +56,6 @@ namespace ShaderControllers
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/CrossShaderUniformLocations.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleBuffer.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/Random.comp");
-        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/NewVelocityBetweenMinAndMax.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/QuickNormalize.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/LinearBlend.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/ParticleResetPointEmitter.comp");
@@ -80,7 +79,6 @@ namespace ShaderControllers
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/CrossShaderUniformLocations.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleBuffer.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/Random.comp");
-        //shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/NewVelocityBetweenMinAndMax.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/QuickNormalize.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/LinearBlend.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/ParticleResetBarEmitter.comp");
@@ -116,7 +114,6 @@ namespace ShaderControllers
         // SAME buffer binding base as specified in the shader.
         glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, ATOMIC_COUNTER_BUFFER_BINDING, _particleResetAtomicCounterBufferId);
     }
-    
     
     /*--------------------------------------------------------------------------------------------
     Description:
@@ -159,37 +156,6 @@ namespace ShaderControllers
         // make a copy of it
         _barEmitters.push_back(barEmitter);
     }
-
-    ///*--------------------------------------------------------------------------------------------
-    //Description:
-    //    Adds a point emitter to internal storage.  Used to initialize particles.  If 
-    //    there multiple emitters, then the update will need to perform multiple calls to the 
-    //    compute shader, each with different emitter information.
-    //Parameters:
-    //    pEmitter    A pointer to a "particle emitter" interface.
-    //Returns:    
-    //    True if the emitter was added, otherwise false.
-    //Creator:    John Cox (9-18-2016)    (created prior to this class in an earlier design)
-    //--------------------------------------------------------------------------------------------*/
-    //bool ParticleReset::AddEmitter(const IParticleEmitter::CONST_PTR &pEmitter)
-    //{
-    //    ParticleEmitterPoint::CONST_PTR pointEmitter = std::dynamic_pointer_cast<const ParticleEmitterPoint>(pEmitter);
-    //    ParticleEmitterBar::CONST_PTR barEmitter = std::dynamic_pointer_cast<const ParticleEmitterBar>(pEmitter);
-
-    //    if (pointEmitter != nullptr)
-    //    {
-    //        _pointEmitters.push_back(pointEmitter);
-    //        return true;
-    //    }
-    //    else if (barEmitter != nullptr)
-    //    {
-    //        _barEmitters.push_back(barEmitter);
-    //        return true;
-    //    }
-
-    //    // neither point emitter nor bar emitter; don't know what it is
-    //    return false;
-    //}
 
     /*--------------------------------------------------------------------------------------------
     Description:
