@@ -8,8 +8,7 @@ namespace ShaderControllers
     /*--------------------------------------------------------------------------------------------
     Description:
         Encapsulates the following particle updates via compute shader:
-        (1) Updates particle positions based on the net force that was applied to them in the
-        previous frame.
+        (1) Updates particle positions based on their velocity in the previous frame.
         (2) If any particles have gone out of bounds, flag them as inactive.
         (3) Emit as many particles for this frame as each emitter allows.
 

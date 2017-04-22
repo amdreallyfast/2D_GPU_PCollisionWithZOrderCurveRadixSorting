@@ -46,7 +46,11 @@
 
 #include "Include/Particles/Particle.h"
 #include "Include/SSBOs/ParticleSsbo.h"
+#include "Include/ShaderControllers/ParticleReset.h"
+#include "Include/ShaderControllers/ParticleUpdate.h"
+#include "Include/ShaderControllers/RenderParticles.h"
 #include "Include/ShaderControllers/ParallelSort.h"
+
 
 // for the frame rate counter
 #include "Include/RenderFrameRate/FreeTypeEncapsulated.h"
@@ -57,6 +61,7 @@ FreeTypeEncapsulated gTextAtlases;
 
 ParticleSsbo::SHARED_PTR particleSsbo = nullptr;
 std::unique_ptr<ShaderControllers::ParallelSort> parallelSort = nullptr;
+std::unique_ptr<ShaderControllers::RenderParticles> particleRenderer = nullptr;
 
 const unsigned int MAX_PARTICLE_COUNT = 100000;
 
@@ -116,9 +121,11 @@ void Init()
     // between the SSBOs and the shaders, but the compute headers lessen the coupling that needs 
     // to happen on the CPU side.
     particleSsbo = std::make_unique<ParticleSsbo>(MAX_PARTICLE_COUNT);
+    particleRenderer = std::make_unique<ShaderControllers::RenderParticles>(particleSsbo);
     parallelSort = std::make_unique<ShaderControllers::ParallelSort>(particleSsbo);
 
-    parallelSort->SortWithProfiling();
+    //// first time just to upload everything 
+    //parallelSort->SortWithProfiling();
 
     // the timer will be used for framerate calculations
     gTimer.Start();
@@ -145,8 +152,8 @@ void UpdateAllTheThings()
     float deltaTimeSec = 0.01f;
 
     
-    // sort the particles 
-    parallelSort->SortWithoutProfiling();
+    //// sort the particles 
+    //parallelSort->SortWithoutProfiling();
 
 
 
@@ -163,7 +170,7 @@ void UpdateAllTheThings()
     glutPostRedisplay();
 
     steady_clock::time_point end = high_resolution_clock::now();
-    std::cout << "UpdateAllTheThings(): " << duration_cast<milliseconds>(end - start).count() << " milliseconds" << std::endl;
+    //std::cout << "UpdateAllTheThings(): " << duration_cast<milliseconds>(end - start).count() << " milliseconds" << std::endl;
 }
 
 /*------------------------------------------------------------------------------------------------
@@ -186,6 +193,9 @@ void Display()
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    particleRenderer->Render();
+
+
     // draw the frame rate once per second in the lower left corner
     GLfloat color[4] = { 0.5f, 0.5f, 0.0f, 1.0f };
     char str[32];
@@ -193,9 +203,7 @@ void Display()
     static double elapsedTime = 0.0;
     static double frameRate = 0.0;
     elapsedFramesPerSecond++;
-    double timeSinceLastFrame = gTimer.Lap();
-    //elapsedTime += gTimer.Lap();
-    elapsedTime += timeSinceLastFrame;
+    elapsedTime += gTimer.Lap();
     if (elapsedTime > 1.0f)
     { 
         frameRate = (double)elapsedFramesPerSecond / elapsedTime;
@@ -203,7 +211,6 @@ void Display()
         elapsedTime -= 1.0f;
     }
     sprintf(str, "%.2lf", frameRate);
-    std::cout << "since last frame: " << timeSinceLastFrame << std::endl;
 
     // Note: The font textures' orgin is their lower left corner, so the "lower left" in screen 
     // space is just above [-1.0f, -1.0f].
@@ -223,7 +230,7 @@ void Display()
     glutSwapBuffers();
 
     steady_clock::time_point end = high_resolution_clock::now();
-    std::cout << "Display(): " << duration_cast<milliseconds>(end - start).count() << " milliseconds" << std::endl;
+    //std::cout << "Display(): " << duration_cast<milliseconds>(end - start).count() << " milliseconds" << std::endl;
 }
 
 /*------------------------------------------------------------------------------------------------

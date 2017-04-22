@@ -126,13 +126,15 @@ namespace ShaderControllers
     
     /*--------------------------------------------------------------------------------------------
     Description:
-        Cleans up buffers that were allocated in this object.
+        Cleans up buffers and shader programs that were created for this shader controller.
     Parameters: None
     Returns:    None
-    Creator:    John Cox (11-24-2016)
+    Creator:    John Cox, 4/2017
     --------------------------------------------------------------------------------------------*/
     ParticleReset::~ParticleReset()
     {
+        glDeleteProgram(_computeProgramIdBarEmitters);
+        glDeleteProgram(_computeProgramIdPointEmitters);
         glDeleteBuffers(1, &_particleResetAtomicCounterBufferId);
     }
 

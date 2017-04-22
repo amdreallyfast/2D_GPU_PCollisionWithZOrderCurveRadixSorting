@@ -69,6 +69,11 @@ ParticleSsbo::ParticleSsbo(unsigned int numItems) :
     SsboBase(),  // generate buffers
     _numItems(numItems)
 {
+    // each particle is 1 vertex, so for particles, "num vertices" == "num items"
+    // Note: This can't be set in the class initializer list.  The class initializer list is for 
+    // members of this class only (ParticleSsbo), not for base class members. 
+    _numVertices = numItems;
+
     std::vector<Particle> v(numItems);
     InitializeWithRandomData(v);
 
@@ -78,6 +83,8 @@ ParticleSsbo::ParticleSsbo(unsigned int numItems) :
     // and fill it with the new data
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _bufferId);
     glBufferData(GL_SHADER_STORAGE_BUFFER, v.size() * sizeof(Particle), v.data(), GL_DYNAMIC_DRAW);
+    glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
+
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
@@ -147,7 +154,7 @@ void ParticleSsbo::ConfigureRender(unsigned int renderProgramId, unsigned int dr
     // - glm::vec4 _position;
     // - glm::vec4 _velocity;
     // - float _mass;
-    // - float _radiusOfInfluence;
+    // - float _collisionRadius;
     // - unsigned int _hasCollidedAlreadyThisFrame;
     // - int _isActive;
 
@@ -181,14 +188,14 @@ void ParticleSsbo::ConfigureRender(unsigned int renderProgramId, unsigned int dr
     glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);
     sizeOfLastItem = sizeof(Particle::_mass);
 
-    // radius of influence
+    // collision radius
     itemType = GL_FLOAT;
-    numItems = sizeof(Particle::_radiusOfInfluence) / sizeof(float);
+    numItems = sizeof(Particle::_collisionRadius) / sizeof(float);
     bufferStartOffset += sizeOfLastItem;
     vertexArrayIndex++;
     glEnableVertexAttribArray(vertexArrayIndex);
     glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);
-    sizeOfLastItem = sizeof(Particle::_radiusOfInfluence);
+    sizeOfLastItem = sizeof(Particle::_collisionRadius);
 
     // morton coode
     itemType = GL_UNSIGNED_INT;

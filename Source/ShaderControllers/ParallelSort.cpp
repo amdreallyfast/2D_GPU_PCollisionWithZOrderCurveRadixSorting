@@ -148,6 +148,23 @@ namespace ShaderControllers
 
     }
 
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        Cleans up shader programs that were created for this shader controller.  The temporary 
+        SSBOs clean themselves up.
+    Parameters: None
+    Returns:    None
+    Creator:    John Cox, 4/2017
+    --------------------------------------------------------------------------------------------*/
+    ParallelSort::~ParallelSort()
+    {
+        glDeleteProgram(_particleDataToIntermediateDataProgramId);
+        glDeleteProgram(_getBitForPrefixScansProgramId);
+        glDeleteProgram(_parallelPrefixScanProgramId);
+        glDeleteProgram(_sortIntermediateDataProgramId);
+        glDeleteProgram(_sortParticlesProgramId);
+    }
+
         /*--------------------------------------------------------------------------------------------
     Description:
         This function is the main show of this demo.  It summons shaders to do the following:
@@ -192,7 +209,7 @@ namespace ShaderControllers
         glDispatchCompute(numWorkGroupsXByWorkGroupSize, numWorkGroupsY, numWorkGroupsZ);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     
-        // for 32bit unsigned integers, make 32 passes
+        // for 32bit unsigned integers, make 32 passes, one for each bit
         bool writeToSecondBuffer = true;
         for (unsigned int bitNumber = 0; bitNumber < 32; bitNumber++)
         {

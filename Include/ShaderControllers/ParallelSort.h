@@ -47,6 +47,7 @@ namespace ShaderControllers
     {
     public:
         ParallelSort(const ParticleSsbo::SHARED_PTR &dataToSort);
+        ~ParallelSort();
 
         void SortWithProfiling() const;
         void SortWithoutProfiling() const;

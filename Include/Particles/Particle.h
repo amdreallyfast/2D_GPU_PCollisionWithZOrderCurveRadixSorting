@@ -25,7 +25,7 @@ struct Particle
         // glm structures already have "set to 0" constructors
         //_collisionCountThisFrame(0),
         _mass(0.1f),
-        _radiusOfInfluence(0.01f),
+        _collisionRadius(0.01f),
         _mortonCode(0),
         _hasCollidedAlreadyThisFrame(0),
         _isActive(0)
@@ -53,7 +53,7 @@ struct Particle
 
     // used for collision detection because a particle's position is float values, so two
     // particles' position are almost never going to be exactly equal
-    float _radiusOfInfluence;
+    float _collisionRadius;
 
     // generated in the shader and stored for later use
     // Note: This value allows for proximity comparison of two 3-dimensional coordinates as if 
