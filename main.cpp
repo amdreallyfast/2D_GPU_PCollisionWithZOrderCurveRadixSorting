@@ -68,7 +68,7 @@ std::unique_ptr<ShaderControllers::ParallelSort> parallelSort = nullptr;
 std::unique_ptr<ShaderControllers::ParticleCollide> particleCollisions = nullptr;
 std::unique_ptr<ShaderControllers::RenderParticles> particleRenderer = nullptr;
 
-const unsigned int MAX_PARTICLE_COUNT = 100000;
+const unsigned int MAX_PARTICLE_COUNT = 50000;
 
 
 /*------------------------------------------------------------------------------------------------
@@ -141,9 +141,9 @@ void Init()
     particleResetter = std::make_unique<ShaderControllers::ParticleReset>(particleSsbo);
 
     // bar on the left and emitting up and right
-    glm::vec2 bar1P1(-0.5f, +0.1f);
-    glm::vec2 bar1P2(-0.5f, -0.1f);
-    glm::vec2 emitDir1(+1.0f, +0.5f);
+    glm::vec2 bar1P1(-0.8f, -0.1f);
+    glm::vec2 bar1P2(-0.8f, -0.5f);
+    glm::vec2 emitDir1(+1.0f, 0.0f);
     float minVel = 0.1f;
     float maxVel = 0.5f;
     ParticleEmitterBar::SHARED_PTR barEmitter1 = std::make_shared<ParticleEmitterBar>(bar1P1, bar1P2, emitDir1, minVel, maxVel);
@@ -151,16 +151,16 @@ void Init()
     particleResetter->AddEmitter(barEmitter1);
 
     // bar on the right and emitting up and left
-    glm::vec2 bar2P1 = glm::vec2(+0.5f, +0.1f);
-    glm::vec2 bar2P2 = glm::vec2(+0.5f, -0.1f);
-    glm::vec2 emitDir2 = glm::vec2(-1.0f, +0.5f);
+    glm::vec2 bar2P1 = glm::vec2(-0.5f, -0.8f);
+    glm::vec2 bar2P2 = glm::vec2(-0.1f, -0.8f);
+    glm::vec2 emitDir2 = glm::vec2(0.0f, +1.0f);
     ParticleEmitterBar::SHARED_PTR barEmitter2 = std::make_shared<ParticleEmitterBar>(bar2P1, bar2P2, emitDir2, minVel, maxVel);
     barEmitter2->SetTransform(windowSpaceTransform);
     particleResetter->AddEmitter(barEmitter2);
 
     // for moving particles
     glm::vec4 particleRegionCenter = windowSpaceTransform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    float particleRegionRadius = 0.8f;
+    float particleRegionRadius = 0.9f;
     particleUpdater = std::make_unique<ShaderControllers::ParticleUpdate>(particleSsbo, particleRegionCenter, particleRegionRadius);
 
     // for sorting particles once they've been updated
@@ -204,6 +204,7 @@ void UpdateAllTheThings()
     particleResetter->ResetParticles(20);
     particleUpdater->Update(deltaTimeSec);
     parallelSort->SortWithoutProfiling();
+    //parallelSort->SortWithProfiling();
     particleCollisions->DetectAndResolveCollisions();
 
 

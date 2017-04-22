@@ -27,6 +27,8 @@ namespace ShaderControllers
         _computeProgramId(0),
         _unifLocIndexOffsetBy0Or1(-1)
     {
+        _totalParticleCount = ssboToWorkWith->NumItems();
+
         // construct the compute shader
         ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
 

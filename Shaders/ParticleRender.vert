@@ -22,13 +22,39 @@ void main()
         // invisible (alpha = 0), but "fully transparent" does not mean "no color", it merely 
         // means that the color of this thing will be added to the thing behind it (see Z 
         // adjustment later)
-        particleColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+        //particleColor = vec4(0.0f, 0.0f, 1.0f, 0.0f);   // blue
+        particleColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);   // black
         gl_Position = vec4(pos.xy, -0.6f, 1.0f);
     }
     else
     {
-        // cyan
-        particleColor = vec4(0.5f, 1.0f, 1.0f, 1.0f);
+        if (hasCollidedAlreadyThisFrame == 0)
+        {
+            // cyan
+            particleColor = vec4(0.5f, 1.0f, 1.0f, 1.0f);
+        }
+        else
+        {
+            // had a collision => red
+            particleColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+        }
+//        else if (hasCollidedAlreadyThisFrame == 13)
+//        {
+//            // particle is active, but no collision => green
+//            particleColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+//        }
+//        else if (hasCollidedAlreadyThisFrame == 7)
+//        {
+//            // particle is active, collision with neighbor => red
+//            particleColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+//        }
+////        else    // ??condition??
+////        {
+////            // blue
+////            particleColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);
+////        }
+
+        //particleColor = vec4(0.5f, 1.0f, 1.0f, 1.0f);
     
         // Note: The W position seems to be used as a scaling factor (I must have forgotten this 
         // from the graphical math; it's been awhile since I examined it in detail).  If I do any 

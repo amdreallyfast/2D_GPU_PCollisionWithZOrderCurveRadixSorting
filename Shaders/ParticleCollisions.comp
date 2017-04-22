@@ -34,7 +34,7 @@ void main()
 {
     // Note: Collisions should happen between two particles simultaneously.  It is possible to do collisions like I did in the "render_particles_2D_GPU_p_on_p_collisions" project, in which each particle checked for collisions between itself and others and then only altered itself, but I want to do collisions better this time, which mean making particles collide in pairs.  In turn, that means that the ParticleCollisions shader controller will launch this compute shader with half as many threads as there are particles.  Multiply the thread's global index by 2 to get the first of the Particle pairs.
     uint index = (gl_GlobalInvocationID.x * 2) + uIndexOffsetBy0Or1;
-    uint rightNeighborIndex = index + uIndexOffsetBy0Or1 + 1;
+    uint rightNeighborIndex = index + 1;
     
     if (index >= uParticleBufferSize || rightNeighborIndex >= uParticleBufferSize)
     {
@@ -45,24 +45,39 @@ void main()
     Particle p1 = AllParticles[index];
     Particle p2 = AllParticles[rightNeighborIndex];
 
-    if (p1._isActive == 0 || p1._hasCollidedAlreadyThisFrame == 1 ||
-        p2._isActive == 0 || p2._hasCollidedAlreadyThisFrame == 1)
+    if (p1._isActive == 0 || p2._isActive == 0)
     {
-        // move along
+        return;
+    }
+
+    if (p1._hasCollidedAlreadyThisFrame != 0 || p2._hasCollidedAlreadyThisFrame != 0)
+    {
+        // already collided this frame
         return;
     }
 
     float minDistForCollision = p1._radiusOfInfluence + p2._radiusOfInfluence;
     float minDistForCollisionSqr = minDistForCollision * minDistForCollision;
 
-    // partial pythagorean theorem so that I don't have to tke the square root
-    vec4 p1ToP2 = p2._pos - p1._pos;
+    // partial pythagorean theorem so that I don't have to take the square root
+    // Note: Only pluck out the positional information for these calculations.  Ignore the W 
+    // component of the position.  It should end up as 0 after the subtraction, but force it to 
+    // 0 just in case.
+    vec4 p1ToP2 = vec4(p2._pos.xyz - p1._pos.xyz, 0.0f);
     float distP1ToP2Sqr = dot(p1ToP2, p1ToP2);
 
     if (distP1ToP2Sqr > minDistForCollisionSqr)
     {
         // no collision
+//        AllParticles[index]._hasCollidedAlreadyThisFrame = 13;
+//        AllParticles[rightNeighborIndex]._hasCollidedAlreadyThisFrame = 13;
         return;
+    }
+    else
+    {
+        // have collision
+//        AllParticles[index]._hasCollidedAlreadyThisFrame = 7;
+//        AllParticles[rightNeighborIndex]._hasCollidedAlreadyThisFrame = 7;
     }
 
     // Note: I don't have an intuitive understanding of these calculations, but they work.  If I 
