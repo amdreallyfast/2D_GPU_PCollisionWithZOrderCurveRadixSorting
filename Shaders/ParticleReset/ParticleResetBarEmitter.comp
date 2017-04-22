@@ -68,8 +68,7 @@ void main()
     vec4 velocityDir = QuickNormalize(uBarEmitterEmitDir);
     vec4 minVel = uMinParticleVelocity * velocityDir;
     vec4 maxVel = uMaxParticleVelocity * velocityDir;
-    
-    // go ahead and re-use the "blend alpha" from the position
+    blendAlpha = RandomOnRange0To1(pCopy._vel.xy);
     pCopy._vel = LinearBlend(minVel, maxVel, blendAlpha);
 
     // set to "active"
