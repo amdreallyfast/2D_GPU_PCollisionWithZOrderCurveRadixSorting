@@ -17,44 +17,12 @@ smooth out vec4 particleColor;
 
 void main()
 {
-    //particleColor = vec4(0.5f, 1.0f, 1.0f, 1.0f);
-
-    if (pos.x == 0.0f)
-    {
-        // red
-        particleColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-    }
-    else if (pos.y == 0.0f)
-    {
-        // yellow
-        particleColor = vec4(0.0f, 1.0f, 1.0f, 1.0f);
-    }
-    else
-    {
-        // cyan
-        particleColor = vec4(0.5f, 1.0f, 1.0f, 1.0f);
-    }
-
-    {
-        ////gl_Position = vec4(-0.3f, 0.3f, 0.0f, 1.0f);
-        ////gl_Position = normalize(vec4(pos.xyz, 1.0f));
-        //vec4 nPos = normalize(vec4(pos.xyz, 0.0f));
-        //if (length(pos.xyz) > 1)
-        //{
-        //    gl_Position = vec4(-0.3f, -0.3f, 0.0f, 1.0f);
-        //}
-        //else
-        //{
-        //    gl_Position = vec4(+0.3f, -0.3f, 0.0f, 1.0f);
-        //}
-
-        vec4 nPos = vec4(pos.x - 0.5f, pos.y - 0.5f, pos.z, 1.0f);
-        nPos = normalize(nPos);
-        gl_Position = nPos;
-        
-    }
+    // cyan
+    particleColor = vec4(0.5f, 1.0f, 1.0f, 1.0f);
     
-    //gl_Position = normalize(pos);
-    
+    // Note: The W position seems to be used as a scaling factor (I must have forgotten this 
+    // from the graphical math; it's been awhile since I examined it in detail).  If I do any 
+    // position normalization, I should make sure that gl_Position's W value is always 1.
+    gl_Position = vec4(pos.xyz, 1.0f);    
 }
 
