@@ -26,6 +26,7 @@ struct Particle
         //_collisionCountThisFrame(0),
         _mass(0.1f),
         _radiusOfInfluence(0.01f),
+        _mortonCode(0),
         _hasCollidedAlreadyThisFrame(0),
         _isActive(0)
     {
@@ -54,6 +55,8 @@ struct Particle
     // particles' position are almost never going to be exactly equal
     float _radiusOfInfluence;
 
+    unsigned int _mortonCode;
+
     // collision detection in the current demo (4-15-2017) runs twice:
     // (1) Each thread checks two particles: i against i + 1.
     // (2) Each thread checks two particles: i + 1 against i + 2.
@@ -73,6 +76,6 @@ struct Particle
     // "is active" flag as an integer.  
     int _isActive; 
     
-    //// any necessary padding out to 16 bytes to match the GPU's version
-    //int _padding[3];
+    // any necessary padding out to 16 bytes to match the GPU's version
+    int _padding[3];
 };

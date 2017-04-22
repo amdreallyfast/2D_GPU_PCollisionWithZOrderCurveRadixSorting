@@ -118,11 +118,11 @@ void Init()
     particleSsbo = std::make_unique<ParticleSsbo>(MAX_PARTICLE_COUNT);
 
     // generate data for this demo, then scramble it
-    std::vector<Particle> demoData(particleSsbo->NumItems());
-    for (size_t dataIndex = 0; dataIndex < demoData.size(); dataIndex++)
-    {
-        demoData[dataIndex]._hasCollidedAlreadyThisFrame = dataIndex;
-    }
+    //std::vector<Particle> demoData(particleSsbo->NumItems());
+    //for (size_t dataIndex = 0; dataIndex < demoData.size(); dataIndex++)
+    //{
+    //    demoData[dataIndex]._hasCollidedAlreadyThisFrame = dataIndex;
+    //}
     //std::random_shuffle(demoData.begin(), demoData.end());
 
     // for debugging
@@ -143,11 +143,11 @@ void Init()
     //demoData[14]._value = 10;
     //demoData[15]._value = 6;
 
-    // upload the data
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, particleSsbo->BufferId());
-    unsigned int bufferSizeBytes = demoData.size() * sizeof(Particle);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, bufferSizeBytes, demoData.data());
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    //// upload the data
+    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, particleSsbo->BufferId());
+    //unsigned int bufferSizeBytes = demoData.size() * sizeof(Particle);
+    //glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, bufferSizeBytes, demoData.data());
+    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 
     parallelSort = std::make_unique<ShaderControllers::ParallelSort>(particleSsbo);

@@ -60,6 +60,7 @@ namespace ShaderControllers
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleBuffer.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/ComputeShaderWorkGroupSizes.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/IntermediateSortBuffers.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/PositionToMortonCode.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/ParticleDataToIntermediateData.comp");
         shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
@@ -317,11 +318,21 @@ namespace ShaderControllers
         memcpy(checkOriginalData.data(), bufferPtr, bufferSizeBytes);
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
+        // tODO: remove this
+        unsigned int highestMortonCode = 0;
+
         // check
         for (unsigned int i = 1; i < checkOriginalData.size(); i++)
         {
-            unsigned int val = checkOriginalData[i]._hasCollidedAlreadyThisFrame;
-            unsigned int prevVal = checkOriginalData[i - 1]._hasCollidedAlreadyThisFrame;
+            //unsigned int val = checkOriginalData[i]._hasCollidedAlreadyThisFrame;
+            //unsigned int prevVal = checkOriginalData[i - 1]._hasCollidedAlreadyThisFrame;
+            unsigned int val = checkOriginalData[i]._mortonCode;
+            unsigned int prevVal = checkOriginalData[i - 1]._mortonCode;
+
+            if (checkOriginalData[i]._mortonCode > highestMortonCode)
+            {
+                highestMortonCode = checkOriginalData[i]._mortonCode;
+            }
 
             if (val == 0xffffffff)
             {

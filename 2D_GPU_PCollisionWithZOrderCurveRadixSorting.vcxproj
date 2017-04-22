@@ -209,6 +209,7 @@
     <None Include="Shaders\ParticleReset\QuickNormalize.comp" />
     <None Include="Shaders\ParticleReset\Random.comp" />
     <None Include="Shaders\ParticleUpdate.comp" />
+    <None Include="Shaders\PositionToMortonCode.comp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shaders\ParallelSort\ReadMe.txt" />

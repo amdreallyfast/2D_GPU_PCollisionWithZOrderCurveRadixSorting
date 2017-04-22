@@ -224,6 +224,9 @@
     <None Include="Shaders\ParticleReset\Random.comp">
       <Filter>Shaders\ParticleReset</Filter>
     </None>
+    <None Include="Shaders\PositionToMortonCode.comp">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shaders\ParticleReset\ReadMe.txt">

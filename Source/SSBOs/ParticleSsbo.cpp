@@ -40,10 +40,24 @@ static void InitializeWithRandomData(std::vector<Particle> &initThese)
         // Note: The 0-1 range isn't technically necessary, but the position and velocity values 
         // are floats, and dividing by RAND_MAX is an easy way to get a float.  It just so 
         // happens to be along the range 0-1.
-        initThese[particleIndex]._position.x = static_cast<float>(rand()) * inverseRandMax;
-        initThese[particleIndex]._position.y = static_cast<float>(rand()) * inverseRandMax;
-        initThese[particleIndex]._velocity.x = static_cast<float>(rand()) * inverseRandMax;
-        initThese[particleIndex]._velocity.y = static_cast<float>(rand()) * inverseRandMax;
+        int posNegMultiplier = 0;
+
+        posNegMultiplier = ((rand() * inverseRandMax) > 0.5f) ? +1 : -1;
+        initThese[particleIndex]._position.x = static_cast<float>(rand() * posNegMultiplier) * inverseRandMax;
+
+        posNegMultiplier = ((rand() * inverseRandMax) > 0.5f) ? +1 : -1;
+        initThese[particleIndex]._position.y = static_cast<float>(rand() * posNegMultiplier) * inverseRandMax;
+
+        posNegMultiplier = ((rand() * inverseRandMax) > 0.5f) ? +1 : -1;
+        initThese[particleIndex]._velocity.x = static_cast<float>(rand() * posNegMultiplier) * inverseRandMax;
+
+        posNegMultiplier = ((rand() * inverseRandMax) > 0.5f) ? +1 : -1;
+        initThese[particleIndex]._velocity.y = static_cast<float>(rand() * posNegMultiplier) * inverseRandMax;
+
+
+        // for early sorting checking
+        // TODO: remove this
+        initThese[particleIndex]._hasCollidedAlreadyThisFrame = particleIndex;
     }
 }
 
@@ -158,8 +172,7 @@ void ParticleSsbo::ConfigureRender(unsigned int renderProgramId, unsigned int dr
     GLenum itemType = GL_FLOAT;
     unsigned int numItems = sizeof(Particle::_position) / sizeof(float);
     glEnableVertexAttribArray(vertexArrayIndex);
-    glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep,
-        (void *)bufferStartOffset);
+    glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);
     sizeOfLastItem = sizeof(Particle::_position);
 
     // velocity
@@ -168,8 +181,7 @@ void ParticleSsbo::ConfigureRender(unsigned int renderProgramId, unsigned int dr
     bufferStartOffset += sizeOfLastItem;
     vertexArrayIndex++;
     glEnableVertexAttribArray(vertexArrayIndex);
-    glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep,
-        (void *)bufferStartOffset);
+    glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);
     sizeOfLastItem = sizeof(Particle::_velocity);
 
     // mass
@@ -178,8 +190,7 @@ void ParticleSsbo::ConfigureRender(unsigned int renderProgramId, unsigned int dr
     bufferStartOffset += sizeOfLastItem;
     vertexArrayIndex++;
     glEnableVertexAttribArray(vertexArrayIndex);
-    glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep,
-        (void *)bufferStartOffset);
+    glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);
     sizeOfLastItem = sizeof(Particle::_mass);
 
     // radius of influence
@@ -188,18 +199,25 @@ void ParticleSsbo::ConfigureRender(unsigned int renderProgramId, unsigned int dr
     bufferStartOffset += sizeOfLastItem;
     vertexArrayIndex++;
     glEnableVertexAttribArray(vertexArrayIndex);
-    glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep,
-        (void *)bufferStartOffset);
+    glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);
     sizeOfLastItem = sizeof(Particle::_radiusOfInfluence);
 
-    // index of node that it is occupying
+    // morton coode
+    itemType = GL_UNSIGNED_INT;
+    numItems = sizeof(Particle::_mortonCode) / sizeof(unsigned int);
+    bufferStartOffset += sizeOfLastItem;
+    vertexArrayIndex++;
+    glEnableVertexAttribArray(vertexArrayIndex);
+    glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);
+    sizeOfLastItem = sizeof(Particle::_mortonCode);
+
+    // "has already collided this frame" flag
     itemType = GL_UNSIGNED_INT;
     numItems = sizeof(Particle::_hasCollidedAlreadyThisFrame) / sizeof(unsigned int);
     bufferStartOffset += sizeOfLastItem;
     vertexArrayIndex++;
     glEnableVertexAttribArray(vertexArrayIndex);
-    glVertexAttribIPointer(vertexArrayIndex, numItems, itemType, bytesPerStep,
-        (void *)bufferStartOffset);
+    glVertexAttribIPointer(vertexArrayIndex, numItems, itemType, bytesPerStep, (void *)bufferStartOffset);
     sizeOfLastItem = sizeof(Particle::_hasCollidedAlreadyThisFrame);
 
     // "is active" flag
@@ -208,8 +226,7 @@ void ParticleSsbo::ConfigureRender(unsigned int renderProgramId, unsigned int dr
     bufferStartOffset += sizeOfLastItem;
     vertexArrayIndex++;
     glEnableVertexAttribArray(vertexArrayIndex);
-    glVertexAttribIPointer(vertexArrayIndex, numItems, itemType, bytesPerStep,
-        (void *)bufferStartOffset);
+    glVertexAttribIPointer(vertexArrayIndex, numItems, itemType, bytesPerStep, (void *)bufferStartOffset);
     sizeOfLastItem = sizeof(Particle::_isActive);
 
     // cleanup

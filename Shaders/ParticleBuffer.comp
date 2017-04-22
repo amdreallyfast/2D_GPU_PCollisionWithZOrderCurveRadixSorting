@@ -14,8 +14,11 @@ struct Particle
 
     float _mass;
     float _radiusOfInfluence;
+    uint _mortonCode;
     uint _hasCollidedAlreadyThisFrame;
     int _isActive;
+
+    // needs 3bytes padding
 
     // vec4s are 16 bytes, +4 individual 4byte items, so no padding necessary on CPU side
 };
