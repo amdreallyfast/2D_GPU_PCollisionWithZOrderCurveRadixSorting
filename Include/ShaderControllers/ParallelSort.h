@@ -48,7 +48,8 @@ namespace ShaderControllers
     public:
         ParallelSort(const ParticleSsbo::SHARED_PTR &dataToSort);
 
-        void Sort() const;
+        void SortWithProfiling() const;
+        void SortWithoutProfiling() const;
 
     private:
         unsigned int _particleDataToIntermediateDataProgramId;

@@ -58,7 +58,7 @@ FreeTypeEncapsulated gTextAtlases;
 ParticleSsbo::SHARED_PTR particleSsbo = nullptr;
 std::unique_ptr<ShaderControllers::ParallelSort> parallelSort = nullptr;
 
-const unsigned int MAX_PARTICLE_COUNT = 1000000;
+const unsigned int MAX_PARTICLE_COUNT = 100000;
 
 
 /*------------------------------------------------------------------------------------------------
@@ -118,17 +118,14 @@ void Init()
     particleSsbo = std::make_unique<ParticleSsbo>(MAX_PARTICLE_COUNT);
     parallelSort = std::make_unique<ShaderControllers::ParallelSort>(particleSsbo);
 
-    // the sort's so nice, I did it twice
-    // Note: Actually, I did it twice because the first time is slowed down on the first calls 
-    // to the compute shaders as any data that OpenGL has staged in system memory is copied to 
-    // the GPU.  That doesn't happen on the second run through the shaders, so the second run 
-    // will give me a better idea of real-time performance.
-    parallelSort->Sort();
-    parallelSort->Sort();
+    parallelSort->SortWithProfiling();
 
     // the timer will be used for framerate calculations
     gTimer.Start();
 }
+
+#include <chrono>
+#include <iostream>
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -141,8 +138,18 @@ Creator:    John Cox (1-2-2017)
 ------------------------------------------------------------------------------------------------*/
 void UpdateAllTheThings()
 {
+    using namespace std::chrono;
+    steady_clock::time_point start = high_resolution_clock::now();
+    
     // just hard-code it for this demo
     float deltaTimeSec = 0.01f;
+
+    
+    // sort the particles 
+    parallelSort->SortWithoutProfiling();
+
+
+
 
     // tell glut to call this display() function again on the next iteration of the main loop
     // Note: https://www.opengl.org/discussion_boards/showthread.php/168717-I-dont-understand-what-glutPostRedisplay()-does
@@ -154,6 +161,9 @@ void UpdateAllTheThings()
     // for glut's main loop and doesn't actually call the registered display function, but I 
     // got into the habbit of calling it at the end.
     glutPostRedisplay();
+
+    steady_clock::time_point end = high_resolution_clock::now();
+    std::cout << "UpdateAllTheThings(): " << duration_cast<milliseconds>(end - start).count() << " milliseconds" << std::endl;
 }
 
 /*------------------------------------------------------------------------------------------------
@@ -169,6 +179,9 @@ Creator:    John Cox (2-13-2016)
 ------------------------------------------------------------------------------------------------*/
 void Display()
 {
+    using namespace std::chrono;
+    steady_clock::time_point start = high_resolution_clock::now();
+
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -180,7 +193,9 @@ void Display()
     static double elapsedTime = 0.0;
     static double frameRate = 0.0;
     elapsedFramesPerSecond++;
-    elapsedTime += gTimer.Lap();
+    double timeSinceLastFrame = gTimer.Lap();
+    //elapsedTime += gTimer.Lap();
+    elapsedTime += timeSinceLastFrame;
     if (elapsedTime > 1.0f)
     { 
         frameRate = (double)elapsedFramesPerSecond / elapsedTime;
@@ -188,6 +203,7 @@ void Display()
         elapsedTime -= 1.0f;
     }
     sprintf(str, "%.2lf", frameRate);
+    std::cout << "since last frame: " << timeSinceLastFrame << std::endl;
 
     // Note: The font textures' orgin is their lower left corner, so the "lower left" in screen 
     // space is just above [-1.0f, -1.0f].
@@ -205,6 +221,9 @@ void Display()
 
     // tell the GPU to swap out the displayed buffer with the one that was just rendered
     glutSwapBuffers();
+
+    steady_clock::time_point end = high_resolution_clock::now();
+    std::cout << "Display(): " << duration_cast<milliseconds>(end - start).count() << " milliseconds" << std::endl;
 }
 
 /*------------------------------------------------------------------------------------------------

@@ -148,7 +148,7 @@ namespace ShaderControllers
 
     }
 
-    /*--------------------------------------------------------------------------------------------
+        /*--------------------------------------------------------------------------------------------
     Description:
         This function is the main show of this demo.  It summons shaders to do the following:
         - Copy original data to intermediate data structures 
@@ -167,9 +167,107 @@ namespace ShaderControllers
         The ParticleBuffer is now sorted.
     Parameters: None
     Returns:    None
+    Creator:    John Cox, 4/2017
+    --------------------------------------------------------------------------------------------*/
+    void ParallelSort::SortWithoutProfiling() const
+    {
+        unsigned int numItemsInPrefixScanBuffer = _prefixSumSsbo->NumDataEntries();
+        
+        // for ParallelPrefixScan.comp, which works on 2 items per thread
+        int numWorkGroupsXByItemsPerWorkGroup = numItemsInPrefixScanBuffer / PARALLEL_SORT_ITEMS_PER_WORK_GROUP;
+        int remainder = numItemsInPrefixScanBuffer % PARALLEL_SORT_ITEMS_PER_WORK_GROUP;
+        numWorkGroupsXByItemsPerWorkGroup += (remainder == 0) ? 0 : 1;
+
+        // for other shaders, which work on 1 item per thread
+        int numWorkGroupsXByWorkGroupSize = numItemsInPrefixScanBuffer / PARALLEL_SORT_WORK_GROUP_SIZE_X;
+        remainder = numItemsInPrefixScanBuffer % PARALLEL_SORT_WORK_GROUP_SIZE_X;
+        numWorkGroupsXByWorkGroupSize += (remainder == 0) ? 0 : 1;
+
+        // working on a 1D array (X dimension), so these are always 1
+        int numWorkGroupsY = 1;
+        int numWorkGroupsZ = 1;
+
+        // moving original data to intermediate data is 1 item per thread
+        glUseProgram(_particleDataToIntermediateDataProgramId);
+        glDispatchCompute(numWorkGroupsXByWorkGroupSize, numWorkGroupsY, numWorkGroupsZ);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    
+        // for 32bit unsigned integers, make 32 passes
+        bool writeToSecondBuffer = true;
+        for (unsigned int bitNumber = 0; bitNumber < 32; bitNumber++)
+        {
+            // this will either be 0 or half the size of IntermediateDataBuffer
+            unsigned int intermediateDataReadBufferOffset = (unsigned int)!writeToSecondBuffer * numItemsInPrefixScanBuffer;
+            unsigned int intermediateDataWriteBufferOffset = (unsigned int)writeToSecondBuffer * numItemsInPrefixScanBuffer;
+
+            // getting 1 bit value from intermediate data to prefix sum is 1 item per thread
+            glUseProgram(_getBitForPrefixScansProgramId);
+            glUniform1ui(UNIFORM_LOCATION_INTERMEDIATE_BUFFER_READ_OFFSET, intermediateDataReadBufferOffset);
+            glUniform1ui(UNIFORM_LOCATION_INTERMEDIATE_BUFFER_WRITE_OFFSET, intermediateDataWriteBufferOffset);
+            glUniform1ui(UNIFORM_LOCATION_BIT_NUMBER, bitNumber);
+            glDispatchCompute(numWorkGroupsXByWorkGroupSize, numWorkGroupsY, numWorkGroupsZ);
+            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+            // prefix scan over all values
+            // Note: Parallel prefix scan is 2 items per thread.
+            glUseProgram(_parallelPrefixScanProgramId);
+            glUniform1ui(UNIFORM_LOCATION_CALCULATE_ALL, 1);
+            glDispatchCompute(numWorkGroupsXByItemsPerWorkGroup, numWorkGroupsY, numWorkGroupsZ);
+            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+            // prefix scan over per-work-group sums
+            // Note: The PrefixSumsByGroup array is sized to be exactly enough for 1 work group.  
+            // It makes the prefix sum easier than trying to eliminate excess threads.
+            glUniform1ui(UNIFORM_LOCATION_CALCULATE_ALL, 0);
+            glDispatchCompute(1, numWorkGroupsY, numWorkGroupsZ);
+            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+            // and sort the intermediate data with the scanned values
+            glUseProgram(_sortIntermediateDataProgramId);
+            glUniform1ui(UNIFORM_LOCATION_INTERMEDIATE_BUFFER_READ_OFFSET, intermediateDataReadBufferOffset);
+            glUniform1ui(UNIFORM_LOCATION_INTERMEDIATE_BUFFER_WRITE_OFFSET, intermediateDataWriteBufferOffset);
+            glUniform1ui(UNIFORM_LOCATION_BIT_NUMBER, bitNumber);
+            glDispatchCompute(numWorkGroupsXByWorkGroupSize, numWorkGroupsY, numWorkGroupsZ);
+            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+            // now switch intermediate buffers and do it again
+            writeToSecondBuffer = !writeToSecondBuffer;
+        }
+
+        // now use the sorted IntermediateData objects to sort the original data objects into a 
+        // copy buffer (there is no "swap" in parallel sorting, so must write to a dedicated 
+        // copy buffer
+        glUseProgram(_sortParticlesProgramId);
+        unsigned int intermediateDataReadBufferOffset = (unsigned int)!writeToSecondBuffer * numItemsInPrefixScanBuffer;
+        glUniform1ui(UNIFORM_LOCATION_INTERMEDIATE_BUFFER_READ_OFFSET, intermediateDataReadBufferOffset);
+        glDispatchCompute(numWorkGroupsXByWorkGroupSize, numWorkGroupsY, numWorkGroupsZ);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        // and finally, move the sorted original data from the copy buffer back to the 
+        // ParticleBuffer
+        glBindBuffer(GL_COPY_READ_BUFFER, _particleCopySsbo->BufferId());
+        glBindBuffer(GL_COPY_WRITE_BUFFER, _particleSsbo->BufferId());
+        unsigned int ParticleBufferSizeBytes = _particleSsbo->NumItems() * sizeof(Particle);
+        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, ParticleBufferSizeBytes);
+        glBindBuffer(GL_COPY_READ_BUFFER, 0);
+        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+
+        // end sorting
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        glUseProgram(0);
+    }
+
+    /*--------------------------------------------------------------------------------------------
+    Description:
+        The same sorting algorithm, but with:
+        (1) std::chrono calls scattered everywhere
+        (2) sorted data verification on the CPU (takes ~1sec, so it's terrible for frame rate)
+        (3) writing the profiled duration results to stdout and to a tab-delimited text file
+    Parameters: None
+    Returns:    None
     Creator:    John Cox, 3/2017
     --------------------------------------------------------------------------------------------*/
-    void ParallelSort::Sort() const
+    void ParallelSort::SortWithProfiling() const
     {
         unsigned int numItemsInPrefixScanBuffer = _prefixSumSsbo->NumDataEntries();
 
