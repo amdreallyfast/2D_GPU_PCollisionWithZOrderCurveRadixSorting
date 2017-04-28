@@ -3,11 +3,11 @@
 #include <memory>
 #include <string>
 
-#include "Include/SSBOs/SsboBase.h"
-#include "Include/SSBOs/PrefixSumSsbo.h"
-#include "Include/SSBOs/IntermediateDataSsbo.h"
-#include "Include/SSBOs/ParticleSsbo.h"
-#include "Include/SSBOs/ParticleCopySsbo.h"
+#include "Include/Buffers/SSBOs/SsboBase.h"
+#include "Include/Buffers/SSBOs/PrefixSumSsbo.h"
+#include "Include/Buffers/SSBOs/IntermediateDataSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleCopySsbo.h"
 
 namespace ShaderControllers
 {
@@ -38,9 +38,11 @@ namespace ShaderControllers
         useful for a single OriginalDataSsbo.  Compute shaders are not as flexible as CPU-bound 
         shaders, so you have to hold their hand, and the consequence is high coupling.
 
-        // TODO: now that I am sorting particles instead of a simple, 1-integer structure like I was in the GpuRadixSort demo, I can sort 1,000,000 particles by position in X milliseconds
-        The benefit is that it can sort 1,000,000 structures in less than 6 milliseconds (at 
-        least for the OriginalData structures that I'm using in this demo).
+        The benefit is that it can sort 1,000,000 structures in less than 6 milliseconds (at
+        least for the OriginalData structures that was ).
+        Note: In the GpuRadixSort demo, I could sort 1,000,000 1-integer structures 
+        (OriginalData) in ~4.8 milliseconds.  I am now sorting particles, and I can sort 
+        1,000,000 particles by position in ~4.8 milliseconds.  Nice!  No perceptable change.
     Creator:    John Cox, 3/2017
     --------------------------------------------------------------------------------------------*/
     class ParallelSort

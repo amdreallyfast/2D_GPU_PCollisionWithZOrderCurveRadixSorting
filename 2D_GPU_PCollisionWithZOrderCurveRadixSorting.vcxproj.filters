@@ -8,9 +8,6 @@
     <ClCompile Include="Source\OpenGlErrorHandling.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SSBOs\SsboBase.cpp">
-      <Filter>Source\SSBOs</Filter>
-    </ClCompile>
     <ClCompile Include="Source\RenderFrameRate\FreeTypeAtlas.cpp">
       <Filter>Source\RenderFrameRate</Filter>
     </ClCompile>
@@ -20,20 +17,8 @@
     <ClCompile Include="Source\RenderFrameRate\Stopwatch.cpp">
       <Filter>Source\RenderFrameRate</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SSBOs\PrefixSumSsbo.cpp">
-      <Filter>Source\SSBOs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SSBOs\IntermediateDataSsbo.cpp">
-      <Filter>Source\SSBOs</Filter>
-    </ClCompile>
     <ClCompile Include="Source\ShaderControllers\ParallelSort.cpp">
       <Filter>Source\ShaderControllers</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SSBOs\ParticleSsbo.cpp">
-      <Filter>Source\SSBOs</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SSBOs\ParticleCopySsbo.cpp">
-      <Filter>Source\SSBOs</Filter>
     </ClCompile>
     <ClCompile Include="Source\ShaderControllers\ParticleCollide.cpp">
       <Filter>Source\ShaderControllers</Filter>
@@ -53,6 +38,24 @@
     <ClCompile Include="Source\Particles\ParticleEmitterBar.cpp">
       <Filter>Source\Particles</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Buffers\AtomicCounterBuffer.cpp">
+      <Filter>Source\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\IntermediateDataSsbo.cpp">
+      <Filter>Source\Buffers\SSBOs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\ParticleCopySsbo.cpp">
+      <Filter>Source\Buffers\SSBOs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\ParticleSsbo.cpp">
+      <Filter>Source\Buffers\SSBOs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\PrefixSumSsbo.cpp">
+      <Filter>Source\Buffers\SSBOs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\SSBOs\SsboBase.cpp">
+      <Filter>Source\Buffers\SSBOs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shaders\ShaderStorage.h">
@@ -60,9 +63,6 @@
     </ClInclude>
     <ClInclude Include="Include\OpenGlErrorHandling.h">
       <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\SSBOs\SsboBase.h">
-      <Filter>Include\SSBOs</Filter>
     </ClInclude>
     <ClInclude Include="Include\RenderFrameRate\FreeTypeAtlas.h">
       <Filter>Include\RenderFrameRate</Filter>
@@ -72,15 +72,6 @@
     </ClInclude>
     <ClInclude Include="Include\RenderFrameRate\FreeTypeEncapsulated.h">
       <Filter>Include\RenderFrameRate</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\SSBOs\PrefixSumSsbo.h">
-      <Filter>Include\SSBOs</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\SSBOs\IntermediateData.h">
-      <Filter>Include\SSBOs</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\SSBOs\IntermediateDataSsbo.h">
-      <Filter>Include\SSBOs</Filter>
     </ClInclude>
     <ClInclude Include="Include\ShaderControllers\ParallelSort.h">
       <Filter>Include\ShaderControllers</Filter>
@@ -97,9 +88,6 @@
     <ClInclude Include="Include\ShaderControllers\RenderParticles.h">
       <Filter>Include\ShaderControllers</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SSBOs\ParticleSsbo.h">
-      <Filter>Include\SSBOs</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Particles\ParticleEmitterPoint.h">
       <Filter>Include\Particles</Filter>
     </ClInclude>
@@ -112,8 +100,26 @@
     <ClInclude Include="Include\Particles\ParticleEmitterBar.h">
       <Filter>Include\Particles</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SSBOs\ParticleCopySsbo.h">
-      <Filter>Include\SSBOs</Filter>
+    <ClInclude Include="Include\Buffers\IntermediateData.h">
+      <Filter>Include\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Buffers\AtomicCounterBuffer.h">
+      <Filter>Include\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Buffers\SSBOs\ParticleCopySsbo.h">
+      <Filter>Include\Buffers\SSBOs</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Buffers\SSBOs\ParticleSsbo.h">
+      <Filter>Include\Buffers\SSBOs</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Buffers\SSBOs\PrefixSumSsbo.h">
+      <Filter>Include\Buffers\SSBOs</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Buffers\SSBOs\SsboBase.h">
+      <Filter>Include\Buffers\SSBOs</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Buffers\SSBOs\IntermediateDataSsbo.h">
+      <Filter>Include\Buffers\SSBOs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -128,12 +134,6 @@
     </Filter>
     <Filter Include="Include\RenderFrameRate">
       <UniqueIdentifier>{948f0825-f7bd-4e99-9ff8-44ea962a9fe1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\SSBOs">
-      <UniqueIdentifier>{10d689cb-a3de-4060-a112-cde5c25ebc09}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Include\SSBOs">
-      <UniqueIdentifier>{c2f70ea0-9cfc-4275-9332-efa4059d446f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\RenderFrameRate">
       <UniqueIdentifier>{876335fb-702c-4383-b253-b2d2d534542d}</UniqueIdentifier>
@@ -158,6 +158,18 @@
     </Filter>
     <Filter Include="Source\Particles">
       <UniqueIdentifier>{66bbd978-c998-4177-bcb5-0a213a4c3b54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Buffers">
+      <UniqueIdentifier>{c2f70ea0-9cfc-4275-9332-efa4059d446f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Buffers\SSBOs">
+      <UniqueIdentifier>{a861b27d-1f08-4a46-8e60-34c4cd4f119b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Buffers">
+      <UniqueIdentifier>{10d689cb-a3de-4060-a112-cde5c25ebc09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Buffers\SSBOs">
+      <UniqueIdentifier>{97485e9a-3d07-412a-b71e-506f09045e38}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

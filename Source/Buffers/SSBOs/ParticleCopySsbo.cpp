@@ -1,4 +1,4 @@
-#include "Include/SSBOs/ParticleCopySsbo.h"
+#include "Include/Buffers/SSBOs/ParticleCopySsbo.h"
 
 #include <vector>
 

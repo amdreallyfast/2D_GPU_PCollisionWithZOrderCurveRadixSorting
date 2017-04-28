@@ -1,4 +1,4 @@
-#include "Include/SSBOs/SsboBase.h"
+#include "Include/Buffers/SSBOs/SsboBase.h"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 

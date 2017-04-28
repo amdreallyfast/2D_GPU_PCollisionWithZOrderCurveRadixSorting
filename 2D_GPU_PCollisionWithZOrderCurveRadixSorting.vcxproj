@@ -148,6 +148,12 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Shaders\ShaderStorage.cpp" />
+    <ClCompile Include="Source\Buffers\AtomicCounterBuffer.cpp" />
+    <ClCompile Include="Source\Buffers\SSBOs\IntermediateDataSsbo.cpp" />
+    <ClCompile Include="Source\Buffers\SSBOs\ParticleCopySsbo.cpp" />
+    <ClCompile Include="Source\Buffers\SSBOs\ParticleSsbo.cpp" />
+    <ClCompile Include="Source\Buffers\SSBOs\PrefixSumSsbo.cpp" />
+    <ClCompile Include="Source\Buffers\SSBOs\SsboBase.cpp" />
     <ClCompile Include="Source\OpenGlErrorHandling.cpp" />
     <ClCompile Include="Source\Particles\ParticleEmitterBar.cpp" />
     <ClCompile Include="Source\Particles\ParticleEmitterPoint.cpp" />
@@ -159,13 +165,15 @@
     <ClCompile Include="Source\ShaderControllers\ParticleReset.cpp" />
     <ClCompile Include="Source\ShaderControllers\ParticleUpdate.cpp" />
     <ClCompile Include="Source\ShaderControllers\RenderParticles.cpp" />
-    <ClCompile Include="Source\SSBOs\IntermediateDataSsbo.cpp" />
-    <ClCompile Include="Source\SSBOs\ParticleCopySsbo.cpp" />
-    <ClCompile Include="Source\SSBOs\ParticleSsbo.cpp" />
-    <ClCompile Include="Source\SSBOs\PrefixSumSsbo.cpp" />
-    <ClCompile Include="Source\SSBOs\SsboBase.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Buffers\AtomicCounterBuffer.h" />
+    <ClInclude Include="Include\Buffers\IntermediateData.h" />
+    <ClInclude Include="Include\Buffers\SSBOs\IntermediateDataSsbo.h" />
+    <ClInclude Include="Include\Buffers\SSBOs\ParticleCopySsbo.h" />
+    <ClInclude Include="Include\Buffers\SSBOs\ParticleSsbo.h" />
+    <ClInclude Include="Include\Buffers\SSBOs\PrefixSumSsbo.h" />
+    <ClInclude Include="Include\Buffers\SSBOs\SsboBase.h" />
     <ClInclude Include="Include\OpenGlErrorHandling.h" />
     <ClInclude Include="Include\Particles\IParticleEmitter.h" />
     <ClInclude Include="Include\Particles\Particle.h" />
@@ -179,12 +187,6 @@
     <ClInclude Include="Include\ShaderControllers\ParticleReset.h" />
     <ClInclude Include="Include\ShaderControllers\ParticleUpdate.h" />
     <ClInclude Include="Include\ShaderControllers\RenderParticles.h" />
-    <ClInclude Include="Include\SSBOs\IntermediateData.h" />
-    <ClInclude Include="Include\SSBOs\IntermediateDataSsbo.h" />
-    <ClInclude Include="Include\SSBOs\ParticleCopySsbo.h" />
-    <ClInclude Include="Include\SSBOs\ParticleSsbo.h" />
-    <ClInclude Include="Include\SSBOs\PrefixSumSsbo.h" />
-    <ClInclude Include="Include\SSBOs\SsboBase.h" />
     <ClInclude Include="Shaders\ShaderStorage.h" />
   </ItemGroup>
   <ItemGroup>

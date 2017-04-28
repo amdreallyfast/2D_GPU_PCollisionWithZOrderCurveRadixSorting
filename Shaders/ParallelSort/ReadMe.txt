@@ -1,4 +1,5 @@
 The intermediate sort buffers and PrefixScanBuffer::AllPrefixSums buffer are the same size.
+Both IntermediateData buffers are in the same SSBO, so technically the buffer is twice the size of PrefixSumsWithinGroup, but it is divided into "read" and "write" halfs, each of which is the same size as PrefixSumsWithinGroup.
 
 
 DataToIntermediateDataForSorting.comp 

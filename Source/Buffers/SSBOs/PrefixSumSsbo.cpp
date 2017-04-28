@@ -1,4 +1,4 @@
-#include "Include/SSBOs/PrefixSumSsbo.h"
+#include "Include/Buffers/SSBOs/PrefixSumSsbo.h"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 

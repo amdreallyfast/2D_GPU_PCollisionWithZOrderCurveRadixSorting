@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Include/SSBOs/ParticleSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleSsbo.h"
 #include "ThirdParty/glm/vec4.hpp"
 
 namespace ShaderControllers

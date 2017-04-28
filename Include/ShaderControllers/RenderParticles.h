@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Include/SSBOs/ParticleSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleSsbo.h"
 
 namespace ShaderControllers
 {

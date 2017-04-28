@@ -1,4 +1,4 @@
-#include "Include/SSBOs/ParticleSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleSsbo.h"
 
 #include <vector>
 #include <random>   // for generating initial data

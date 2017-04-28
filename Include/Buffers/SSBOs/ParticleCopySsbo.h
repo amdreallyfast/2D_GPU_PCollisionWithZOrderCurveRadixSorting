@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Include/SSBOs/SsboBase.h"
+#include "Include/Buffers/SSBOs/SsboBase.h"
 
 
 /*------------------------------------------------------------------------------------------------

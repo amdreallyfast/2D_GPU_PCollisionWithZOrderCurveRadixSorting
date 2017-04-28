@@ -1,10 +1,10 @@
-#include "Include/SSBOs/IntermediateDataSsbo.h"
+#include "Include/Buffers/SSBOs/IntermediateDataSsbo.h"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 #include "Shaders/ComputeHeaders/SsboBufferBindings.comp"
 #include "Shaders/ComputeHeaders/CrossShaderUniformLocations.comp"
 
-#include "Include/SSBOs/IntermediateData.h"
+#include "Include/Buffers/IntermediateData.h"
 
 #include <vector>
 

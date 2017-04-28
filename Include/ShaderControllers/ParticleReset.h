@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 
-#include "Include/SSBOs/ParticleSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleSsbo.h"
 #include "Include/Particles/IParticleEmitter.h"
 #include "Include/Particles/ParticleEmitterPoint.h"
 #include "Include/Particles/ParticleEmitterBar.h"

@@ -46,7 +46,7 @@
 #include "ThirdParty/glm/gtc/matrix_transform.hpp"
 
 #include "Include/Particles/Particle.h"
-#include "Include/SSBOs/ParticleSsbo.h"
+#include "Include/Buffers/SSBOs/ParticleSsbo.h"
 #include "Include/ShaderControllers/ParticleReset.h"
 #include "Include/ShaderControllers/ParticleUpdate.h"
 #include "Include/ShaderControllers/ParallelSort.h"
@@ -177,7 +177,11 @@ void Init()
 
 
 
-    //// first time just to upload everything 
+    //// for profiling 
+    //// Note: The first call uploads all the buffers before sorting, so the numbers are screwed a 
+    //// bit.  They are already loaded on the second call, so that call runs more like what it 
+    //// would run in real time.
+    //parallelSort->SortWithProfiling();
     //parallelSort->SortWithProfiling();
 
     // the timer will be used for framerate calculations
