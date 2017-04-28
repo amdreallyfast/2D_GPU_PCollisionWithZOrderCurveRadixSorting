@@ -1,0 +1,87 @@
+/*------------------------------------------------------------------------------------------------
+Description:
+    This is a parallel prefix sums algorithm that uses shared memory, a binary tree, and no 
+    atomic counters to build up a prefix sum within a work group.  This is advantageous because 
+    it uses fast shared memory instead of having many threads get in line to use atomic 
+    counters, of which there are a limited number, on global memory.
+
+    Thanks to developer.nvidia.com, GPU Gems 3, Chapter 39. Parallel Prefix Sum (Scan) with CUDA
+    for the algorithm (despite the code golfing variable names and lack of comments, at least 
+    they had pictures that I could eventually work out).
+    http://http.developer.nvidia.com/GPUGems3/gpugems3_ch39.html
+Creator:    John Cox, 3/11/2017
+------------------------------------------------------------------------------------------------*/
+
+// REQUIRES Version.comp
+// REQUIRES ComputeShaderWorkGroupSizes.comp
+// - PARALLEL_SORT_WORK_GROUP_SIZE_X
+// - PARALLEL_SORT_ITEMS_PER_WORK_GROUP
+// REQUIRES CrossShaderUniformLocations.comp
+// REQUIRES SsboBufferBindings.comp
+// REQUIRES PrefixScanBuffer.comp
+
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Like CalculatePrefixSumsWithinGroup(), but only for the PrefixSumsByGroup.  Yes, this is a 
+    prefix sum calculation over other prefix sums.  How meta.  It is necessary though so that 
+    the total prefix sum of values in different work groups can be calculated prior to the call 
+    to SortIntermediateData().
+
+    Note: The "fast temp array" of shared memory is not used here.  I didn't see a performance 
+    gain when I started using it (I learned it from an article on CUDA, so it might be an OpenGL 
+    vs CUDA thing), plus I wanted to keep around this algorithm that didn't use it because it is 
+    a little shorter.
+Parameters: None
+Returns:    None
+Creator:    John Cox, 3/16/2017
+------------------------------------------------------------------------------------------------*/
+void PrefixSumOverPrefixSumsByGroup()
+{
+    // the PrefixSumsByGroup array is only one work group's worth of data, so the starting 
+    // index is implicitly 0 and there is no need for a workGroupStartingIndex
+    uint doubleGroupThreadIndex = gl_LocalInvocationID.x * 2;
+
+    uint indexMultiplierDueToDepth = 1;
+    for (int dataPairs = PARALLEL_SORT_ITEMS_PER_WORK_GROUP >> 1; dataPairs > 0; dataPairs >>= 1)
+    {
+        barrier();
+
+        if (gl_LocalInvocationID.x < dataPairs)
+        {
+            uint lesserIndex = (indexMultiplierDueToDepth * (doubleGroupThreadIndex + 1)) - 1;
+            uint greaterIndex = (indexMultiplierDueToDepth * (doubleGroupThreadIndex + 2)) - 1;
+
+            PrefixSumsByGroup[greaterIndex] += PrefixSumsByGroup[lesserIndex];
+        }
+        indexMultiplierDueToDepth *= 2;
+    }
+
+    // only one thread should do these (prevents unnecessary writes)
+    if (doubleGroupThreadIndex == 0)
+    {
+        totalNumberOfOnes = PrefixSumsByGroup[PARALLEL_SORT_ITEMS_PER_WORK_GROUP - 1];
+        PrefixSumsByGroup[PARALLEL_SORT_ITEMS_PER_WORK_GROUP - 1] = 0;
+    }
+    indexMultiplierDueToDepth >>= 1;
+    
+    for (int dataPairs = 1; dataPairs < PARALLEL_SORT_ITEMS_PER_WORK_GROUP; dataPairs *= 2)
+    {
+        barrier();
+        
+        if (gl_LocalInvocationID.x < dataPairs)
+        {
+            uint lesserIndex = (indexMultiplierDueToDepth * (doubleGroupThreadIndex + 1)) - 1;
+            uint greaterIndex = (indexMultiplierDueToDepth * (doubleGroupThreadIndex + 2)) - 1;
+    
+            uint temp = PrefixSumsByGroup[lesserIndex];
+            PrefixSumsByGroup[lesserIndex] = PrefixSumsByGroup[greaterIndex];
+            PrefixSumsByGroup[greaterIndex] += temp;
+        }
+    
+        indexMultiplierDueToDepth >>= 1;
+    }
+}
+
+
+

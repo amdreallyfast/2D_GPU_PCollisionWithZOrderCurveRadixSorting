@@ -1,0 +1,16 @@
+/*------------------------------------------------------------------------------------------------
+Description:
+    This is part of the "god shader" attempt to consolidate the various stages of the parallel sort into a single shader.  I am doing this in the hope that there will be a performance increase over the 1 prep shader + (32 loops * 4 shaders per loop) + 1 final sort shader = 130 program bindings that are currently necesary for the compute shader to work.
+
+    These #defines will be used in both ParallelSort.comp and in the ParallelSort compute controller
+
+    TODO: ??did this work??
+Creator:    John Cox, 4/2017
+------------------------------------------------------------------------------------------------*/
+
+#define SORT_STAGE_PARTICLE_DATA_TO_INTERMEDIATE_DATA 0
+#define SORT_STAGE_GET_BIT_FOR_PREFIX_SCAN 1
+#define SORT_STAGE_PREFIX_SCAN_INTERMEDIATE_DATA 2
+#define SORT_STAGE_PREFIX_SCAN_WORKGROUP_SUMS 3
+#define SORT_STAGE_SORT_INTERMEDIATE_DATA 4
+#define SORT_STAGE_SORT_PARTICLE_DATA 5

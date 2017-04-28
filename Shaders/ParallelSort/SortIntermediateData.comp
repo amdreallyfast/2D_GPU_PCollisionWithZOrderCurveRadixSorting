@@ -5,12 +5,7 @@
 // REQUIRES SsboBufferBindings.comp
 // REQUIRES IntermediateSortBuffers.comp
 // REQUIRES PrefixScanBuffer.comp
-
-// Y and Z work group sizes default to 1
-layout (local_size_x = PARALLEL_SORT_WORK_GROUP_SIZE_X) in;
-
-// also used in GetBitForPrefixScans.comp (different uniform of course because different shader)
-layout(location = UNIFORM_LOCATION_BIT_NUMBER) uniform uint uBitNumber;
+// REQUIRES UniformBitNumber.comp
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -21,15 +16,19 @@ Description:
     This is part of the Radix Sort algorithm.
     Note: As per Radix Sort, the value must remain relative to others with the same value.
     Suppose there is the following data: 0 1 0 0 1 1 0
+    After sorting it looks like this:    0 0 0 0 1 1 1
     The 0s will be gathered to the left and the 1s to the right, but not in just any order.  The 
     first 0 will be on the far left, the second 0 after that, the third 0 after that, and the 
-    fourth 0 after that.  Then the first 1, then the second 1, then the third. 
+    fourth 0 after that.  Then the first 1, then the second 1, then the third. This is why the 
+    prefix sums per work group and then the prefix sums over all of that are necessary.  Each 
+    value in every work group must know the total prefix sum that came before it so that the 
+    order of 0s and 1s is maintained.
 
 Parameters: None
 Returns:    None
 Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
-void main()
+void SortIntermediateData()
 {
     // Note: Thread count should be the size of the PrefixScanBuffer::PrefixSumsWithinGroup 
     // array.  

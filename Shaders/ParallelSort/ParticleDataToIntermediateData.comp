@@ -7,9 +7,6 @@
 // REQUIRES IntermediateSortBuffers.comp
 // REQUIRES PositionToMortonCode.comp
 
-// Y and Z work group sizes default to 1
-layout (local_size_x = PARALLEL_SORT_WORK_GROUP_SIZE_X) in;
-
 /*------------------------------------------------------------------------------------------------
 Description:
     Adapt to whatever needs to be sorted as necessary.
@@ -22,7 +19,7 @@ Parameters: None
 Returns:    None
 Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
-void main()
+void ParticleDataToIntermediateData()
 {
     // Note: The number of items in each half of IntermediateSortBuffers is equivalent to the 
     // number of items in the PrefixScanBuffer::PrefixSumsWithinGroup, which will likely exceed 

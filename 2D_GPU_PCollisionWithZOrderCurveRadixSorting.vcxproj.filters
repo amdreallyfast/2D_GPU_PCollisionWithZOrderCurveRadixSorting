@@ -173,9 +173,6 @@
     <None Include="Shaders\ComputeHeaders\Version.comp">
       <Filter>Shaders\ComputeHeaders</Filter>
     </None>
-    <None Include="Shaders\ParallelSort\ParallelPrefixScan.comp">
-      <Filter>Shaders\ParallelSort</Filter>
-    </None>
     <None Include="Shaders\ParallelSort\PrefixScanBuffer.comp">
       <Filter>Shaders\ParallelSort</Filter>
     </None>
@@ -232,6 +229,21 @@
     </None>
     <None Include="Shaders\ParticleCollisions.comp">
       <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\ParallelSort\ParallelSort.comp">
+      <Filter>Shaders\ParallelSort</Filter>
+    </None>
+    <None Include="Shaders\ParallelSort\ParallelPrefixScanIntermediateData.comp">
+      <Filter>Shaders\ParallelSort</Filter>
+    </None>
+    <None Include="Shaders\ParallelSort\ParallelPrefixScanWorkgroupSums.comp">
+      <Filter>Shaders\ParallelSort</Filter>
+    </None>
+    <None Include="Shaders\ParallelSort\ParallelSortStages.comp">
+      <Filter>Shaders\ParallelSort</Filter>
+    </None>
+    <None Include="Shaders\ParallelSort\UniformBitNumber.comp">
+      <Filter>Shaders\ParallelSort</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

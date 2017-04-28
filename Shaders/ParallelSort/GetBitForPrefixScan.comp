@@ -5,12 +5,7 @@
 // REQUIRES SsboBufferBindings.comp
 // REQUIRES IntermediateSortBuffers.comp
 // REQUIRES PrefixScanBuffer.comp
-
-// Y and Z work group sizes default to 1
-layout (local_size_x = PARALLEL_SORT_WORK_GROUP_SIZE_X) in;
-
-// also used in SortIntermediateData.comp (different uniform of course because different shader)
-layout(location = UNIFORM_LOCATION_BIT_NUMBER) uniform uint uBitNumber;
+// REQUIRES UniformBitNumber.comp
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -22,14 +17,14 @@ Parameters: None
 Returns:    None
 Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
-void main()
+void GetBitForPrefixScan()
 {
     // extract the bit value, NOT the positional bit value
     // Ex: What is the value of the 3rd bit in 0b101011?
     // The bit value at bit 3 is 0b101011 & 0b001000 = 0b001000 = 8.
     // The positional bit value at bit 3 is (0b101011 >> 3) & 0b000001 = 0b000101 & 0b000001 = 1;
-    // Two very different values.  Radix Sort sorts by bit values, not by positional bit values, 
-    // so use the second approach.
+    // Two very different values.  Radix Sort sorts by positional bit values, so use the second 
+    // approach.
     // Also Note: The "& 1" is very important.  This is 32bit land (at the time of this demo), 
     // so there are 31 0s to left of the 1, and they will strip off any additional 1s in the 
     // value, leaving just the value of the desired bit.

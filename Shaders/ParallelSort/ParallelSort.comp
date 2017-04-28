@@ -1,0 +1,92 @@
+// REQUIRES Version.comp
+// REQUIRES ComputeShaderWorkGroupSizes.comp
+// - PARALLEL_SORT_WORK_GROUP_SIZE_X
+// - PARALLEL_SORT_ITEMS_PER_WORK_GROUP
+// REQUIRES CrossShaderUniformLocations.comp
+// REQUIRES ParallelSortStages.comp
+
+// buffers
+// REQUIRES SsboBufferBindings.comp
+// REQUIRES ParticleBuffer.comp
+// REQUIRES PrefixScanBuffer.comp
+// REQUIRES IntermediateSortBuffers.comp
+
+// helper functions
+// REQUIRES PositionToMortonCode.comp
+
+// the shader stages themselves
+// REQUIRES ParticleDataToIntermediateData.comp
+// REQUIRES UniformBitNumber.comp
+// REQUIRES GetBitForPrefixScan.comp
+// REQUIRES ParallelPrefixScanIntermediateData.comp
+// REQUIRES ParallelPrefixScanWorkgroupSums.comp
+// REQUIRES SortIntermediateData.comp
+// REQUIRES SortParticleData.comp
+
+// Y and Z work group sizes default to 1
+layout (local_size_x = PARALLEL_SORT_WORK_GROUP_SIZE_X) in;
+
+
+
+uniform uint uSortStage;
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    This function governs all the stages for the parallel sort.  Ordinarily, branching is 
+    frowned upon in shaders because all the threads that satisfy the condition take one branch 
+    and then all the threads that don't take another branch, and this causes the two groups of 
+    threads to wait on each other, but in this case, the branch condition is set by a uniform 
+    and all threads will take the same branch, so there shouldn't be a problem.
+Parameters: None
+Returns:    None
+Creator:    John Cox, 4/2017
+------------------------------------------------------------------------------------------------*/
+void main()
+{
+    // Note: This algorithm is closely tied to the size of a work group, and when setting up for 
+    // it care is taken to make sure that all threads within a work group have something to do, 
+    // so as long as care keeps being taken to make sure that all threads are busy, then there 
+    // is no need for a "max thread count" check or something like that.  The ParallelSort 
+    // compute shader controller takes care of this.
+
+    if (uSortStage == SORT_STAGE_PARTICLE_DATA_TO_INTERMEDIATE_DATA)
+    {
+        // take a data structure that needs to be sorted by a value (must be unsigned int for 
+        // radix sort to work) and put it into an intermediate structure that has the value and 
+        // the index of the original data structure in the ParticleBuffer
+        ParticleDataToIntermediateData();
+    }
+    else if (uSortStage == SORT_STAGE_GET_BIT_FOR_PREFIX_SCAN)
+    {
+        // on each loop in Sort(), pluck out a single bit and add it to the 
+        // PrefixScanBuffer::PrefixSumsWithinGroup array
+        GetBitForPrefixScan();
+    }
+    else if (uSortStage == SORT_STAGE_PREFIX_SCAN_INTERMEDIATE_DATA)
+    {
+        // on each loop in Sort(), run the prefix scan over 
+        // PrefixScanBuffer::PrefixSumsWithinGroup
+        PrefixSumOverIntermediateData();
+    }
+    else if (uSortStage == SORT_STAGE_PREFIX_SCAN_WORKGROUP_SUMS)
+    {
+        // on each loop in Sort(), run the scan again over PrefixScanBuffer::PrefixSumsByGroup
+        PrefixSumOverPrefixSumsByGroup();
+    }
+    else if (uSortStage == SORT_STAGE_SORT_INTERMEDIATE_DATA)
+    {
+        // on each loop in Sort(), sort the "read" array from IntermediateSortBuffers into the 
+        // "write" array
+        SortIntermediateData();
+    }
+    else if (uSortStage == SORT_STAGE_SORT_PARTICLE_DATA)
+    {
+        // after the loop, sort the original data according to the sorted intermediate data
+        SortParticleData();
+    }
+    else
+    {
+        // unknown stage; can't thrown an exception or intentionally divide by 0 (??can I??), so just return
+    }
+
+}

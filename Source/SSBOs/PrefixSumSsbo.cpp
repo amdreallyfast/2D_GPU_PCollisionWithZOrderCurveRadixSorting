@@ -191,8 +191,9 @@ unsigned int PrefixSumSsbo::NumPerGroupPrefixSums() const
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    Returns the number of integers that have been allocated for the PrefixSumsWithinGroup array.  The 
-    constructor ensures that there are enough entries for every item to be part of a work group.  
+    Returns the number of integers that have been allocated for the PrefixSumsWithinGroup array.  
+    The constructor ensures that there are enough entries for every item to be part of a work 
+    group.  
 Parameters: None
 Returns:    
     See Description.

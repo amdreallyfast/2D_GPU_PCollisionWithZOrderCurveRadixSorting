@@ -32,8 +32,8 @@ Creator:    John Cox, 3/2017
 #define UNIFORM_LOCATION_ALL_PREFIX_SUMS_SIZE 4
 
 // GetBitForPrefixScans.comp
-#define UNIFORM_LOCATION_BIT_NUMBER 5
+//#define UNIFORM_LOCATION_BIT_NUMBER 5
 
 // ParallelPrefixScan.comp
-#define UNIFORM_LOCATION_CALCULATE_ALL 6
+//#define UNIFORM_LOCATION_CALCULATE_ALL 6
 

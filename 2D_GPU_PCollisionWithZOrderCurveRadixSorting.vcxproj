@@ -196,11 +196,15 @@
     <None Include="Shaders\FreeType.vert" />
     <None Include="Shaders\ParallelSort\GetBitForPrefixScan.comp" />
     <None Include="Shaders\ParallelSort\IntermediateSortBuffers.comp" />
-    <None Include="Shaders\ParallelSort\ParallelPrefixScan.comp" />
+    <None Include="Shaders\ParallelSort\ParallelPrefixScanIntermediateData.comp" />
+    <None Include="Shaders\ParallelSort\ParallelPrefixScanWorkgroupSums.comp" />
+    <None Include="Shaders\ParallelSort\ParallelSort.comp" />
+    <None Include="Shaders\ParallelSort\ParallelSortStages.comp" />
     <None Include="Shaders\ParallelSort\ParticleDataToIntermediateData.comp" />
     <None Include="Shaders\ParallelSort\PrefixScanBuffer.comp" />
     <None Include="Shaders\ParallelSort\SortIntermediateData.comp" />
     <None Include="Shaders\ParallelSort\SortParticleData.comp" />
+    <None Include="Shaders\ParallelSort\UniformBitNumber.comp" />
     <None Include="Shaders\ParticleBuffer.comp" />
     <None Include="Shaders\ParticleCollisions.comp" />
     <None Include="Shaders\ParticleRender.frag" />

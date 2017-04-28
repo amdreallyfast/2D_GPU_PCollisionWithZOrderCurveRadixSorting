@@ -177,8 +177,9 @@ void Init()
 
 
 
-    //// first time just to upload everything 
-    //parallelSort->SortWithProfiling();
+    // first time just to upload everything 
+    parallelSort->SortWithProfiling();
+    parallelSort->SortWithProfiling();
 
     // the timer will be used for framerate calculations
     gTimer.Start();

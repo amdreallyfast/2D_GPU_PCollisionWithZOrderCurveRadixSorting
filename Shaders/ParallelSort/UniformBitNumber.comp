@@ -1,0 +1,8 @@
+/*------------------------------------------------------------------------------------------------
+Description:
+    The uniform "bit number" is used in both GetBitForPrefixScan.comp and in SortIntermediateData.comp.  When they were different shaders, I could use a cross-shader uniform location.  Then I started the "god shader" experiment and saw that both of those shaders' contents would end up in the same shader, so I couldn't use the same uniform name once in each file.  
+    Solution: Make a compute "header" with the uniform, and then "include" this file in the composite shader before adding GetBitForPrefixScan.comp and SortIntermediateData.comp.
+Creator:    John Cox, 4/2017
+------------------------------------------------------------------------------------------------*/
+uniform uint uBitNumber;
+
