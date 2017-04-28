@@ -27,15 +27,38 @@ namespace ShaderControllers
         allocates various buffers for the sorting.  Buffer sizes are highly dependent on the 
         size of the original data.  They are expected to remain constant after class creation.
 
-        The original data's SSBO MUST be passed in so that:
-        (1) The uniform specifying buffer size can be set for any compute shaders that use it.
-        (2) The sorted OriginalDataCopyBuffer can be copied back to the ParticleBuffer.
+        Note: The argument is a copy, not a reference.  A const pointer in the land of shared
+        pointers is a different type than a non-const pointer (see the definition of the type)
+        and there is no conversion from a shared_ptr<class> reference to a
+        shared_ptr<const class> reference, but there is a copy constructor for it.  I want to
+        use shared pointers and I want to use const pointers, so I have to use the copy
+        constructor.  Shared pointer construction is cheap though, so its fine.
+
+        Also Note: This SSBO must be passed into the constructor because part of the sorting
+        algorithm is copying the contents of the ParticleSsbo into a copy SSBO of the same
+        size.  That size must be determined in this constructor (I don't want to create the copy
+        SSBO anew on every Sort() call).  A simple unsigned integer could be passed in instead,
+        but the size of the particle buffer is specific to the SSBO that needs to be sorted.
+        Besides, the sorted particle data needs to be copied into the copy SSBO and then put
+        back into the original SSBO in its sorted order (this is the final stage of Sort()).
+
+        So the options are either
+        (1) Constructor is blank and particle SSBO is passed into the Sort() method, then the
+        copy SSBO is created anew on every Sort() call (don't know if it's the same
+        SSBO).  This is a performance concern.
+        (2) Constructor takes the particle SSBO and Sort() takes no arguments.  The copy SSBO
+        is created on startup, but a copy of the SSBO must be kept around so that the
+        original data can be copied at the end of Sort().  This increases coupling between a
+        ParallelSort object and the SSBO that is being sorted, but it is not a performance
+        concern.
+
+        I'll take option (2).
     Parameters:
         dataToSort  See Description.
     Returns:    None
     Creator:    John Cox, 3/2017
     --------------------------------------------------------------------------------------------*/
-    ParallelSort::ParallelSort(const ParticleSsbo::SHARED_PTR &dataToSort) :
+    ParallelSort::ParallelSort(const ParticleSsbo::CONST_SHARED_PTR dataToSort) :
         _particleDataToIntermediateDataProgramId(0),
         _getBitForPrefixScansProgramId(0),
         _parallelPrefixScanProgramId(0),
@@ -67,7 +90,7 @@ namespace ShaderControllers
         _particleDataToIntermediateDataProgramId = shaderStorageRef.GetShaderProgram(shaderKey);
 
         // on each loop in Sort(), pluck out a single bit and add it to the 
-        // PrefixScanBuffer::PrefixSumsWithinGroup array
+        // PrefixScanBuffer::PrefixSumsPerWorkGroup array
         shaderKey = "get bit for prefix sums";
         shaderStorageRef.NewCompositeShader(shaderKey);
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/Version.comp");
@@ -81,8 +104,8 @@ namespace ShaderControllers
         shaderStorageRef.LinkShader(shaderKey);
         _getBitForPrefixScansProgramId = shaderStorageRef.GetShaderProgram(shaderKey);
 
-        // run the prefix scan over PrefixScanBuffer::PrefixSumsWithinGroup, and after that run 
-        // the scan again over PrefixScanBuffer::PrefixSumsByGroup
+        // run the prefix scan over PrefixScanBuffer::PrefixSumsPerWorkGroup, and after that run 
+        // the scan again over PrefixScanBuffer::PrefixSumsOfWorkGroupSums
         shaderKey = "parallel prefix scan";
         shaderStorageRef.NewCompositeShader(shaderKey);
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/Version.comp");
@@ -138,7 +161,7 @@ namespace ShaderControllers
         _prefixSumSsbo->ConfigureConstantUniforms(_sortIntermediateDataProgramId);
 
         // see explanation in the PrefixSumSsbo constructor for why there are likely more 
-        // entries in PrefixScanBuffer::PrefixSumsWithinGroup than the requested number of items 
+        // entries in PrefixScanBuffer::PrefixSumsPerWorkGroup than the requested number of items 
         // that need sorting
         unsigned int numEntriesInPrefixSumBuffer = _prefixSumSsbo->NumDataEntries();
         _intermediateDataSsbo = std::make_unique<IntermediateDataSsbo>(numEntriesInPrefixSumBuffer);
@@ -233,7 +256,7 @@ namespace ShaderControllers
             glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
             // prefix scan over per-work-group sums
-            // Note: The PrefixSumsByGroup array is sized to be exactly enough for 1 work group.  
+            // Note: The PrefixSumsOfWorkGroupSums array is sized to be exactly enough for 1 work group.  
             // It makes the prefix sum easier than trying to eliminate excess threads.
             glUniform1ui(UNIFORM_LOCATION_CALCULATE_ALL, 0);
             glDispatchCompute(1, numWorkGroupsY, numWorkGroupsZ);
@@ -370,7 +393,7 @@ namespace ShaderControllers
             durationsPrefixScanAll[bitNumber] = (duration_cast<microseconds>(end - start).count());
 
             // prefix scan over per-work-group sums
-            // Note: The PrefixSumsByGroup array is sized to be exactly enough for 1 work group.  
+            // Note: The PrefixSumsOfWorkGroupSums array is sized to be exactly enough for 1 work group.  
             // It makes the prefix sum easier than trying to eliminate excess threads.
             start = high_resolution_clock::now();
             glUniform1ui(UNIFORM_LOCATION_CALCULATE_ALL, 0);

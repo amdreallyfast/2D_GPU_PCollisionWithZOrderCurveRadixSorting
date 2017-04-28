@@ -15,7 +15,7 @@ layout(location = UNIFORM_LOCATION_BIT_NUMBER) uniform uint uBitNumber;
 /*------------------------------------------------------------------------------------------------
 Description:
     Grabs a bit from the "read" buffer of the IntermediateSortBuffers and puts it into the 
-    PrefixScanBuffer::PrefixSumsWithinGroup array.
+    PrefixScanBuffer::PrefixSumsPerWorkGroup array.
 
     This is part of the Radix Sort algorithm.
 Parameters: None
@@ -36,11 +36,11 @@ void main()
     uint intermediateDataReadIndex = gl_GlobalInvocationID.x + uIntermediateBufferReadOffset;
     uint bitVal = (IntermediateDataBuffer[intermediateDataReadIndex]._data >> uBitNumber) & 1;
 
-    // Note: Thread count should be the size of the PrefixScanBuffer::PrefixSumsWithinGroup 
+    // Note: Thread count should be the size of the PrefixScanBuffer::PrefixSumsPerWorkGroup 
     // array, so no special calculations are required for the "write" index.
-    PrefixSumsWithinGroup[gl_GlobalInvocationID.x] = bitVal;
+    PrefixSumsPerWorkGroup[gl_GlobalInvocationID.x] = bitVal;
 
-    // clear out the PrefixSumsByGroup array
+    // clear out the PrefixSumsOfWorkGroupSums array
     // Note: This is more than just cleanup.  The ParallelPrefixScan on all the data will only 
     // fill out the per-work-group sum for each work group in use, NOT for each work group that 
     // is NOT in use.  If the sums of the work groups that are not in use are not cleared, then 
@@ -50,19 +50,19 @@ void main()
     // size of 1 work group, so the only work group that is guaranteed to exist is work group 0.
     // Also Also Note: This reset cannot be performed in ParallelPrefixScan.comp because there 
     // is no guaranteed work group launch order.  If I tried to say that, at the beginning of 
-    // the parallel prefix scan, work group 0's threads will clean out the PrefixSumsByGroup 
+    // the parallel prefix scan, work group 0's threads will clean out the PrefixSumsOfWorkGroupSums 
     // array, it may be that (for example) work group 57 will launch before work group 0, so 
-    // that work group would record a value in PrefixSumsByGroup[57], but then work group 0 
+    // that work group would record a value in PrefixSumsOfWorkGroupSums[57], but then work group 0 
     // comes along afterwards and sets it to 0.  Whoops.  The only way to guarantee that these 
     // will be set to 0 before running the prefix scan is to set them to 0 in a shader that runs 
     // prior.
     if (gl_WorkGroupID.x == 0)
     {
         // ParallelPrefixScan.comp was designed to work on 2 items per thread (it's the unusual 
-        // one), so the PrefixScanBuffer::PrefixSumsByGroup is double the size of the work 
+        // one), so the PrefixScanBuffer::PrefixSumsOfWorkGroupSums is double the size of the work 
         // group, but this shader only works on 1 item per thread, so need to double the thread 
         // index
-        PrefixSumsByGroup[(gl_LocalInvocationID.x * 2)] = 0;
-        PrefixSumsByGroup[(gl_LocalInvocationID.x * 2) + 1] = 0;
+        PrefixSumsOfWorkGroupSums[(gl_LocalInvocationID.x * 2)] = 0;
+        PrefixSumsOfWorkGroupSums[(gl_LocalInvocationID.x * 2) + 1] = 0;
     }
 }

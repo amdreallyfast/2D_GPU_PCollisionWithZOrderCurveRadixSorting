@@ -16,9 +16,7 @@ namespace ShaderControllers
         
         Constructs the PaticleCollide compute shader out of the necessary shader pieces.
     Parameters: 
-        ssboToWorkWith  This is the SSBO that will be configured to work with this shader controller.
-        
-        ??change design so that the SSBO is configured at draw time? do I have a reason to other than a pipe dream of maybe having two particle SSBOs??
+        ssboToWorkWith  The SSBO that will be configured to work with this shader controller.
     Returns:    None
     Creator:    John Cox, 4/2017
     --------------------------------------------------------------------------------------------*/
@@ -75,8 +73,10 @@ namespace ShaderControllers
     --------------------------------------------------------------------------------------------*/
     void ParticleCollide::DetectAndResolveCollisions()
     {
-        // let particle collision detection and resolution occur in pairs (the collision resolution math is intended for pairs anyway)
-        // Note: Add 1 in case there are an odd number of particles.  I want to make sure that all particles are covered.
+        // let particle collision detection and resolution occur in pairs (the collision 
+        // resolution math is intended for pairs anyway)
+        // Note: Add 1 in case there are an odd number of particles.  I want to make sure that 
+        // all particles are covered.
         unsigned int halfParticleCount = (_totalParticleCount / 2) + 1;
         GLuint numWorkGroupsX = (halfParticleCount / PARTICLE_OPERATIONS_WORK_GROUP_SIZE_X) + 1;
         GLuint numWorkGroupsY = 1;
@@ -84,8 +84,8 @@ namespace ShaderControllers
 
         glUseProgram(_computeProgramId);
 
-        // see explanation of Particle::__hasCollidedAlreadyThisFrame in Particle.h for an
-        // explanation of why the collision check needs to happen twice per frame
+        // see explanation of why this is launched twice in ParticleCollisions.comp in the 
+        // comment block for uIndexOffsetBy0Or1
         glUniform1f(_unifLocIndexOffsetBy0Or1, 0);
         glDispatchCompute(numWorkGroupsX, numWorkGroupsY, numWorkGroupsZ);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);

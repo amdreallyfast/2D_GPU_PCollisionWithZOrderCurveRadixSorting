@@ -25,7 +25,7 @@ Creator:    John Cox, 3/2017
 void main()
 {
     // Note: The number of items in each half of IntermediateSortBuffers is equivalent to the 
-    // number of items in the PrefixScanBuffer::PrefixSumsWithinGroup, which will likely exceed 
+    // number of items in the PrefixScanBuffer::PrefixSumsPerWorkGroup, which will likely exceed 
     // the size of the user-provided data.  The number of threads is managed by 
     // ParallelSort::Sort() to be the same as the number of data entries that need to be filled 
     // out, so if the thread ID is greater than the number of user-provided data entries, pad 

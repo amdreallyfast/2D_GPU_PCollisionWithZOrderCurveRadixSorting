@@ -31,7 +31,7 @@ Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
 void main()
 {
-    // Note: Thread count should be the size of the PrefixScanBuffer::PrefixSumsWithinGroup 
+    // Note: Thread count should be the size of the PrefixScanBuffer::PrefixSumsPerWorkGroup 
     // array.  
     uint threadIndex = gl_GlobalInvocationID.x;
 
@@ -40,16 +40,16 @@ void main()
     // shader deals with one entry per thread, so divide work group ID in half to get the right 
     // prefix sum
     uint prefixSumOfOnes = 
-        PrefixSumsByGroup[gl_WorkGroupID.x / 2] + 
-        PrefixSumsWithinGroup[threadIndex];
+        PrefixSumsOfWorkGroupSums[gl_WorkGroupID.x / 2] + 
+        PrefixSumsPerWorkGroup[threadIndex];
 
     // there are only 0s and 1s, so if they weren't counted in the sum, then they are 0s
-    // Note: I could have used uIntermediateBufferHalfSize instead of uPrefixSumsWithinGroupSize 
+    // Note: I could have used uIntermediateBufferHalfSize instead of uPrefixSumsPerWorkGroupArraySize 
     // because they must be identical for the index calculations to line up when determining 
     // which prefix sum is meant for which IntermediateData structure, but I did it this way to 
     // try to keep the terminology straight.
     uint prefixSumOfZeros = threadIndex - prefixSumOfOnes;
-    uint totalNumberOfZeros = uPrefixSumsWithinGroupSize - totalNumberOfOnes;
+    uint totalNumberOfZeros = uPrefixSumsPerWorkGroupArraySize - totalNumberOfOnes;
 
     // this values determines if the value should go with the 0s or with 1s on this sort step
     uint intermediateDataReadIndex = threadIndex + uIntermediateBufferReadOffset;

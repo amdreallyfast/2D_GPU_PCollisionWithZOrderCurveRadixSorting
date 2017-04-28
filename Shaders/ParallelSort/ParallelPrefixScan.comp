@@ -38,7 +38,7 @@ Parameters: None
 Returns:    None
 Creator:    John Cox, 3/16/2017
 ------------------------------------------------------------------------------------------------*/
-void CalculatePrefixSumsWithinGroup()
+void CalculatePrefixSumsPerWorkGroup()
 {
     // wait for all the threads in this group to do the shared memory initialization
     // Note: Consider this code: 
@@ -58,8 +58,8 @@ void CalculatePrefixSumsWithinGroup()
 
     // Copy from global to shared data for a faster algorithm (and easier index calculations)
     // Note: Two elements per thread.
-    fastTempArr[doubleGroupThreadIndex] = PrefixSumsWithinGroup[doubleGlobalThreadIndex];
-    fastTempArr[doubleGroupThreadIndex + 1] = PrefixSumsWithinGroup[doubleGlobalThreadIndex + 1];
+    fastTempArr[doubleGroupThreadIndex] = PrefixSumsPerWorkGroup[doubleGlobalThreadIndex];
+    fastTempArr[doubleGroupThreadIndex + 1] = PrefixSumsPerWorkGroup[doubleGlobalThreadIndex + 1];
 
     // called simply "offset" in the GPU Gems article, this is a multiplier that works in 
     // conjunction with the thread number to calculate which index pairs are being considered on 
@@ -97,7 +97,7 @@ void CalculatePrefixSumsWithinGroup()
         // has the sum of all items in the entire array.  The following "going down" loop will 
         // change the data into a prefix-only sums array, so record the entire sum while it is 
         // still available.
-        PrefixSumsByGroup[gl_WorkGroupID.x] = fastTempArr[PARALLEL_SORT_ITEMS_PER_WORK_GROUP - 1];
+        PrefixSumsOfWorkGroupSums[gl_WorkGroupID.x] = fastTempArr[PARALLEL_SORT_ITEMS_PER_WORK_GROUP - 1];
        
         // this is just part of the algorithm; I don't have an intuitive explanation
         fastTempArr[PARALLEL_SORT_ITEMS_PER_WORK_GROUP - 1] = 0;
@@ -137,20 +137,20 @@ void CalculatePrefixSumsWithinGroup()
     // write the data back, two elements per thread, but wait for all the group threads to 
     // finish their loops first
     barrier();
-    PrefixSumsWithinGroup[doubleGlobalThreadIndex] = fastTempArr[doubleGroupThreadIndex];
-    PrefixSumsWithinGroup[doubleGlobalThreadIndex + 1] = fastTempArr[doubleGroupThreadIndex + 1];
+    PrefixSumsPerWorkGroup[doubleGlobalThreadIndex] = fastTempArr[doubleGroupThreadIndex];
+    PrefixSumsPerWorkGroup[doubleGlobalThreadIndex + 1] = fastTempArr[doubleGroupThreadIndex + 1];
 }
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    Like CalculatePrefixSumsWithinGroup(), but only for the PrefixSumsByGroup.
+    Like CalculatePrefixSumsPerWorkGroup(), but only for the PrefixSumsOfWorkGroupSums.
 Parameters: None
 Returns:    None
 Creator:    John Cox, 3/16/2017
 ------------------------------------------------------------------------------------------------*/
-void PrefixSumOnPrefixSumsByGroup()
+void PrefixSumOnPrefixSumsOfWorkGroupSums()
 {
-    // the PrefixSumsByGroup array is only one work group's worth of data, so the starting 
+    // the PrefixSumsOfWorkGroupSums array is only one work group's worth of data, so the starting 
     // index is implicitly 0 and there is no need for a workGroupStartingIndex
     uint doubleGroupThreadIndex = gl_LocalInvocationID.x * 2;
 
@@ -164,7 +164,7 @@ void PrefixSumOnPrefixSumsByGroup()
             uint lesserIndex = (indexMultiplierDueToDepth * (doubleGroupThreadIndex + 1)) - 1;
             uint greaterIndex = (indexMultiplierDueToDepth * (doubleGroupThreadIndex + 2)) - 1;
 
-            PrefixSumsByGroup[greaterIndex] += PrefixSumsByGroup[lesserIndex];
+            PrefixSumsOfWorkGroupSums[greaterIndex] += PrefixSumsOfWorkGroupSums[lesserIndex];
         }
         indexMultiplierDueToDepth *= 2;
     }
@@ -172,8 +172,8 @@ void PrefixSumOnPrefixSumsByGroup()
     // only one thread should do these (prevents unnecessary writes)
     if (doubleGroupThreadIndex == 0)
     {
-        totalNumberOfOnes = PrefixSumsByGroup[PARALLEL_SORT_ITEMS_PER_WORK_GROUP - 1];
-        PrefixSumsByGroup[PARALLEL_SORT_ITEMS_PER_WORK_GROUP - 1] = 0;
+        totalNumberOfOnes = PrefixSumsOfWorkGroupSums[PARALLEL_SORT_ITEMS_PER_WORK_GROUP - 1];
+        PrefixSumsOfWorkGroupSums[PARALLEL_SORT_ITEMS_PER_WORK_GROUP - 1] = 0;
     }
     indexMultiplierDueToDepth >>= 1;
     
@@ -186,9 +186,9 @@ void PrefixSumOnPrefixSumsByGroup()
             uint lesserIndex = (indexMultiplierDueToDepth * (doubleGroupThreadIndex + 1)) - 1;
             uint greaterIndex = (indexMultiplierDueToDepth * (doubleGroupThreadIndex + 2)) - 1;
     
-            uint temp = PrefixSumsByGroup[lesserIndex];
-            PrefixSumsByGroup[lesserIndex] = PrefixSumsByGroup[greaterIndex];
-            PrefixSumsByGroup[greaterIndex] += temp;
+            uint temp = PrefixSumsOfWorkGroupSums[lesserIndex];
+            PrefixSumsOfWorkGroupSums[lesserIndex] = PrefixSumsOfWorkGroupSums[greaterIndex];
+            PrefixSumsOfWorkGroupSums[greaterIndex] += temp;
         }
     
         indexMultiplierDueToDepth >>= 1;
@@ -216,13 +216,13 @@ void main()
     if (uCalculateAll == 1)
     {
         // calculate the prefix sums for everyone and fill out the per-work-group sums
-        CalculatePrefixSumsWithinGroup();
+        CalculatePrefixSumsPerWorkGroup();
     }
     else
     {
         // calculate the prefix sums for the collection of per-work-group sums, turning this 
         // array from a collection of individual sums into a prefix sum array itself
-        PrefixSumOnPrefixSumsByGroup();
+        PrefixSumOnPrefixSumsOfWorkGroupSums();
     }
 
     // done!

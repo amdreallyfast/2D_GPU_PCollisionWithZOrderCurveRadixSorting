@@ -46,7 +46,7 @@ namespace ShaderControllers
     class ParallelSort
     {
     public:
-        ParallelSort(const ParticleSsbo::SHARED_PTR &dataToSort);
+        ParallelSort(const ParticleSsbo::CONST_SHARED_PTR dataToSort);
         ~ParallelSort();
 
         void SortWithProfiling() const;
@@ -66,7 +66,7 @@ namespace ShaderControllers
 
         // need to keep this around until the end of Sort() in order to copy the sorted data 
         // back to the original buffer
-        ParticleSsbo::SHARED_PTR _particleSsbo;
+        ParticleSsbo::CONST_SHARED_PTR _particleSsbo;
 
     };
 }

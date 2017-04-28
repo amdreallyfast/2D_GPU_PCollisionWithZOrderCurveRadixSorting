@@ -8,7 +8,7 @@ namespace ShaderControllers
     Description:
         Encapsulates particle collision handling.  
 
-    Creator:    John Cox, ??
+    Creator:    John Cox, 4/2017
     --------------------------------------------------------------------------------------------*/
     class ParticleCollide
     {

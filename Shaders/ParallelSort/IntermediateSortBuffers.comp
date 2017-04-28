@@ -31,9 +31,9 @@ struct IntermediateData
 };
 
 
-// this should be the same size as the PrefixScanBuffer::PrefixSumsWithinGroup array
+// this should be the same size as the PrefixScanBuffer::PrefixSumsPerWorkGroup array
 // Note: Why use the half size instead of the full size?  Because the IntermediateDataBuffer is 
-// twice the size of the PrefixScanBuffer::PrefixSumsWithinGroup array but there is still the 
+// twice the size of the PrefixScanBuffer::PrefixSumsPerWorkGroup array but there is still the 
 // idea of a "read buffer" and "write buffer".  If reading from or writing to the "second" 
 // buffer, then any index calculation will need to have the size of the "first" buffer (that is, 
 // half the IntermediateDataBuffer size) added to it.
@@ -45,7 +45,7 @@ layout(location = UNIFORM_LOCATION_INTERMEDIATE_BUFFER_WRITE_OFFSET) uniform uin
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    Should be 2x the size as PrefixScanBuffer::PrefixSumsWithinGroup.  The IntermediateData 
+    Should be 2x the size as PrefixScanBuffer::PrefixSumsPerWorkGroup.  The IntermediateData 
     structures will need to be moved around in parallel after each prefix scan over the course 
     of the parallel Radix Sorting (buffer 1 to buffer 2, then buffer 2 to buffer 1, then 
     buffer 1 to buffer 2, etc.).  
