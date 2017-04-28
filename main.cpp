@@ -47,6 +47,7 @@
 
 #include "Include/Particles/Particle.h"
 #include "Include/Buffers/SSBOs/ParticleSsbo.h"
+#include "Include/Buffers/AtomicCounterBuffer.h"
 #include "Include/ShaderControllers/ParticleReset.h"
 #include "Include/ShaderControllers/ParticleUpdate.h"
 #include "Include/ShaderControllers/ParallelSort.h"
@@ -61,6 +62,7 @@
 Stopwatch gTimer;
 FreeTypeEncapsulated gTextAtlases;
 
+std::unique_ptr<PersistentAtomicCounterBuffer> atomicCounter = nullptr;
 ParticleSsbo::SHARED_PTR particleSsbo = nullptr;
 std::unique_ptr<ShaderControllers::ParticleReset> particleResetter = nullptr;
 std::unique_ptr<ShaderControllers::ParticleUpdate> particleUpdater = nullptr;
@@ -108,6 +110,9 @@ void Init()
     // so make it a lower Z).  The depth range is 0-1, so the lower Z limit is -1.
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // atomic counter buffer first
+    atomicCounter = std::make_unique<PersistentAtomicCounterBuffer>();
 
     ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
 
@@ -208,8 +213,8 @@ void UpdateAllTheThings()
     // just hard-code it for this demo
     float deltaTimeSec = 0.01f;
 
-    particleResetter->ResetParticles(20);
-    particleUpdater->Update(deltaTimeSec);
+    particleResetter->ResetParticles(20, atomicCounter);
+    particleUpdater->Update(deltaTimeSec, atomicCounter);
     parallelSort->SortWithoutProfiling();
     //parallelSort->SortWithProfiling();
     particleCollisions->DetectAndResolveCollisions();
@@ -229,7 +234,7 @@ void UpdateAllTheThings()
     glutPostRedisplay();
 
     steady_clock::time_point end = high_resolution_clock::now();
-    std::cout << "UpdateAllTheThings(): " << duration_cast<milliseconds>(end - start).count() << " milliseconds" << std::endl;
+    //std::cout << "UpdateAllTheThings(): " << duration_cast<milliseconds>(end - start).count() << " milliseconds" << std::endl;
 }
 
 /*------------------------------------------------------------------------------------------------

@@ -86,11 +86,11 @@ namespace ShaderControllers
 
         // see explanation of why this is launched twice in ParticleCollisions.comp in the 
         // comment block for uIndexOffsetBy0Or1
-        glUniform1f(_unifLocIndexOffsetBy0Or1, 0);
+        glUniform1ui(_unifLocIndexOffsetBy0Or1, 0);
         glDispatchCompute(numWorkGroupsX, numWorkGroupsY, numWorkGroupsZ);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
 
-        glUniform1f(_unifLocIndexOffsetBy0Or1, 1);
+        glUniform1ui(_unifLocIndexOffsetBy0Or1, 1);
         glDispatchCompute(numWorkGroupsX, numWorkGroupsY, numWorkGroupsZ);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
 

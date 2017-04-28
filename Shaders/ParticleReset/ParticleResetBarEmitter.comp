@@ -16,8 +16,8 @@ layout (local_size_x = PARTICLE_OPERATIONS_WORK_GROUP_SIZE_X) in;
 // dynamically as in ParticleSsbo and PolygonSsbo, so declare the atomic counters up front to 
 // make it easier to keep the numbers straight.
 // Note: Discovered by experience and through this: https://www.opengl.org/wiki/Atomic_Counter.
-layout (binding = PARTICLE_RESET_ATOMIC_COUNTER_BUFFER_BINDING, offset = 0) uniform atomic_uint acResetParticleCounter;
-
+//layout (binding = PARTICLE_RESET_ATOMIC_COUNTER_BUFFER_BINDING, offset = 0) uniform atomic_uint acResetParticleCounter;
+layout (binding = ATOMIC_COUNTER_BUFFER_BINDING, offset = 0) uniform atomic_uint acResetParticleCounter;
 
 
 uniform float uMinParticleVelocity;
