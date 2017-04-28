@@ -68,7 +68,7 @@ std::unique_ptr<ShaderControllers::ParallelSort> parallelSort = nullptr;
 std::unique_ptr<ShaderControllers::ParticleCollide> particleCollisions = nullptr;
 std::unique_ptr<ShaderControllers::RenderParticles> particleRenderer = nullptr;
 
-const unsigned int MAX_PARTICLE_COUNT = 50000;
+const unsigned int MAX_PARTICLE_COUNT = 100000;
 
 
 /*------------------------------------------------------------------------------------------------
