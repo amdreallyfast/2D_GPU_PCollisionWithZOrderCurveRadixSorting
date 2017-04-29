@@ -4,22 +4,77 @@
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 
-// TODO: header
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Gives members initial values.
+    Generates a persistently bound atomic counter buffer.  This can be used by compute shaders 
+    that specify the atomic counter with the binding location ATOMIC_COUNTER_BUFFER_BINDING 
+    (from SsboBufferBindings.comp).
+Parameters: None
+Returns:    None
+Creator:    John Cox, 4/2017
+------------------------------------------------------------------------------------------------*/
 PersistentAtomicCounterBuffer::PersistentAtomicCounterBuffer() :
     _bufferId(0),
     _bufferPtr(0)
 {
+    // call glBufferStorage(...) to set up an immutably-sized buffer with certain contracts 
+    // Note: 
+    // - Write (why?)
+    // - Coherent (writes are immediately visible to GPU)
+    // - Persistent (allow for performance optimizations magically somehow)
+    // - See my source material in the class header
+    // Also Note: 
+    // using 
+    // Note: Thanks to user qartar on the OpenGL subreddit for telling me that glBufferData(...) 
+    // is unnecessary prior to glBufferStorage(...).  
+    // Also Also Note: Credit to user Yan An on the stackoverflow question 
+    // "What is the difference between glBufferStorage and glBufferData?"
+    // http://stackoverflow.com/questions/27810542/what-is-the-difference-between-glbufferstorage-and-glbufferdata/27812200#27812200
+    // Calling glBufferStorage(...), which will set up the buffer with immutable storage, while 
+    // glBufferData(...) sets up the buffer with mutable storage.  I experimented with using 
+    // both of these functions and checked out the messages spit out by OpenGL's debug message 
+    // callback (debugging must have been difficult prior to OpenGL 4.3).  I glBufferData(...) 
+    // is called first, then glBufferStorage(...), then the OpenGL debug message callback 
+    // reports the following (the buffer object numbers are unique to my application):
+    // Following glBufferData(...):
+    //  "Buffer object 1 (bound to GL_ATOMIC_COUNTER_BUFER, *blah blah blah*) will use VIDEO 
+    //  memory as the source for buffer object operations."
+    // Then glBufferStorage(...):
+    //  "Buffer object 1 (bound to GL_ATOMIC_COUNTER_BUFFER, *blah blah blah*) stored in SYSTEM 
+    // HEAP memory has been updated."
+    // 
+    // However, if I do glBufferStorage(...) first and then glBufferData(...), I get the 
+    // following OpenGL debug messages:
+    // Following glBufferStorage(...):
+    //  "Buffer object 1 (bound to GL_ATOMIC_COUNTER_BUFFER, "blah blah blah*) will use SYSTEM 
+    //  HEAP memory as the source for buffer object operations."
+    // Following glBufferData(...):
+    //  "GL_INVALID_OPERATION error generated.  Cannot modify immutable buffer."
+    // 
+    // So it looks like glBufferStorage(...) will run over glBufferData(...), but the opposite 
+    // is not true (at least for my implementation through GLLoad; I don't know if it is 
+    // implementation dependent).
+    //
+    // Also Also Also Note: The use of SYSTEM HEAP memory is because I am only using the 
+    // GL_MAP_WRITE_BIT.  If I use GL_MAP_WRITE_BIT | GL_MAP_READ_BIT, then the debug message 
+    // that follows glBufferStorage(...) says that it will use DMA memory, and then I loose 
+    // ~10fps on my GTX 560M and my i7-2630QM.  Apparently I can still read from it though if I 
+    // only use GL_MAP_WRITE_BIT and use fencing properly, so I can read without loosing the 
+    // ~10fps.  I suspect that the use of GL_MAP_READ_BIT makes a contract between the CPU and 
+    // the GPU that requires more synchronization than just using the write bit.  That would 
+    // slow things down.
+
+    // ??what is the "system" in "SYSTEM HEAP"? CPU heap or GPU heap??
+    // ??why can I still read from it if I don't have GL_MAP_READ_BIT set??
+
     glGenBuffers(1, &_bufferId);
     glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, _bufferId);
     glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, ATOMIC_COUNTER_BUFFER_BINDING, _bufferId);
-    GLuint atomicCounterResetValue = 0;
-    //glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), &atomicCounterResetValue, GL_DYNAMIC_DRAW);
-    //glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), nullptr, GL_DYNAMIC_DRAW);
 
-    // ??is it faster to use "write only? the OpenGL status message says that it will use DMA CACHED memory for read|write but "SYSTEM_HEAP ... (fast)" when only using write??; but if I write only, then I obviously can't read it
-    //GLuint flags = GL_MAP_READ_BIT | GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+    GLuint atomicCounterResetValue = 0;
     GLuint flags = GL_MAP_WRITE_BIT| GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-    //glBufferStorage(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), nullptr, flags);
     glBufferStorage(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), &atomicCounterResetValue, flags);
 
     // force cast to unsigned int pointer because I know that it is a buffer of unsigned integers
@@ -27,17 +82,17 @@ PersistentAtomicCounterBuffer::PersistentAtomicCounterBuffer() :
     _bufferPtr = static_cast<unsigned int *>(voidPtr);
     _bufferPtr[0] = 0;
 
-    // Note: It seems that atomic counters must be bound where they are declared and cannot 
-    // be bound dynamically like the ParticleSsbo and PolygonSsbo.  So remember to use the 
-    // SAME buffer binding base as specified in the shader.
-    // Also Note: Don't need to have a program or bound buffer to set the buffer base.  This buffer is persistently mapped and bound, but base buffer binding can be done without.
-    //glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, ATOMIC_COUNTER_BUFFER_BINDING, _bufferId);
-
-    
-
+    // ??why doesn't unbinding the atomic counter buffer seem to affect it??
+    //glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 }
 
-// TODO: header
+/*------------------------------------------------------------------------------------------------
+Description:
+    Unmaps the atomic counter buffer and destroys it.
+Parameters: None
+Returns:    None
+Creator:    John Cox, 4/2017
+------------------------------------------------------------------------------------------------*/
 PersistentAtomicCounterBuffer::~PersistentAtomicCounterBuffer()
 {
     // unsynchronize
@@ -45,34 +100,72 @@ PersistentAtomicCounterBuffer::~PersistentAtomicCounterBuffer()
     glDeleteBuffers(1, &_bufferId);
 }
 
-#include <stdio.h>
+/*------------------------------------------------------------------------------------------------
+Description:
+    Waits for the GPU to finish whatever it is doing, then puts a 0 into the atomic counter 
+    buffer.  Because of GL_MAP_WRITE_BIT and GL_MAP_COHERENT_BIT, this 0 will becoem immediately 
+    visible to GPU.
+    
+    Note: I discovered after much frustration that you should NOT do this:
+    - fence
+    - _bufferPtr[0] = 0
+    - client wait sync (wait for GPU to finish)
 
-// TODO: header
+    That just doesn't work.  Must do this:
+    - fence
+    - client wait sync (wait for GPU to finish)
+    - _bufferPtr[0] = 0
+
+    The wait for GPU to finish seems to be pretty much nonexistent on my hardware and for this 
+    implementation.
+Parameters: None
+Returns:    None
+Creator:    John Cox, 4/2017
+------------------------------------------------------------------------------------------------*/
 void PersistentAtomicCounterBuffer::ResetCounter() const
 {
     GLsync writeSyncFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-    //printf("value is %u\n", *_bufferPtr);
 
+    // Note: Thanks to this article for the idea for the wait sync loop.
+    // https://www.codeproject.com/Articles/872417/Persistent-Mapped-Buffers-in-OpenGL
     GLenum waitReturn = GL_UNSIGNALED;
-    while (waitReturn != GL_ALREADY_SIGNALED)// && waitReturn != GL_CONDITION_SATISFIED)
+    while (waitReturn != GL_ALREADY_SIGNALED && waitReturn != GL_CONDITION_SATISFIED)
     {
-        waitReturn = glClientWaitSync(writeSyncFence, GL_SYNC_FLUSH_COMMANDS_BIT, 0);
+        waitReturn = glClientWaitSync(writeSyncFence, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
     }
     _bufferPtr[0] = 0;
-    glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
-    //glClientWaitSync(theThing, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
-    
+
+    // if it has already synchronied (it has to be in order to reach this point), then the sync 
+    // object will be immediately deleted and there should be no performance problem
+    // Note: See https://www.khronos.org/opengl/wiki/GLAPI/glDeleteSync.
+    glDeleteSync(writeSyncFence);
 }
 
-// TODO: header
+/*------------------------------------------------------------------------------------------------
+Description:
+    Waits for the GPU to finish whatever it is doing, then reads the atomic counter value.
+
+    Like with ResetCounter, the wait for GPU to finish seems to be pretty much nonexistent on my 
+    hardware and for this implementation.
+
+    ??why can I still read from it if I don't have GL_MAP_READ_BIT set??
+    
+    Note: Failure to call glMemoryBarrier(...) with GL_ATOMIC_COUNTER_BARRIER_BIT doesn't seem 
+    to make this not work.  I can read the value regardless.  I don't know why.
+
+Parameters: None
+Returns:    None
+Creator:    John Cox, 4/2017
+------------------------------------------------------------------------------------------------*/
 unsigned int PersistentAtomicCounterBuffer::GetValue() const
 {
     GLsync readSyncFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-    while (glClientWaitSync(readSyncFence, GL_SYNC_FLUSH_COMMANDS_BIT, 0) != GL_ALREADY_SIGNALED);
-
-    // according to Khronos, the the sync object will be automatically deleted if no glWaitSync(...) or glClientWaitSync(...) commands are blocking on that sync object
-    // Note: See https://www.khronos.org/opengl/wiki/GLAPI/glDeleteSync.
-    //glDeleteSync(readSyncFence);
+    GLenum waitReturn = GL_UNSIGNALED;
+    while (waitReturn != GL_ALREADY_SIGNALED && waitReturn != GL_CONDITION_SATISFIED)
+    {
+        waitReturn = glClientWaitSync(readSyncFence, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
+    }
+    glDeleteSync(readSyncFence);
 
     return *_bufferPtr;
 }
