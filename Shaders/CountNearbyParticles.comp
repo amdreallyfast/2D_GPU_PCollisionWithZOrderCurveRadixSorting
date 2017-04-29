@@ -23,7 +23,7 @@ void main()
     
     // the radius of nearby particles that could pose an imminent collision 
     vec4 particlePos = AllParticles[index]._pos;
-    float nearbyRadius = AllParticles[index]._collisionRadius * 5.0f;    //??*3??
+    float nearbyRadius = AllParticles[index]._collisionRadius * 1.0f;    //??*3??
 
     vec4 upperCorner = particlePos + vec4(nearbyRadius, nearbyRadius, 0.0f, 0.0f);
     vec4 lowerCorner = particlePos - vec4(nearbyRadius, nearbyRadius, 0.0f, 0.0f);
@@ -64,6 +64,8 @@ void main()
 //            nearbyParticles++;
 //        }
     }
+
+    //nearbyParticles = 13;
 
 //    for (uint offsetCounter = 0; offsetCounter < maxOffsetIndex; offsetCounter++)
 //    {

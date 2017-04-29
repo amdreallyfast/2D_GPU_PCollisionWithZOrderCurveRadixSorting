@@ -94,7 +94,8 @@ uint PositionToMortonCode(vec4 pos)
     pos.w = 0.0f;
 
     // normalize it
-    pos *= inversesqrt(dot(pos, pos));
+    //pos *= inversesqrt(dot(pos, pos));
+    pos = 0.5f * pos;
 
     // reduce from range (-1,+1) on each axis to (0,+1) on each axis
     // Note: If this particle is only in 2D, then Z will be 0, but after this operation it will 
