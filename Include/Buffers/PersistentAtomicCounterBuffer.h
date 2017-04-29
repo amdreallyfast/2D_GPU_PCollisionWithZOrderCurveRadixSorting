@@ -39,7 +39,7 @@ Creator:    John Cox, 4/2017
 ------------------------------------------------------------------------------------------------*/
 class PersistentAtomicCounterBuffer
 {
-public:
+private:
     // no constructing except through GetInstance()
     PersistentAtomicCounterBuffer();
     PersistentAtomicCounterBuffer(const PersistentAtomicCounterBuffer &) = delete;
@@ -48,7 +48,7 @@ public:
 public:
     ~PersistentAtomicCounterBuffer();
     using CONST_SHARED_PTR = std::shared_ptr<const PersistentAtomicCounterBuffer>;
-    static PersistentAtomicCounterBuffer::CONST_SHARED_PTR &GetInstance();
+    static CONST_SHARED_PTR &GetInstance();
 
     void ResetCounter() const;
     unsigned int GetCounterValue() const;

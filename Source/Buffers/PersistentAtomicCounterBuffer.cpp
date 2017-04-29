@@ -122,11 +122,19 @@ PersistentAtomicCounterBuffer::CONST_SHARED_PTR &PersistentAtomicCounterBuffer::
     // instance should not be constructed until the OpenGL context has been initialized.  That 
     // initialization happens at the top of Init() in main.cpp, so it will be initialized by the 
     // time that the first call to GetInstance() is made.
-    static std::shared_ptr<const PersistentAtomicCounterBuffer> instance = nullptr;
+    static CONST_SHARED_PTR instance = nullptr;
 
     if (instance == nullptr)
     {
-        instance = std::make_shared<const PersistentAtomicCounterBuffer>();
+        // Note: CANNOT use std::make_shared<...> when in a singleton because that is outside 
+        // code that will try to call the constructor, which is private as per the definition of 
+        // a singleton and the construction will fail.  Instead, use the std::shared_ptr<...> 
+        // constructor that takes a pointer to "new" memory.  If the class is constructed via 
+        // "new", then that constructor call has the access privileges of this method, which is 
+        // part of the singleton and therefore has access to the private constructor.  The 
+        // shared memory pointer will then manage the memory until program end, when it will 
+        // destruct and clean up the buffer.
+        instance = CONST_SHARED_PTR(new PersistentAtomicCounterBuffer());
     }
 
     return instance;
@@ -135,7 +143,7 @@ PersistentAtomicCounterBuffer::CONST_SHARED_PTR &PersistentAtomicCounterBuffer::
 /*------------------------------------------------------------------------------------------------
 Description:
     Waits for the GPU to finish whatever it is doing, then puts a 0 into the atomic counter 
-    buffer.  Because of GL_MAP_WRITE_BIT and GL_MAP_COHERENT_BIT, this 0 will becoem immediately 
+    buffer.  Because of GL_MAP_WRITE_BIT and GL_MAP_COHERENT_BIT, this 0 will become immediately 
     visible to GPU.
     
     Note: I discovered after much frustration that you should NOT do this:
@@ -167,7 +175,7 @@ void PersistentAtomicCounterBuffer::ResetCounter() const
     }
     _bufferPtr[0] = 0;
 
-    // if it has already synchronied (it has to be in order to reach this point), then the sync 
+    // if it has already synchronized (it has to be in order to reach this point), then the sync 
     // object will be immediately deleted and there should be no performance problem
     // Note: See https://www.khronos.org/opengl/wiki/GLAPI/glDeleteSync.
     glDeleteSync(writeSyncFence);

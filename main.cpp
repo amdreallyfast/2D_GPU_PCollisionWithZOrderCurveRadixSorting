@@ -62,7 +62,6 @@
 Stopwatch gTimer;
 FreeTypeEncapsulated gTextAtlases;
 
-std::unique_ptr<PersistentAtomicCounterBuffer> atomicCounter = nullptr;
 ParticleSsbo::SHARED_PTR particleSsbo = nullptr;
 std::unique_ptr<ShaderControllers::ParticleReset> particleResetter = nullptr;
 std::unique_ptr<ShaderControllers::ParticleUpdate> particleUpdater = nullptr;
@@ -110,9 +109,6 @@ void Init()
     // so make it a lower Z).  The depth range is 0-1, so the lower Z limit is -1.
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    // atomic counter buffer first
-    atomicCounter = std::make_unique<PersistentAtomicCounterBuffer>();
 
     ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
 
