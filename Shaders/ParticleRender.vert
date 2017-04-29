@@ -27,7 +27,8 @@ void main()
         //particleColor = vec4(0.0f, 0.0f, 1.0f, 0.0f);   // blue for debugging
         particleColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);   // black
         
-        // the Z buffer in this 2D demo is of depth 1, so putting the innactive particle out of range should make it disappear entirely
+        // the Z buffer in this 2D demo is of depth 1, so putting the innactive particle out of 
+        // range should make it disappear entirely
         gl_Position = vec4(pos.xy, -1.1f, 1.0f);
     }
     else
@@ -47,65 +48,22 @@ void main()
         float max = NUM_PARTICLES_TO_CHECK_ON_EACH_SIDE * 2;
 
         float blendValue = float(numberOfNearbyParticles);
-        //float blendValue = 5;
         float fractionLowToMid = (blendValue - min) / (mid - min);
         fractionLowToMid = clamp(fractionLowToMid, 0.0f, 1.0f);
 
         float fractionMidToHigh = (blendValue - mid) / (max - mid);
         fractionMidToHigh = clamp(fractionMidToHigh, 0.0f, 1.0f);
 
-        // Note: There are two possible linear blends: blue->green and green->red.  This color blending is not like blending three points on a triangle, but it is //three points on a 1-dimensional number line, so need to differentiate between two linear blends.
+        // cast boolean to float (1.0f == true, 0.0f == false)
+        // Note: There are two possible linear blends: blue->green and green->red.  This color 
+        // blending is not like blending three points on a triangle, but it is three points on a 
+        // 1-dimensional number line, so need to differentiate between two linear blends.
+        float pressureIsLow = float(blendValue < mid);
         vec4 lowToMidPressureColor = mix(blue, green, fractionLowToMid);
         vec4 midToHighPressureColor = mix(green, red, fractionMidToHigh);
-
-        // cast boolean to float (1.0f == true, 0.0f == false)
-        float pressureIsLow = float(blendValue < mid);
         particleColor = 
             (pressureIsLow * lowToMidPressureColor) + 
             ((1 - pressureIsLow) * midToHighPressureColor);
-
-//        //if (numberOfNearbyParticles == 1065353216)
-//        //if (numberOfNearbyParticles == 1073741824)
-//        if (numberOfNearbyParticles == 2)
-//        {
-//            particleColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);
-//        }
-//        else
-//        {
-//            particleColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-//        }
-//        //particleColor = vec4(float(numberOfNearbyParticles) / 40.0f, 0.0f, 0.0f, 1.0f);
-//        //particleColor = vec4(20.0f / 40.0f, 0.0f, 0.0f, 1.0f);
-//        //particleColor = lowToMidPressureColor;
-
-
-//        if (hasCollidedAlreadyThisFrame == 0)
-//        {
-//            // cyan
-//            particleColor = vec4(0.5f, 1.0f, 1.0f, 1.0f);
-//        }
-//        else
-//        {
-//            // had a collision => red
-//            particleColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-//        }
-//        else if (hasCollidedAlreadyThisFrame == 13)
-//        {
-//            // particle is active, but no collision => green
-//            particleColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);
-//        }
-//        else if (hasCollidedAlreadyThisFrame == 7)
-//        {
-//            // particle is active, collision with neighbor => red
-//            particleColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-//        }
-////        else    // ??condition??
-////        {
-////            // blue
-////            particleColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);
-////        }
-
-        //particleColor = vec4(0.5f, 1.0f, 1.0f, 1.0f);
     
         // Note: The W position seems to be used as a scaling factor (I must have forgotten this 
         // from the graphical math; it's been awhile since I examined it in detail).  If I do any 

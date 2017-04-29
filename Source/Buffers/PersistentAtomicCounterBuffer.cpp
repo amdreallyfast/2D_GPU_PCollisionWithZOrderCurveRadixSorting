@@ -70,7 +70,6 @@ PersistentAtomicCounterBuffer::PersistentAtomicCounterBuffer() :
     // ??why can I still read from it if I don't have GL_MAP_READ_BIT set??
 
     glGenBuffers(1, &_bufferId);
-    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, _bufferId);
     glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, ATOMIC_COUNTER_BUFFER_BINDING, _bufferId);
 
     GLuint atomicCounterResetValue = 0;
@@ -81,9 +80,6 @@ PersistentAtomicCounterBuffer::PersistentAtomicCounterBuffer() :
     void *voidPtr = glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), flags);
     _bufferPtr = static_cast<unsigned int *>(voidPtr);
     _bufferPtr[0] = 0;
-
-    // ??why doesn't unbinding the atomic counter buffer seem to affect it??
-    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 }
 
 /*------------------------------------------------------------------------------------------------

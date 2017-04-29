@@ -26,7 +26,7 @@ struct Particle
         //_collisionCountThisFrame(0),
         _numberOfNearbyParticles(0),
         _mass(0.3f),
-        _collisionRadius(0.02f),
+        _collisionRadius(0.005f),
         _mortonCode(0),
         _hasCollidedAlreadyThisFrame(0),
         _isActive(0)
@@ -43,10 +43,7 @@ struct Particle
     glm::vec4 _position;
     glm::vec4 _velocity;
 
-    // TODO: determine a crude idea of pressure by creating a "nearby radius" value + "number of nearby particles".  Have a compute shader run through all particles (after sorting; may go before or after collision resolution because collision resolution just updates velocity, not position, so the sort still holds) and create two new positions: posDiff = vec4(+radius, +radius, +radius, 0), position + posDiff and position - posDiff.  Create two new morton codes out of these positions.  These two points represent the upper bound of a morton code for that region and the lower bound of a morton code for that region.  Then check the sorted IntermediateDataBuffer for you and go to the +/- extremes, counting how many particles fall into the region represented by the "nearby radius".  Then, in the particle vertex shader, perform a color blend based on the number of nearby particles (??maybe perform a particle density => pressure calculations??)
-    //// used to determine color 
-    //// TODO: decide between this for color blending or net force
-    //int _collisionCountThisFrame;
+    // used to determine color 
     unsigned int _numberOfNearbyParticles;
 
     // all particles have identical mass for now
