@@ -52,13 +52,13 @@ void PersistentAtomicCounterBuffer::ResetCounter() const
 {
     GLsync writeSyncFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
     //printf("value is %u\n", *_bufferPtr);
-    _bufferPtr[0] = 0;
 
     GLenum waitReturn = GL_UNSIGNALED;
-    while (waitReturn != GL_ALREADY_SIGNALED && waitReturn != GL_CONDITION_SATISFIED)
+    while (waitReturn != GL_ALREADY_SIGNALED)// && waitReturn != GL_CONDITION_SATISFIED)
     {
         waitReturn = glClientWaitSync(writeSyncFence, GL_SYNC_FLUSH_COMMANDS_BIT, 0);
     }
+    _bufferPtr[0] = 0;
     glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
     //glClientWaitSync(theThing, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
     
@@ -68,12 +68,12 @@ void PersistentAtomicCounterBuffer::ResetCounter() const
 unsigned int PersistentAtomicCounterBuffer::GetValue() const
 {
     GLsync readSyncFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+    while (glClientWaitSync(readSyncFence, GL_SYNC_FLUSH_COMMANDS_BIT, 0) != GL_ALREADY_SIGNALED);
 
     // according to Khronos, the the sync object will be automatically deleted if no glWaitSync(...) or glClientWaitSync(...) commands are blocking on that sync object
     // Note: See https://www.khronos.org/opengl/wiki/GLAPI/glDeleteSync.
     //glDeleteSync(readSyncFence);
 
     return *_bufferPtr;
-    while (glClientWaitSync(readSyncFence, GL_SYNC_FLUSH_COMMANDS_BIT, 0) != GL_ALREADY_SIGNALED);
 }
 
