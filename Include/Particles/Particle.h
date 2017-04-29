@@ -24,8 +24,9 @@ struct Particle
     Particle() :
         // glm structures already have "set to 0" constructors
         //_collisionCountThisFrame(0),
+        _numberOfNearbyParticles(0),
         _mass(0.3f),
-        _collisionRadius(0.05f),
+        _collisionRadius(0.03f),
         _mortonCode(0),
         _hasCollidedAlreadyThisFrame(0),
         _isActive(0)
@@ -46,6 +47,7 @@ struct Particle
     //// used to determine color 
     //// TODO: decide between this for color blending or net force
     //int _collisionCountThisFrame;
+    unsigned int _numberOfNearbyParticles;
 
     // all particles have identical mass for now
     // TODO: ??change to micrograms for air particles? nanograms??
@@ -80,5 +82,5 @@ struct Particle
     int _isActive; 
     
     // any necessary padding out to 16 bytes to match the GPU's version
-    int _padding[3];
+    int _padding[2];
 };

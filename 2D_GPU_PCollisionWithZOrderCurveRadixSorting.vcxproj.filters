@@ -56,6 +56,9 @@
     <ClCompile Include="Source\Buffers\SSBOs\SsboBase.cpp">
       <Filter>Source\Buffers\SSBOs</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ShaderControllers\CountNearbyParticles.cpp">
+      <Filter>Source\ShaderControllers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shaders\ShaderStorage.h">
@@ -120,6 +123,9 @@
     </ClInclude>
     <ClInclude Include="Include\Buffers\SSBOs\IntermediateDataSsbo.h">
       <Filter>Include\Buffers\SSBOs</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ShaderControllers\CountNearbyParticles.h">
+      <Filter>Include\ShaderControllers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -243,6 +249,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\ParticleCollisions.comp">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\CountNearbyParticles.comp">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

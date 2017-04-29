@@ -219,7 +219,7 @@ namespace ShaderControllers
             // compute ALL the resets! (then make the results visible to the next use of the 
             // SSBO and to vertext buffer)
             glDispatchCompute(numWorkGroupsX, numWorkGroupsY, numWorkGroupsZ);
-            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
+            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT);
         }
 
         // and now for any bar emitters
@@ -242,11 +242,11 @@ namespace ShaderControllers
 
             // MOAR resets!
             glDispatchCompute(numWorkGroupsX, numWorkGroupsY, numWorkGroupsZ);
-            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
+            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT);
         }
 
         // cleanup
-        glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+        //glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
         glUseProgram(0);
     }
 

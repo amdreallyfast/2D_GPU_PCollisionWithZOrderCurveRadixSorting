@@ -6,11 +6,12 @@
 // 2D demo.
 layout (location = 0) in vec4 pos;  
 layout (location = 1) in vec4 vel;  
-layout (location = 2) in float mass;
-layout (location = 3) in float collisionRadius;
-layout (location = 4) in uint mortonCode;
-layout (location = 5) in uint hasCollidedAlreadyThisFrame;
-layout (location = 6) in int isActive;
+layout (location = 2) in uint numberOfNearbyParticles;
+layout (location = 3) in float mass;
+layout (location = 4) in float collisionRadius;
+layout (location = 5) in uint mortonCode;
+layout (location = 6) in uint hasCollidedAlreadyThisFrame;
+layout (location = 7) in int isActive;
 
 // must have the same name as its corresponding "in" item in the frag shader
 smooth out vec4 particleColor;
@@ -22,9 +23,11 @@ void main()
         // invisible (alpha = 0), but "fully transparent" does not mean "no color", it merely 
         // means that the color of this thing will be added to the thing behind it (see Z 
         // adjustment later)
-        //particleColor = vec4(0.0f, 0.0f, 1.0f, 0.0f);   // blue
+        //particleColor = vec4(0.0f, 0.0f, 1.0f, 0.0f);   // blue for debugging
         particleColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);   // black
-        gl_Position = vec4(pos.xy, -0.6f, 1.0f);
+        
+        // the Z buffer in this 2D demo is of depth 1, so putting the innactive particle out of range should make it disappear entirely
+        gl_Position = vec4(pos.xy, -1.1f, 1.0f);
     }
     else
     {

@@ -181,6 +181,15 @@ void ParticleSsbo::ConfigureRender(unsigned int renderProgramId, unsigned int dr
     glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);
     sizeOfLastItem = sizeof(Particle::_velocity);
 
+    // numberOfNearbyParticles
+    itemType = GL_UNSIGNED_INT;
+    numItems = sizeof(Particle::_numberOfNearbyParticles) / sizeof(float);
+    bufferStartOffset += sizeOfLastItem;
+    vertexArrayIndex++;
+    glEnableVertexAttribArray(vertexArrayIndex);
+    glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);
+    sizeOfLastItem = sizeof(Particle::_numberOfNearbyParticles);
+
     // mass
     itemType = GL_FLOAT;
     numItems = sizeof(Particle::_mass) / sizeof(float);

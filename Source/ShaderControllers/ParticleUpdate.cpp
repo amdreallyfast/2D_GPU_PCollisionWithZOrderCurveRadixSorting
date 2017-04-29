@@ -154,7 +154,7 @@ namespace ShaderControllers
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT);
 
         // cleanup
-        glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+        //glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
         glUseProgram(0);
 
         // now that all active particles have updated, check how many active particles exist 

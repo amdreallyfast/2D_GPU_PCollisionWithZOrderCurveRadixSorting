@@ -160,6 +160,7 @@
     <ClCompile Include="Source\RenderFrameRate\FreeTypeAtlas.cpp" />
     <ClCompile Include="Source\RenderFrameRate\FreeTypeEncapsulated.cpp" />
     <ClCompile Include="Source\RenderFrameRate\Stopwatch.cpp" />
+    <ClCompile Include="Source\ShaderControllers\CountNearbyParticles.cpp" />
     <ClCompile Include="Source\ShaderControllers\ParallelSort.cpp" />
     <ClCompile Include="Source\ShaderControllers\ParticleCollide.cpp" />
     <ClCompile Include="Source\ShaderControllers\ParticleReset.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="Include\RenderFrameRate\FreeTypeAtlas.h" />
     <ClInclude Include="Include\RenderFrameRate\FreeTypeEncapsulated.h" />
     <ClInclude Include="Include\RenderFrameRate\Stopwatch.h" />
+    <ClInclude Include="Include\ShaderControllers\CountNearbyParticles.h" />
     <ClInclude Include="Include\ShaderControllers\ParallelSort.h" />
     <ClInclude Include="Include\ShaderControllers\ParticleCollide.h" />
     <ClInclude Include="Include\ShaderControllers\ParticleReset.h" />
@@ -194,6 +196,7 @@
     <None Include="Shaders\ComputeHeaders\CrossShaderUniformLocations.comp" />
     <None Include="Shaders\ComputeHeaders\SsboBufferBindings.comp" />
     <None Include="Shaders\ComputeHeaders\Version.comp" />
+    <None Include="Shaders\CountNearbyParticles.comp" />
     <None Include="Shaders\FreeType.frag" />
     <None Include="Shaders\FreeType.vert" />
     <None Include="Shaders\ParallelSort\GetBitForPrefixScan.comp" />

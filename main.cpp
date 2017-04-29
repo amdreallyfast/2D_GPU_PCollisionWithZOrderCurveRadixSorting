@@ -146,8 +146,8 @@ void Init()
     particleResetter = std::make_unique<ShaderControllers::ParticleReset>(particleSsbo);
 
     // bar on the left and emitting up and right
-    glm::vec2 bar1P1(-0.8f, -0.1f);
-    glm::vec2 bar1P2(-0.8f, -0.5f);
+    glm::vec2 bar1P1(-0.8f, +0.2f);
+    glm::vec2 bar1P2(-0.8f, -0.2f);
     glm::vec2 emitDir1(+1.0f, 0.0f);
     float minVel = 0.1f;
     float maxVel = 0.5f;
@@ -159,8 +159,8 @@ void Init()
     //glm::vec2 bar2P1 = glm::vec2(-0.5f, -0.8f);
     //glm::vec2 bar2P2 = glm::vec2(-0.1f, -0.8f);
     //glm::vec2 emitDir2 = glm::vec2(0.0f, +1.0f);
-    glm::vec2 bar2P1 = glm::vec2(+0.8f, -0.5f);
-    glm::vec2 bar2P2 = glm::vec2(+0.8f, -0.1f);
+    glm::vec2 bar2P1 = glm::vec2(+0.8f, -0.2f);
+    glm::vec2 bar2P2 = glm::vec2(+0.8f, +0.2f);
     glm::vec2 emitDir2 = glm::vec2(-1.0f, 0.0f);
     ParticleEmitterBar::SHARED_PTR barEmitter2 = std::make_shared<ParticleEmitterBar>(bar2P1, bar2P2, emitDir2, minVel, maxVel);
     barEmitter2->SetTransform(windowSpaceTransform);
@@ -420,7 +420,7 @@ int main(int argc, char *argv[])
     glutInitContextProfile(GLUT_CORE_PROFILE);
 
     // enable this for automatic message reporting (see OpenGlErrorHandling.cpp)
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
     glutInitContextFlags(GLUT_DEBUG);
 #endif

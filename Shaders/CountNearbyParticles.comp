@@ -1,0 +1,69 @@
+// REQUIRES ComputeShaderWorkGroupSizes.comp
+// - PARALLEL_SORT_WORK_GROUP_SIZE_X
+// REQUIRES SsboBufferBindings.comp
+// REQUIRES CrossShaderUniformLocations.comp
+// REQUIRES ParticleBuffer.comp
+// REQUIRES PositionToMortonCode.comp
+
+// Y and Z work group sizes default to 1
+layout (local_size_x = PARTICLE_OPERATIONS_WORK_GROUP_SIZE_X) in;
+
+
+// TODO: add _numNearbyParticles to Particle
+
+// TODO: header
+void main()
+{
+    uint index = glGlobalInvocationID.x;
+    if (index >= uParticleBufferSize)
+    {
+        return;
+    }
+    
+    // the radius of nearby particles that could pose an imminent collision threat
+    float nearbyRadius = AllParticles[index]._radiusOfInfluence * 2;    //??*3??
+    vec4 upperCorner(+nearbyRadius, +nearbyRadius, 0, 0);
+    vec4 lowerCorner(-nearbyRadius, -nearbyRadius, 0, 0);
+    
+    uint upperBoundMortonCode = PositionToMortonCode(upperCorner);
+    uint lowerBoundMortonCode = PositionToMortonCode(lowerCorner);
+    
+    uint nearbyParticles = 0;
+    
+    // check to the right
+    uint offsetCounter = 0;
+    for (uint offsetCounter = 0; ; offsetCounter++)
+    {
+        if (index + offsetCounter > uParticleBufferSize)
+        {
+            // out of array bounds
+            break;
+        }
+        else if (AllParticles[index + offsetCounter]._mortonCode > upperBoundMortonCode)
+        {
+            // out of radius bounds
+            break;
+        }
+        
+        nearbyParticles++;
+    }
+    
+    // check to the left
+    for (uint offsetCounter = 0; ; offsetCounter++)
+    {
+        if (index - offsetCounter < 0)
+        {
+            // out of array bounds
+            break;
+        }
+        else if (AllParticles[index + offsetCounter]._mortonCode < lowerBoundMortonCode)
+        {
+            // out of radius bounds
+            break;
+        }
+        
+        nearbyParticles++;
+    }
+    
+}
+
