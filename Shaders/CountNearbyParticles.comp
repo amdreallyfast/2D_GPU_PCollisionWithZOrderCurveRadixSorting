@@ -4,6 +4,7 @@
 // REQUIRES CrossShaderUniformLocations.comp
 // REQUIRES ParticleBuffer.comp
 // REQUIRES PositionToMortonCode.comp
+// REQUIRES CountNearbyParticlesLimits.comp
 
 // Y and Z work group sizes default to 1
 layout (local_size_x = PARTICLE_OPERATIONS_WORK_GROUP_SIZE_X) in;
@@ -14,56 +15,117 @@ layout (local_size_x = PARTICLE_OPERATIONS_WORK_GROUP_SIZE_X) in;
 // TODO: header
 void main()
 {
-    uint index = glGlobalInvocationID.x;
+    uint index = gl_GlobalInvocationID.x;
     if (index >= uParticleBufferSize)
     {
         return;
     }
     
-    // the radius of nearby particles that could pose an imminent collision threat
-    float nearbyRadius = AllParticles[index]._radiusOfInfluence * 2;    //??*3??
-    vec4 upperCorner(+nearbyRadius, +nearbyRadius, 0, 0);
-    vec4 lowerCorner(-nearbyRadius, -nearbyRadius, 0, 0);
+    // the radius of nearby particles that could pose an imminent collision 
+    vec4 particlePos = AllParticles[index]._pos;
+    float nearbyRadius = AllParticles[index]._collisionRadius * 5.0f;    //??*3??
+
+    vec4 upperCorner = particlePos + vec4(nearbyRadius, nearbyRadius, 0.0f, 0.0f);
+    vec4 lowerCorner = particlePos - vec4(nearbyRadius, nearbyRadius, 0.0f, 0.0f);
     
     uint upperBoundMortonCode = PositionToMortonCode(upperCorner);
     uint lowerBoundMortonCode = PositionToMortonCode(lowerCorner);
     
+    // Ex: There are 50,000 particles and index is 49,996.  Next offsets are 49997, 49998, and 49999.  That's 3 total (50000 - 49996 - 1), but remember that loop end conditions are typically <, not <=, so if the particle is too close to the end of the buffer, use buffer size - index (50000 - 49996 = 4).  The loop end condition will prevent index overrun.
+    uint maxOffsetIndex = 
+        (index + NUM_PARTICLES_TO_CHECK_ON_EACH_SIDE < uParticleBufferSize) 
+        ? NUM_PARTICLES_TO_CHECK_ON_EACH_SIDE 
+        : (uParticleBufferSize - index);
+
+    // Ex: Index is 4.  Previous offsets are 3, 2, 1, and 0.  That's 4 total, so if the particle is too close to 0, just use the index.
+    uint minOffsetIndex = 
+        (index - NUM_PARTICLES_TO_CHECK_ON_EACH_SIDE > 0) 
+        ? NUM_PARTICLES_TO_CHECK_ON_EACH_SIDE 
+        : (index);
+
+    uint begin = index - minOffsetIndex;
+    uint end = index + maxOffsetIndex;
     uint nearbyParticles = 0;
-    
-    // check to the right
-    uint offsetCounter = 0;
-    for (uint offsetCounter = 0; ; offsetCounter++)
+    //float nearbyRadiusSqr = nearbyRadius * nearbyRadius;
+    for (uint otherIndex = begin; otherIndex < end; otherIndex++)
     {
-        if (index + offsetCounter > uParticleBufferSize)
+        Particle pCopy = AllParticles[otherIndex];
+        if (pCopy._isActive == 1 && 
+            pCopy._mortonCode < upperBoundMortonCode &&
+            pCopy._mortonCode > lowerBoundMortonCode)
         {
-            // out of array bounds
-            break;
+            nearbyParticles++;
         }
-        else if (AllParticles[index + offsetCounter]._mortonCode > upperBoundMortonCode)
-        {
-            // out of radius bounds
-            break;
-        }
-        
-        nearbyParticles++;
+
+//        vec4 toOtherParticle = pCopy._pos - particlePos;
+//        if (pCopy._isActive == 1 &&
+//            dot(toOtherParticle, toOtherParticle) < nearbyRadiusSqr)
+//        {
+//            nearbyParticles++;
+//        }
     }
-    
-    // check to the left
-    for (uint offsetCounter = 0; ; offsetCounter++)
-    {
-        if (index - offsetCounter < 0)
-        {
-            // out of array bounds
-            break;
-        }
-        else if (AllParticles[index + offsetCounter]._mortonCode < lowerBoundMortonCode)
-        {
-            // out of radius bounds
-            break;
-        }
-        
-        nearbyParticles++;
-    }
+
+//    for (uint offsetCounter = 0; offsetCounter < maxOffsetIndex; offsetCounter++)
+//    {
+//        Particle pCopy = AllParticles[index + offsetCounter];
+//        if (pCopy._isActive == 1 && pCopy._mortonCode < upperBoundMortonCode)
+//        {
+//            nearbyParticles++;
+//        }
+//    }
+//
+//    for (uint offsetCounter = 0; offsetCounter < maxOffsetIndex; offsetCounter++)
+//    {
+//        Particle pCopy = AllParticles[index + offsetCounter];
+//        if (pCopy._isActive == 1 && pCopy._mortonCode > lowerBoundMortonCode)
+//        {
+//            nearbyParticles++;
+//        }
+//    }
+
+    // write the result back to global memory
+    AllParticles[index]._numberOfNearbyParticles = nearbyParticles;
+
+
+
+//    // check to the right
+//    // Note: As a position goes more towards the upper limits of all three axes, the Morton Code grows larger.  Particles are sorted so that larger codes (more //towards upper right) are to the right of smaller codes (more towards lower left).  Counting particles from this particle's position to the Morton Code of an /upper/ right bound will count all particles within that radius (or maybe square; not sure what exactly what shape the Z-order curve approximates to as it is /subdivided /into finer and finer space).
+//    uint offsetCounter = 0;
+//    for (uint offsetCounter = 0; ; offsetCounter++)
+//    {
+//        if (index + offsetCounter > uParticleBufferSize)
+//        {
+//            // out of array bounds
+//            break;
+//        }
+//        else if (AllParticles[index + offsetCounter]._mortonCode > upperBoundMortonCode)
+//        {
+//            // all particles are sorted, so if this particle is beyond the "nearby particles" radius, then all other particles to the right in the sorted array /are /also out of bounds
+//            break;
+//        }
+//        
+//        nearbyParticles++;
+//    }
+//    
+//    // prevent the threads from getting too out of sync
+//    //barrier()
+//
+//    // check to the left
+//    for (uint offsetCounter = 0; ; offsetCounter++)
+//    {
+//        if (index - offsetCounter < 0)
+//        {
+//            // out of array bounds
+//            break;
+//        }
+//        else if (AllParticles[index + offsetCounter]._mortonCode < lowerBoundMortonCode)
+//        {
+//            // similar to checking the upper right boung, all all other particles to the left in the array are also out of bounds
+//            break;
+//        }
+//        
+//        nearbyParticles++;
+//    }
     
 }
 

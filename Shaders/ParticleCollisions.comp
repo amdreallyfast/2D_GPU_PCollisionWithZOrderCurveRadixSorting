@@ -74,7 +74,7 @@ void main()
         return;
     }
 
-    float minDistForCollision = p1._radiusOfInfluence + p2._radiusOfInfluence;
+    float minDistForCollision = p1._collisionRadius + p2._collisionRadius;
     float minDistForCollisionSqr = minDistForCollision * minDistForCollision;
 
     // partial pythagorean theorem so that I don't have to take the square root

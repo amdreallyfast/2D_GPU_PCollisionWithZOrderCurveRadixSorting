@@ -1,4 +1,5 @@
-#version 440
+// REQUIRES Versoin.comp
+// REQUIRES CountNearbyParticlesLimits.comp
 
 // Note: The vec2's are in window space (both X and Y on the range [-1,+1])
 // Also Note: The vec2s are provided as vec4s on the CPU side and specified as such in the 
@@ -31,16 +32,63 @@ void main()
     }
     else
     {
-        if (hasCollidedAlreadyThisFrame == 0)
-        {
-            // cyan
-            particleColor = vec4(0.5f, 1.0f, 1.0f, 1.0f);
-        }
-        else
-        {
-            // had a collision => red
-            particleColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-        }
+        // mix red, green, and blue based on the number of nearby particles
+        // Note: Mix with the following color convention:
+        // - Red -> high pressure
+        // - Green -> medium pressure
+        // - Blue -> low pressure
+        vec4 red = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+        vec4 green = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+        vec4 blue = vec4(0.0f, 0.0f, 1.0f, 1.0f);
+
+        // min/mid/max possible nearby particles
+        float min = 0;
+        float mid = NUM_PARTICLES_TO_CHECK_ON_EACH_SIDE;
+        float max = NUM_PARTICLES_TO_CHECK_ON_EACH_SIDE * 2;
+
+        float blendValue = float(numberOfNearbyParticles);
+        //float blendValue = 5;
+        float fractionLowToMid = (blendValue - min) / (mid - min);
+        fractionLowToMid = clamp(fractionLowToMid, 0.0f, 1.0f);
+
+        float fractionMidToHigh = (blendValue - mid) / (max - mid);
+        fractionMidToHigh = clamp(fractionMidToHigh, 0.0f, 1.0f);
+
+        // Note: There are two possible linear blends: blue->green and green->red.  This color blending is not like blending three points on a triangle, but it is //three points on a 1-dimensional number line, so need to differentiate between two linear blends.
+        vec4 lowToMidPressureColor = mix(blue, green, fractionLowToMid);
+        vec4 midToHighPressureColor = mix(green, red, fractionMidToHigh);
+
+        // cast boolean to float (1.0f == true, 0.0f == false)
+        float pressureIsLow = float(blendValue < mid);
+        particleColor = 
+            (pressureIsLow * lowToMidPressureColor) + 
+            ((1 - pressureIsLow) * midToHighPressureColor);
+
+//        //if (numberOfNearbyParticles == 1065353216)
+//        //if (numberOfNearbyParticles == 1073741824)
+//        if (numberOfNearbyParticles == 2)
+//        {
+//            particleColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);
+//        }
+//        else
+//        {
+//            particleColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+//        }
+//        //particleColor = vec4(float(numberOfNearbyParticles) / 40.0f, 0.0f, 0.0f, 1.0f);
+//        //particleColor = vec4(20.0f / 40.0f, 0.0f, 0.0f, 1.0f);
+//        //particleColor = lowToMidPressureColor;
+
+
+//        if (hasCollidedAlreadyThisFrame == 0)
+//        {
+//            // cyan
+//            particleColor = vec4(0.5f, 1.0f, 1.0f, 1.0f);
+//        }
+//        else
+//        {
+//            // had a collision => red
+//            particleColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+//        }
 //        else if (hasCollidedAlreadyThisFrame == 13)
 //        {
 //            // particle is active, but no collision => green

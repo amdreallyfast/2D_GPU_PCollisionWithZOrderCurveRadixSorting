@@ -183,11 +183,11 @@ void ParticleSsbo::ConfigureRender(unsigned int renderProgramId, unsigned int dr
 
     // numberOfNearbyParticles
     itemType = GL_UNSIGNED_INT;
-    numItems = sizeof(Particle::_numberOfNearbyParticles) / sizeof(float);
+    numItems = sizeof(Particle::_numberOfNearbyParticles) / sizeof(unsigned int);
     bufferStartOffset += sizeOfLastItem;
     vertexArrayIndex++;
     glEnableVertexAttribArray(vertexArrayIndex);
-    glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);
+    glVertexAttribIPointer(vertexArrayIndex, numItems, itemType, bytesPerStep, (void *)bufferStartOffset);
     sizeOfLastItem = sizeof(Particle::_numberOfNearbyParticles);
 
     // mass
@@ -214,7 +214,7 @@ void ParticleSsbo::ConfigureRender(unsigned int renderProgramId, unsigned int dr
     bufferStartOffset += sizeOfLastItem;
     vertexArrayIndex++;
     glEnableVertexAttribArray(vertexArrayIndex);
-    glVertexAttribPointer(vertexArrayIndex, numItems, itemType, GL_FALSE, bytesPerStep, (void *)bufferStartOffset);
+    glVertexAttribIPointer(vertexArrayIndex, numItems, itemType, bytesPerStep, (void *)bufferStartOffset);
     sizeOfLastItem = sizeof(Particle::_mortonCode);
 
     // "has already collided this frame" flag

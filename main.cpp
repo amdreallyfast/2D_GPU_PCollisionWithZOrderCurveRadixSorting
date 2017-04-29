@@ -52,6 +52,7 @@
 #include "Include/ShaderControllers/ParticleUpdate.h"
 #include "Include/ShaderControllers/ParallelSort.h"
 #include "Include/ShaderControllers/ParticleCollide.h"
+#include "Include/ShaderControllers/CountNearbyParticles.h"
 #include "Include/ShaderControllers/RenderParticles.h"
 
 
@@ -62,11 +63,12 @@
 Stopwatch gTimer;
 FreeTypeEncapsulated gTextAtlases;
 
-ParticleSsbo::SHARED_PTR particleSsbo = nullptr;
+ParticleSsbo::SHARED_PTR particleBuffer = nullptr;
 std::unique_ptr<ShaderControllers::ParticleReset> particleResetter = nullptr;
 std::unique_ptr<ShaderControllers::ParticleUpdate> particleUpdater = nullptr;
 std::unique_ptr<ShaderControllers::ParallelSort> parallelSort = nullptr;
 std::unique_ptr<ShaderControllers::ParticleCollide> particleCollisions = nullptr;
+std::unique_ptr<ShaderControllers::CountNearbyParticles> nearbyParticleCounter = nullptr;
 std::unique_ptr<ShaderControllers::RenderParticles> particleRenderer = nullptr;
 
 const unsigned int MAX_PARTICLE_COUNT = 50000;
@@ -126,7 +128,7 @@ void Init()
     // needing to pass the SSBO into it.  GPU computing in multiple steps creates coupling 
     // between the SSBOs and the shaders, but the compute headers lessen the coupling that needs 
     // to happen on the CPU side.
-    particleSsbo = std::make_unique<ParticleSsbo>(MAX_PARTICLE_COUNT);
+    particleBuffer = std::make_unique<ParticleSsbo>(MAX_PARTICLE_COUNT);
 
     // set up the particle region
     // Note: This mat4 is a convenience for easily moving the particle region center and all 
@@ -139,11 +141,11 @@ void Init()
     // for resetting particles
     // Note: Put the bar emitters across from each and spraying particles toward each other and 
     // up so that the particles collide near the middle with a slight upward velocity.
-    particleResetter = std::make_unique<ShaderControllers::ParticleReset>(particleSsbo);
+    particleResetter = std::make_unique<ShaderControllers::ParticleReset>(particleBuffer);
 
     // bar on the left and emitting up and right
-    glm::vec2 bar1P1(-0.8f, +0.2f);
-    glm::vec2 bar1P2(-0.8f, -0.2f);
+    glm::vec2 bar1P1(-0.8f, +0.3f);
+    glm::vec2 bar1P2(-0.8f, -0.1f);
     glm::vec2 emitDir1(+1.0f, 0.0f);
     float minVel = 0.1f;
     float maxVel = 0.5f;
@@ -155,8 +157,8 @@ void Init()
     //glm::vec2 bar2P1 = glm::vec2(-0.5f, -0.8f);
     //glm::vec2 bar2P2 = glm::vec2(-0.1f, -0.8f);
     //glm::vec2 emitDir2 = glm::vec2(0.0f, +1.0f);
-    glm::vec2 bar2P1 = glm::vec2(+0.8f, -0.2f);
-    glm::vec2 bar2P2 = glm::vec2(+0.8f, +0.2f);
+    glm::vec2 bar2P1 = glm::vec2(+0.8f, -0.3f);
+    glm::vec2 bar2P2 = glm::vec2(+0.8f, +0.1f);
     glm::vec2 emitDir2 = glm::vec2(-1.0f, 0.0f);
     ParticleEmitterBar::SHARED_PTR barEmitter2 = std::make_shared<ParticleEmitterBar>(bar2P1, bar2P2, emitDir2, minVel, maxVel);
     barEmitter2->SetTransform(windowSpaceTransform);
@@ -165,16 +167,19 @@ void Init()
     // for moving particles
     glm::vec4 particleRegionCenter = windowSpaceTransform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     float particleRegionRadius = 0.9f;
-    particleUpdater = std::make_unique<ShaderControllers::ParticleUpdate>(particleSsbo, particleRegionCenter, particleRegionRadius);
+    particleUpdater = std::make_unique<ShaderControllers::ParticleUpdate>(particleBuffer, particleRegionCenter, particleRegionRadius);
 
     // for sorting particles once they've been updated
-    parallelSort = std::make_unique<ShaderControllers::ParallelSort>(particleSsbo);
+    parallelSort = std::make_unique<ShaderControllers::ParallelSort>(particleBuffer);
 
     // for detecting and resolving collisions once the particles have been sorted
-    particleCollisions = std::make_unique<ShaderControllers::ParticleCollide>(particleSsbo);
+    particleCollisions = std::make_unique<ShaderControllers::ParticleCollide>(particleBuffer);
+
+    // determines particle color
+    nearbyParticleCounter = std::make_unique<ShaderControllers::CountNearbyParticles>(particleBuffer);
 
     // for rendering particles
-    particleRenderer = std::make_unique<ShaderControllers::RenderParticles>(particleSsbo);
+    particleRenderer = std::make_unique<ShaderControllers::RenderParticles>(particleBuffer);
 
 
 
@@ -214,6 +219,7 @@ void UpdateAllTheThings()
     parallelSort->SortWithoutProfiling();
     //parallelSort->SortWithProfiling();
     particleCollisions->DetectAndResolveCollisions();
+    nearbyParticleCounter->Count();
 
 
 

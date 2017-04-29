@@ -22,5 +22,9 @@ Creator:    John Cox (9-25-2016)
 ------------------------------------------------------------------------------------------------*/
 vec4 LinearBlend(vec4 v1, vec4 v2, float Between0And1)
 {
+
+    // TODO: remove this and replace with mix(...), which is a built-in GLSL function (forgot about it; whoopse)
+
+
     return (v1 * (1 - Between0And1)) + (v2 * Between0And1);
 }

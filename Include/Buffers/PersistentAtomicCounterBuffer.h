@@ -48,7 +48,7 @@ private:
 public:
     ~PersistentAtomicCounterBuffer();
     using CONST_SHARED_PTR = std::shared_ptr<const PersistentAtomicCounterBuffer>;
-    static CONST_SHARED_PTR &GetInstance();
+    static const CONST_SHARED_PTR &GetInstance();
 
     void ResetCounter() const;
     unsigned int GetCounterValue() const;

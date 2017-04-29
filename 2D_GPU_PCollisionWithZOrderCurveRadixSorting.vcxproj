@@ -197,6 +197,7 @@
     <None Include="Shaders\ComputeHeaders\SsboBufferBindings.comp" />
     <None Include="Shaders\ComputeHeaders\Version.comp" />
     <None Include="Shaders\CountNearbyParticles.comp" />
+    <None Include="Shaders\CountNearbyParticlesLimits.comp" />
     <None Include="Shaders\FreeType.frag" />
     <None Include="Shaders\FreeType.vert" />
     <None Include="Shaders\ParallelSort\GetBitForPrefixScan.comp" />

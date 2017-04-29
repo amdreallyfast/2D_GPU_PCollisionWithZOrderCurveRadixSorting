@@ -1,5 +1,7 @@
 // REQUIRES SsboBufferBindings.comp
 //  PREFIX_SCAN_BUFFER_BINDING
+// REQUIRES CrossShaderUniformLocations
+//  UNIFORM_LOCATION_PARTICLE_BUFFER_SIZE
 
 
 /*------------------------------------------------------------------------------------------------
@@ -14,7 +16,7 @@ struct Particle
 
     uint _numberOfNearbyParticles;
     float _mass;
-    float _radiusOfInfluence;
+    float _collisionRadius;
     uint _mortonCode;
     uint _hasCollidedAlreadyThisFrame;
     int _isActive;

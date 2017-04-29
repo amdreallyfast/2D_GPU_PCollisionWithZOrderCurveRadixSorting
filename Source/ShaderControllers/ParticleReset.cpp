@@ -4,7 +4,6 @@
 
 #include "Shaders/ShaderStorage.h"
 #include "Shaders/ComputeHeaders/ComputeShaderWorkGroupSizes.comp"
-#include "Shaders/ComputeHeaders/SsboBufferBindings.comp"
 
 #include "ThirdParty/glload/include/glload/gl_4_4.h"
 #include "ThirdParty/glm/gtc/type_ptr.hpp"

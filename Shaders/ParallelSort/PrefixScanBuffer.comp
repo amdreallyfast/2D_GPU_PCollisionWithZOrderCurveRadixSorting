@@ -1,7 +1,8 @@
 // REQUIRES SsboBufferBindings.comp
 //  PREFIX_SCAN_BUFFER_BINDING
-// REQUIRES ComputeShaderWorkGroupSizes.comp
-//  PARALLEL_SORT_ITEMS_PER_WORK_GROUP
+// REQUIRES CrossShaderUniformLocations
+//  UNIFORM_LOCATION_ALL_PREFIX_SUMS_SIZE
+
 
 
 // Note: The ParallelSort compute controller should be carefully controlling the number of work 
