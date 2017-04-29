@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Include/Buffers/SSBOs/ParticleSsbo.h"
-#include "Include/Buffers/AtomicCounterBuffer.h"
+#include "Include/Buffers/PersistentAtomicCounterBuffer.h"
 
 #include "ThirdParty/glm/vec4.hpp"
 
@@ -29,7 +29,7 @@ namespace ShaderControllers
             float particleRegionRadius);
         ~ParticleUpdate();
 
-        void Update(float deltaTimeSec, std::unique_ptr<PersistentAtomicCounterBuffer> &counter);
+        void Update(float deltaTimeSec);
         unsigned int NumActiveParticles() const;
 
     private:
@@ -42,16 +42,8 @@ namespace ShaderControllers
         int _unifLocParticleRegionRadiusSqr;
         int _unifLocDeltaTimeSec;
 
-        //// the atomic counter is used to count the total number of active particles after this 
-        //// update
-        //// Also Note: The copy buffer is necessary to avoid trashing OpenGL's beautifully 
-        //// synchronized pipeline.  Experiments showed that, after particle updating, mapping a 
-        //// pointer to the atomic counter dropped frame rates from ~60fps -> ~3fps.  Ouch.  But 
-        //// now I've learned about buffer copying, so now the buffer mapping happens on a buffer 
-        //// that is not part of the compute shader's pipeline, and frame rates are back up to 
-        //// ~60fps.  Lovely :)
-        //unsigned int _activeParticlesAtomicCounterBufferId;
-        //unsigned int _copyBufferId;
-
+        // the atomic counter is used to count the total number of active particles after this 
+        // update
+        PersistentAtomicCounterBuffer::CONST_SHARED_PTR _activeParticlesAtomicCounter;
     };
 }

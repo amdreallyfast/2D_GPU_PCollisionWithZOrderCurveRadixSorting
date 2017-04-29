@@ -148,7 +148,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Shaders\ShaderStorage.cpp" />
-    <ClCompile Include="Source\Buffers\AtomicCounterBuffer.cpp" />
+    <ClCompile Include="Source\Buffers\PersistentAtomicCounterBuffer.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\IntermediateDataSsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticleCopySsbo.cpp" />
     <ClCompile Include="Source\Buffers\SSBOs\ParticleSsbo.cpp" />
@@ -168,8 +168,8 @@
     <ClCompile Include="Source\ShaderControllers\RenderParticles.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Buffers\AtomicCounterBuffer.h" />
     <ClInclude Include="Include\Buffers\IntermediateData.h" />
+    <ClInclude Include="Include\Buffers\PersistentAtomicCounterBuffer.h" />
     <ClInclude Include="Include\Buffers\SSBOs\IntermediateDataSsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticleCopySsbo.h" />
     <ClInclude Include="Include\Buffers\SSBOs\ParticleSsbo.h" />

@@ -47,7 +47,7 @@
 
 #include "Include/Particles/Particle.h"
 #include "Include/Buffers/SSBOs/ParticleSsbo.h"
-#include "Include/Buffers/AtomicCounterBuffer.h"
+#include "Include/Buffers/PersistentAtomicCounterBuffer.h"
 #include "Include/ShaderControllers/ParticleReset.h"
 #include "Include/ShaderControllers/ParticleUpdate.h"
 #include "Include/ShaderControllers/ParallelSort.h"
@@ -213,8 +213,8 @@ void UpdateAllTheThings()
     // just hard-code it for this demo
     float deltaTimeSec = 0.01f;
 
-    particleResetter->ResetParticles(20, atomicCounter);
-    particleUpdater->Update(deltaTimeSec, atomicCounter);
+    particleResetter->ResetParticles(20);
+    particleUpdater->Update(deltaTimeSec);
     parallelSort->SortWithoutProfiling();
     //parallelSort->SortWithProfiling();
     particleCollisions->DetectAndResolveCollisions();

@@ -7,7 +7,7 @@
 #include "Include/Particles/IParticleEmitter.h"
 #include "Include/Particles/ParticleEmitterPoint.h"
 #include "Include/Particles/ParticleEmitterBar.h"
-#include "Include/Buffers/AtomicCounterBuffer.h"
+#include "Include/Buffers/PersistentAtomicCounterBuffer.h"
 
 
 namespace ShaderControllers
@@ -45,16 +45,16 @@ namespace ShaderControllers
         void AddEmitter(ParticleEmitterPoint::CONST_SHARED_PTR pointEmitter);
         void AddEmitter(ParticleEmitterBar::CONST_SHARED_PTR barEmitter);
 
-        void ResetParticles(unsigned int particlesPerEmitterPerFrame, std::unique_ptr<PersistentAtomicCounterBuffer> &counter);
+        void ResetParticles(unsigned int particlesPerEmitterPerFrame);
 
     private:
         unsigned int _totalParticleCount;
         unsigned int _computeProgramIdBarEmitters;
         unsigned int _computeProgramIdPointEmitters;
 
-        //// this atomic counter is used to enforce the number of emitted particles per emitter 
-        //// per frame 
-        //unsigned int _particleResetAtomicCounterBufferId;
+        // this atomic counter is used to enforce the number of emitted particles per emitter 
+        // per frame 
+        PersistentAtomicCounterBuffer::CONST_SHARED_PTR _particleResetAtomicCounter;
 
         // some of these uniforms had to be split into two versions to accomodate both shaders
 

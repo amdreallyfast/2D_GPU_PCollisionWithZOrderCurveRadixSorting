@@ -29,7 +29,7 @@ namespace ShaderControllers
         _totalParticleCount(0),
         _computeProgramIdBarEmitters(0),
         _computeProgramIdPointEmitters(0),
-        //_particleResetAtomicCounterBufferId(0),
+        _particleResetAtomicCounter(nullptr),
         _unifLocPointEmitterCenter(-1),
         _unifLocPointMaxParticleEmitCount(-1),
         _unifLocPointMinParticleVelocity(-1),
@@ -42,6 +42,7 @@ namespace ShaderControllers
         _unifLocBarMaxParticleVelocity(-1)
     {
         _totalParticleCount = ssboToReset->NumItems();
+        _particleResetAtomicCounter = PersistentAtomicCounterBuffer::GetInstance();
 
         // construct the compute shader
         ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();
@@ -97,22 +98,6 @@ namespace ShaderControllers
         _unifLocBarMaxParticleVelocity = shaderStorageRef.GetUniformLocation(shaderKey, "uMaxParticleVelocity");
 
         // uniform values are set in ResetParticles(...)
-        
-        //// generate the atomic counters for the number of active particles
-        //// Note: Atomic counter initialization courtesy of geeks3D (and my use of 
-        //// glBufferData(...) instead of glMapBuffer(...)
-        //// http://www.geeks3d.com/20120309/opengl-4-2-atomic-counter-demo-rendering-order-of-fragments/
-        //glGenBuffers(1, &_particleResetAtomicCounterBufferId);
-        //glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, _particleResetAtomicCounterBufferId);
-        //GLuint atomicCounterResetValue = 0;
-        //glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), &atomicCounterResetValue, GL_DYNAMIC_DRAW);
-        //glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
-
-        //// don't need to have a bound program or bound buffer to set the buffer base
-        //// Note: It seems that atomic counters must be bound where they are declared and cannot 
-        //// be bound dynamically like the ParticleSsbo and PolygonSsbo.  So remember to use the 
-        //// SAME buffer binding base as specified in the shader.
-        //glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, PARTICLE_RESET_ATOMIC_COUNTER_BUFFER_BINDING, _particleResetAtomicCounterBufferId);
     }
     
     /*--------------------------------------------------------------------------------------------
@@ -126,7 +111,6 @@ namespace ShaderControllers
     {
         glDeleteProgram(_computeProgramIdBarEmitters);
         glDeleteProgram(_computeProgramIdPointEmitters);
-        //glDeleteBuffers(1, &_particleResetAtomicCounterBufferId);
     }
 
     /*--------------------------------------------------------------------------------------------
@@ -173,19 +157,13 @@ namespace ShaderControllers
                 Originally from an even earlier class.  The "particle reset" and 
                 "particle update" are the two oldest compute shaders in my demos.
     --------------------------------------------------------------------------------------------*/
-    void ParticleReset::ResetParticles(unsigned int particlesPerEmitterPerFrame, std::unique_ptr<PersistentAtomicCounterBuffer> &counter)
+    void ParticleReset::ResetParticles(unsigned int particlesPerEmitterPerFrame)
     {
-        // TODO: use std::chrono to profile
-
-
-
         if (_pointEmitters.empty() && _barEmitters.empty())
         {
             // nothing to do
             return;
         }
-
-        //GLuint atomicCounterResetValue = 0;
 
         // spreading the particles evenly between multiple emitters is done by letting all the 
         // particle emitters have a go at all the inactive particles
@@ -194,21 +172,17 @@ namespace ShaderControllers
         // where they were when the last particle was reset.  Also, after the "particles per 
         // emitter per frame" limit is reached, the vast majority of the threads will simply 
         // return, so it's actually pretty fast.
-        // TODO: profile
         GLuint numWorkGroupsX = (_totalParticleCount / PARTICLE_OPERATIONS_WORK_GROUP_SIZE_X) + 1;
         GLuint numWorkGroupsY = 1;
         GLuint numWorkGroupsZ = 1;
 
-        //glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, _particleResetAtomicCounterBufferId);
-            
         // give all point emitters a chance to reactivate inactive particles at their positions
         glUseProgram(_computeProgramIdPointEmitters);
         glUniform1ui(_unifLocPointMaxParticleEmitCount, particlesPerEmitterPerFrame);
         for (size_t pointEmitterCount = 0; pointEmitterCount < _pointEmitters.size(); pointEmitterCount++)
         {
             // reset everything necessary to control the emission parameters for this emitter
-            //glBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), (void *)&atomicCounterResetValue);
-            counter->ResetCounter();
+            _particleResetAtomicCounter->ResetCounter();
 
             ParticleEmitterPoint::CONST_SHARED_PTR &emitter = _pointEmitters[pointEmitterCount];
 
@@ -227,8 +201,7 @@ namespace ShaderControllers
         glUniform1ui(_unifLocBarMaxParticleEmitCount, particlesPerEmitterPerFrame);
         for (size_t barEmitterCount = 0; barEmitterCount < _barEmitters.size(); barEmitterCount++)
         {
-            //glBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), (void *)&atomicCounterResetValue);
-            counter->ResetCounter();
+            _particleResetAtomicCounter->ResetCounter();
 
             ParticleEmitterBar::CONST_SHARED_PTR &emitter = _barEmitters[barEmitterCount];
 
@@ -246,7 +219,6 @@ namespace ShaderControllers
         }
 
         // cleanup
-        //glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
         glUseProgram(0);
     }
 

@@ -38,9 +38,6 @@
     <ClCompile Include="Source\Particles\ParticleEmitterBar.cpp">
       <Filter>Source\Particles</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Buffers\AtomicCounterBuffer.cpp">
-      <Filter>Source\Buffers</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Buffers\SSBOs\IntermediateDataSsbo.cpp">
       <Filter>Source\Buffers\SSBOs</Filter>
     </ClCompile>
@@ -58,6 +55,9 @@
     </ClCompile>
     <ClCompile Include="Source\ShaderControllers\CountNearbyParticles.cpp">
       <Filter>Source\ShaderControllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffers\PersistentAtomicCounterBuffer.cpp">
+      <Filter>Source\Buffers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -106,9 +106,6 @@
     <ClInclude Include="Include\Buffers\IntermediateData.h">
       <Filter>Include\Buffers</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Buffers\AtomicCounterBuffer.h">
-      <Filter>Include\Buffers</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Buffers\SSBOs\ParticleCopySsbo.h">
       <Filter>Include\Buffers\SSBOs</Filter>
     </ClInclude>
@@ -126,6 +123,9 @@
     </ClInclude>
     <ClInclude Include="Include\ShaderControllers\CountNearbyParticles.h">
       <Filter>Include\ShaderControllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Buffers\PersistentAtomicCounterBuffer.h">
+      <Filter>Include\Buffers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

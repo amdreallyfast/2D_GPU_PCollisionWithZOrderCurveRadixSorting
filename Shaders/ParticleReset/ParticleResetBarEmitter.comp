@@ -50,7 +50,6 @@ void main()
         return;
     }
     else if (atomicCounterIncrement(acResetParticleCounter) >= uMaxParticleEmitCount)
-    //else if (atomicCounterIncrement(acResetParticleCounter) != 1)
     {
         // already hit the limit for how many particles can be emitted this frame
         return;

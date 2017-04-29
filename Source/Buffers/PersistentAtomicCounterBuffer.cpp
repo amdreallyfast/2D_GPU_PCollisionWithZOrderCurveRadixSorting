@@ -1,4 +1,4 @@
-#include "Include/Buffers/AtomicCounterBuffer.h"
+#include "Include/Buffers/PersistentAtomicCounterBuffer.h"
 
 #include "Shaders/ComputeHeaders/SsboBufferBindings.comp"
 
@@ -83,7 +83,7 @@ PersistentAtomicCounterBuffer::PersistentAtomicCounterBuffer() :
     _bufferPtr[0] = 0;
 
     // ??why doesn't unbinding the atomic counter buffer seem to affect it??
-    //glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 }
 
 /*------------------------------------------------------------------------------------------------
@@ -98,6 +98,38 @@ PersistentAtomicCounterBuffer::~PersistentAtomicCounterBuffer()
     // unsynchronize
     glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
     glDeleteBuffers(1, &_bufferId);
+}
+
+/*------------------------------------------------------------------------------------------------
+Description:
+    Returns a const shared pointer to a unique instance of the PersistentAtomicCounterBuffer.
+
+    If this is the first call of the program, it generates a new instance.
+
+    Note: Returning a reference to a const shared pointer is fine because
+    (1) The reference makes it cheap to call on the fly and the user can still create a copy if 
+        they want.
+    (2) The the methods are all const.
+
+Parameters: None
+Returns:    
+    A reference to a const shared pointer of the class instance
+Creator:    John Cox, 4/2017
+------------------------------------------------------------------------------------------------*/
+PersistentAtomicCounterBuffer::CONST_SHARED_PTR &PersistentAtomicCounterBuffer::GetInstance()
+{
+    // Note: MUST be a null pointer at startup!  The constructor makes OpenGL calls, so the 
+    // instance should not be constructed until the OpenGL context has been initialized.  That 
+    // initialization happens at the top of Init() in main.cpp, so it will be initialized by the 
+    // time that the first call to GetInstance() is made.
+    static std::shared_ptr<const PersistentAtomicCounterBuffer> instance = nullptr;
+
+    if (instance == nullptr)
+    {
+        instance = std::make_shared<const PersistentAtomicCounterBuffer>();
+    }
+
+    return instance;
 }
 
 /*------------------------------------------------------------------------------------------------
@@ -157,7 +189,7 @@ Parameters: None
 Returns:    None
 Creator:    John Cox, 4/2017
 ------------------------------------------------------------------------------------------------*/
-unsigned int PersistentAtomicCounterBuffer::GetValue() const
+unsigned int PersistentAtomicCounterBuffer::GetCounterValue() const
 {
     GLsync readSyncFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
     GLenum waitReturn = GL_UNSIGNALED;
