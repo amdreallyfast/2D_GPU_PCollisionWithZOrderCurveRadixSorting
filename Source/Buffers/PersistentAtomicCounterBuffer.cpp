@@ -85,6 +85,10 @@ PersistentAtomicCounterBuffer::PersistentAtomicCounterBuffer() :
 /*------------------------------------------------------------------------------------------------
 Description:
     Unmaps the atomic counter buffer and destroys it.
+
+    ??better way to do this? Note from 2D_GPU_PCollisionWithZOrderCurveRadixSorting??
+    Note: Thanks to user concerned-cynix on the OpenGL subreddit for letting me know that this static stuff causes an OpenGL error on program exit on Linux.  In VS2015 (at least at the time that this function was made), no error is printed via the debug message callback.  That may be because, if the OpenGL context is destroyed by the time that static variables are destroyed, then the debug message callback won't be called.  Huh.  I want there to only be one instance of this calss so that I only need one buffer binding, but is it possible to do a single buffer binding without static?
+
 Parameters: None
 Returns:    None
 Creator:    John Cox, 4/2017

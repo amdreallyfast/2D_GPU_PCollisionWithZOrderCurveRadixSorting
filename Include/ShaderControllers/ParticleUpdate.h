@@ -24,9 +24,7 @@ namespace ShaderControllers
     class ParticleUpdate
     {
     public:
-        ParticleUpdate(const ParticleSsbo::SHARED_PTR &ssboToUpdate, 
-            const glm::vec4 &particleRegionCenter,
-            float particleRegionRadius);
+        ParticleUpdate(const ParticleSsbo::SHARED_PTR &ssboToUpdate);
         ~ParticleUpdate();
 
         void Update(float deltaTimeSec);
@@ -38,8 +36,6 @@ namespace ShaderControllers
         unsigned int _computeProgramId;
         
         // these uniforms are specific to this shader
-        int _unifLocParticleRegionCenter;
-        int _unifLocParticleRegionRadiusSqr;
         int _unifLocDeltaTimeSec;
 
         // the atomic counter is used to count the total number of active particles after this 

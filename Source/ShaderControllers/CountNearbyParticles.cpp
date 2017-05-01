@@ -40,6 +40,7 @@ namespace ShaderControllers
             shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/SsboBufferBindings.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/CrossShaderUniformLocations.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleBuffer.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleRegionBoundaries.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/PositionToMortonCode.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/CountNearbyParticlesLimits.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/CountNearbyParticles.comp");

@@ -4,6 +4,7 @@
 // REQUIRES SsboBufferBindings.comp
 // REQUIRES CrossShaderUniformLocations.comp
 // REQUIRES ParticleBuffer.comp
+// REQUIRES ParticleRegionBoundaries.comp
 
 // Y and Z work group sizes default to 1
 layout (local_size_x = PARTICLE_OPERATIONS_WORK_GROUP_SIZE_X) in;
@@ -16,8 +17,8 @@ layout (local_size_x = PARTICLE_OPERATIONS_WORK_GROUP_SIZE_X) in;
 layout (binding = ATOMIC_COUNTER_BUFFER_BINDING, offset = 0) uniform atomic_uint acActiveParticleCounter;
 
 
-uniform vec4 uParticleRegionCenter;
-uniform float uParticleRegionRadiusSqr;
+//uniform vec4 uParticleRegionCenter;
+//uniform float uParticleRegionRadiusSqr;
 uniform float uDeltaTimeSec;
 
 /*------------------------------------------------------------------------------------------------
@@ -47,9 +48,12 @@ void main()
         pCopy._pos += (pCopy._vel * uDeltaTimeSec);
 
         // if it went out of bounds, turn it off
-        vec4 regionCenterToParticle = pCopy._pos - uParticleRegionCenter;
+        vec3 particleRegionCenter = vec3(PARTICLE_REGION_CENTER_X, PARTICLE_REGION_CENTER_Y, 0.0f);
+        //vec4 regionCenterToParticle = pCopy._pos - uParticleRegionCenter;
+        vec3 regionCenterToParticle = pCopy._pos.xyz - particleRegionCenter;
         float distToParticleSqr = dot(regionCenterToParticle, regionCenterToParticle);
-        if (distToParticleSqr > uParticleRegionRadiusSqr)
+        //if (distToParticleSqr > uParticleRegionRadiusSqr)
+        if (distToParticleSqr > (PARTICLE_REGION_RADIUS * PARTICLE_REGION_RADIUS))
         {
             pCopy._isActive = 0;
         }

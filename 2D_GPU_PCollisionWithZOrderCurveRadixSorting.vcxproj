@@ -209,6 +209,7 @@
     <None Include="Shaders\ParallelSort\SortParticleData.comp" />
     <None Include="Shaders\ParticleBuffer.comp" />
     <None Include="Shaders\ParticleCollisions.comp" />
+    <None Include="Shaders\ParticleRegionBoundaries.comp" />
     <None Include="Shaders\ParticleRender.frag" />
     <None Include="Shaders\ParticleRender.vert" />
     <None Include="Shaders\ParticleReset\LinearBlend.comp" />

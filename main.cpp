@@ -165,9 +165,7 @@ void Init()
     particleResetter->AddEmitter(barEmitter2);
 
     // for moving particles
-    glm::vec4 particleRegionCenter = windowSpaceTransform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    float particleRegionRadius = 0.9f;
-    particleUpdater = std::make_unique<ShaderControllers::ParticleUpdate>(particleBuffer, particleRegionCenter, particleRegionRadius);
+    particleUpdater = std::make_unique<ShaderControllers::ParticleUpdate>(particleBuffer);
 
     // for sorting particles once they've been updated
     parallelSort = std::make_unique<ShaderControllers::ParallelSort>(particleBuffer);

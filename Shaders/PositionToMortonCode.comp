@@ -1,4 +1,4 @@
-
+// REQUIRES ParticleRegionBoundaries.comp
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -93,9 +93,16 @@ uint PositionToMortonCode(vec4 pos)
     // noticed a measurable difference.  I'll re-use because it's already there.
     pos.w = 0.0f;
 
-    // normalize it
-    //pos *= inversesqrt(dot(pos, pos));
-    pos = 0.5f * pos;
+    // reduce it to the range [-1,+1] on all axes
+    // Note: It is okay to divide by a hard-coded size.  The value is in a single variable, and 
+    // if a particle goes outside the particle region, then Particleupdate.comp flags it as 
+    // inactive, in which case that particle's position will never be fed into this function 
+    // anyway.
+    // Also Note: For a circular particle region (or spherical), all ranges are the same size.
+    float inverseParticleRange = 1.0f / (2.0f * PARTICLE_REGION_RADIUS);
+    pos.x = pos.x * inverseParticleRange;
+    pos.y = pos.y * inverseParticleRange;
+    pos.z = pos.z * inverseParticleRange;
 
     // reduce from range (-1,+1) on each axis to (0,+1) on each axis
     // Note: If this particle is only in 2D, then Z will be 0, but after this operation it will 

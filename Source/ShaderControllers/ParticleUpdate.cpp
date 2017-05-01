@@ -26,14 +26,10 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 4/2017
     --------------------------------------------------------------------------------------------*/
-    ParticleUpdate::ParticleUpdate(const ParticleSsbo::SHARED_PTR &ssboToUpdate,
-        const glm::vec4 &particleRegionCenter,
-        float particleRegionRadius) :
+    ParticleUpdate::ParticleUpdate(const ParticleSsbo::SHARED_PTR &ssboToUpdate) :
         _totalParticleCount(0),
         _activeParticleCount(0),
         _computeProgramId(0),
-        _unifLocParticleRegionCenter(-1),
-        _unifLocParticleRegionRadiusSqr(-1),
         _unifLocDeltaTimeSec(-1),
         _activeParticlesAtomicCounter(nullptr)
     {
@@ -50,20 +46,17 @@ namespace ShaderControllers
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/SsboBufferBindings.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/CrossShaderUniformLocations.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleBuffer.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleRegionBoundaries.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleUpdate.comp");
         shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _computeProgramId = shaderStorageRef.GetShaderProgram(shaderKey);
         ssboToUpdate->ConfigureConstantUniforms(_computeProgramId);
 
-        _unifLocParticleRegionCenter = shaderStorageRef.GetUniformLocation(shaderKey, "uParticleRegionCenter");
-        _unifLocParticleRegionRadiusSqr = shaderStorageRef.GetUniformLocation(shaderKey, "uParticleRegionRadiusSqr");
         _unifLocDeltaTimeSec = shaderStorageRef.GetUniformLocation(shaderKey, "uDeltaTimeSec");
 
         // set uniform values and generate the atomic counters for the number of active particles
         glUseProgram(_computeProgramId);
-        glUniform4fv(_unifLocParticleRegionCenter, 1, glm::value_ptr(particleRegionCenter));
-        glUniform1f(_unifLocParticleRegionRadiusSqr, particleRegionRadius * particleRegionRadius);
         // delta time set in Update(...)
     }
 
