@@ -57,7 +57,6 @@ namespace ShaderControllers
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleBuffer.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/Random.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/QuickNormalize.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/LinearBlend.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/ParticleResetPointEmitter.comp");
         shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
@@ -80,7 +79,6 @@ namespace ShaderControllers
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleBuffer.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/Random.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/QuickNormalize.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/LinearBlend.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleReset/ParticleResetBarEmitter.comp");
         shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);

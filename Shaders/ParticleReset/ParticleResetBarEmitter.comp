@@ -7,7 +7,6 @@
 // REQUIRES Random.comp
 // REQUIRES NewVelocityBetweenMinAndMax.comp
 // REQUIRES QuickNormalize.comp
-// REQUIRES LinearBlend.comp
 
 // Y and Z work group sizes default to 1
 layout (local_size_x = PARTICLE_OPERATIONS_WORK_GROUP_SIZE_X) in;
@@ -61,14 +60,14 @@ void main()
 
     // position
     float blendAlpha = RandomOnRange0To1(pCopy._pos.xy);
-    pCopy._pos = LinearBlend(uBarEmitterP1, uBarEmitterP2, blendAlpha);
+    pCopy._pos = mix(uBarEmitterP1, uBarEmitterP2, blendAlpha);
 
     // velocity
     vec4 velocityDir = QuickNormalize(uBarEmitterEmitDir);
     vec4 minVel = uMinParticleVelocity * velocityDir;
     vec4 maxVel = uMaxParticleVelocity * velocityDir;
     blendAlpha = RandomOnRange0To1(pCopy._vel.xy);
-    pCopy._vel = LinearBlend(minVel, maxVel, blendAlpha);
+    pCopy._vel = mix(minVel, maxVel, blendAlpha);
 
     // set to "active"
     pCopy._isActive = 1;

@@ -224,9 +224,6 @@
     <None Include="Shaders\ComputeHeaders\CrossShaderUniformLocations.comp">
       <Filter>Shaders\ComputeHeaders</Filter>
     </None>
-    <None Include="Shaders\ParticleReset\LinearBlend.comp">
-      <Filter>Shaders\ParticleReset</Filter>
-    </None>
     <None Include="Shaders\ParticleReset\ParticleResetBarEmitter.comp">
       <Filter>Shaders\ParticleReset</Filter>
     </None>

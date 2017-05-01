@@ -7,7 +7,6 @@
 // REQUIRES Random.comp
 // REQUIRES NewVelocityBetweenMinAndMax.comp
 // REQUIRES QuickNormalize.comp
-// REQUIRES LinearBlend.comp
 
 // Y and Z work group sizes default to 1
 layout (local_size_x = PARTICLE_OPERATIONS_WORK_GROUP_SIZE_X) in;
@@ -76,7 +75,7 @@ void main()
     vec4 innerPosLimit = uPointEmitterCenter;
     vec4 outerPosLimit = uPointEmitterCenter + cloudRingLimit;
     float blendAlpha = RandomOnRange0To1(vec2(newPosX, newPosY));
-    pCopy._pos = LinearBlend(innerPosLimit, outerPosLimit, blendAlpha);
+    pCopy._pos = mix(innerPosLimit, outerPosLimit, blendAlpha);
 
     // velocity
     // Note: Similar to position, use the last know velocity as the rand seed for X, then 
@@ -87,7 +86,7 @@ void main()
     vec4 minVel = uMinParticleVelocity * randomVelocityVector;
     vec4 maxVel = uMaxParticleVelocity * randomVelocityVector;
     blendAlpha = RandomOnRange0To1(vec2(newVelX, newVelY));
-    pCopy._vel = LinearBlend(minVel, maxVel, blendAlpha);
+    pCopy._vel = mix(minVel, maxVel, blendAlpha);
     
     // set to "active"
     pCopy._isActive = 1;
