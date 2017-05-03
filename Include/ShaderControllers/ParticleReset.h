@@ -42,8 +42,8 @@ namespace ShaderControllers
         // be turned into a shared pointer to const data.  A shared pointer is castable to a 
         // shared pointer to const data, but they are two different object types, hence the need
         // for a copy constructor (??I think??).
-        void AddEmitter(ParticleEmitterPoint::CONST_SHARED_PTR pointEmitter);
-        void AddEmitter(ParticleEmitterBar::CONST_SHARED_PTR barEmitter);
+        void AddEmitter(const ParticleEmitterPoint::CONST_SHARED_PTR pointEmitter);
+        void AddEmitter(const ParticleEmitterBar::CONST_SHARED_PTR barEmitter);
 
         void ResetParticles(unsigned int particlesPerEmitterPerFrame);
 

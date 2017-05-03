@@ -177,7 +177,8 @@ void Init()
     nearbyParticleCounter = std::make_unique<ShaderControllers::CountNearbyParticles>(particleBuffer);
 
     // for rendering particles
-    particleRenderer = std::make_unique<ShaderControllers::RenderParticles>(particleBuffer);
+    particleRenderer = std::make_unique<ShaderControllers::RenderParticles>();
+    particleRenderer->ConfigureSsboForRendering(particleBuffer);
 
 
 
@@ -257,7 +258,7 @@ void Display()
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    particleRenderer->Render();
+    particleRenderer->Render(particleBuffer);
 
 
     // draw the frame rate once per second in the lower left corner

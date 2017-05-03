@@ -20,7 +20,7 @@ namespace ShaderControllers
     Returns:    None
     Creator:    John Cox, 4/2017
     --------------------------------------------------------------------------------------------*/
-    ParticleCollide::ParticleCollide(ParticleSsbo::SHARED_PTR &ssboToWorkWith) :
+    ParticleCollide::ParticleCollide(const ParticleSsbo::SHARED_PTR &ssboToWorkWith) :
         _totalParticleCount(0),
         _computeProgramId(0),
         _unifLocIndexOffsetBy0Or1(-1)
