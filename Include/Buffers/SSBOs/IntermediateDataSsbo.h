@@ -16,7 +16,7 @@ class IntermediateDataSsbo : public SsboBase
 {
 public:
     IntermediateDataSsbo(unsigned int numItems);
-    ~IntermediateDataSsbo() = default;
+    virtual ~IntermediateDataSsbo() = default;
     using SHARED_PTR = std::shared_ptr<IntermediateDataSsbo>;
 
     void ConfigureConstantUniforms(unsigned int computeProgramId) const override;
