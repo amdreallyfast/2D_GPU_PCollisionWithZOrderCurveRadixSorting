@@ -26,10 +26,10 @@ struct Particle
 
 
 // the number of particles that the user specified
-layout(location = UNIFORM_LOCATION_PARTICLE_BUFFER_HALF_SIZE) uniform uint uNumberParticles;
+layout(location = UNIFORM_LOCATION_NUMBER_PARTICLES) uniform uint uNumberParticles;
 
 // is double capacity so that particles can be sorted without an extra buffer
-layout(location = UNIFORM_LOCATION_PARTICLE_BUFFER_SIZE) uniform uint uParticleBufferFullSize;
+layout(location = UNIFORM_LOCATION_PARTICLE_BUFFER_FULL_SIZE) uniform uint uParticleBufferFullSize;
 
 // for convenience
 layout(location = UNIFORM_LOCATION_PARTICLE_BUFFER_READ_OFFSET) uniform uint uParticleBufferReadOffset;

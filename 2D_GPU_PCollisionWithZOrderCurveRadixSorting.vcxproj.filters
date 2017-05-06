@@ -206,9 +206,6 @@
     <None Include="Shaders\ParallelSort\GetBitForPrefixScan.comp">
       <Filter>Shaders\ParallelSort</Filter>
     </None>
-    <None Include="Shaders\ParallelSort\SortParticleData.comp">
-      <Filter>Shaders\ParallelSort</Filter>
-    </None>
     <None Include="Shaders\ParticleBuffer.comp">
       <Filter>Shaders</Filter>
     </None>
@@ -255,6 +252,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\ParallelSort\CalculateMortonCodes.comp">
+      <Filter>Shaders\ParallelSort</Filter>
+    </None>
+    <None Include="Shaders\ParallelSort\SortParticlesByPrefixSum.comp">
       <Filter>Shaders\ParallelSort</Filter>
     </None>
   </ItemGroup>

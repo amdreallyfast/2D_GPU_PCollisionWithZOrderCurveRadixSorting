@@ -21,8 +21,8 @@ public:
     void ConfigureConstantUniforms(unsigned int computeProgramId) const override;
     void ConfigureRender(unsigned int renderProgramId, unsigned int drawStyle) override;
     
-    unsigned int NumItems() const;
+    unsigned int NumParticles() const;
 
 private:
-    unsigned int _numItems;
+    unsigned int _numParticles;
 };

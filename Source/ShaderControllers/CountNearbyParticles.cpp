@@ -28,7 +28,7 @@ namespace ShaderControllers
         _totalParticleCount(0),
         _computeProgramId(0)
     {
-        _totalParticleCount = particlesToAnalyze->NumItems();
+        _totalParticleCount = particlesToAnalyze->NumParticles();
 
         // construct the compute shader
         ShaderStorage &shaderStorageRef = ShaderStorage::GetInstance();

@@ -36,7 +36,7 @@ Creator:    John Cox, 4/2017
 void main()
 {
     uint index = gl_GlobalInvocationID.x;
-    if (index >= uParticleBufferSize)
+    if (index >= uNumberParticles)
     {
         return;
     }

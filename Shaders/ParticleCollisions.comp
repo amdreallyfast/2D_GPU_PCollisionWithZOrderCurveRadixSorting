@@ -53,7 +53,7 @@ void main()
     uint index = (gl_GlobalInvocationID.x * 2) + uIndexOffsetBy0Or1;
     uint rightNeighborIndex = index + 1;
     
-    if (index >= uParticleBufferSize || rightNeighborIndex >= uParticleBufferSize)
+    if (index >= uNumberParticles || rightNeighborIndex >= uNumberParticles)
     {
         return;
     }

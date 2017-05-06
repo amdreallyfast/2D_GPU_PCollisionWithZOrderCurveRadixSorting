@@ -21,8 +21,8 @@ Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
 
 // ParticleBuffer.comp
-#define UNIFORM_LOCATION_PARTICLE_BUFFER_SIZE 0
-#define UNIFORM_LOCATION_PARTICLE_BUFFER_HALF_SIZE 1
+#define UNIFORM_LOCATION_NUMBER_PARTICLES 0 
+#define UNIFORM_LOCATION_PARTICLE_BUFFER_FULL_SIZE 1
 #define UNIFORM_LOCATION_PARTICLE_BUFFER_READ_OFFSET 2
 #define UNIFORM_LOCATION_PARTICLE_BUFFER_WRITE_OFFSET 3
 

@@ -23,7 +23,7 @@ Creator:    John Cox, 4/2017
 void main()
 {
     uint index = gl_GlobalInvocationID.x;
-    if (index >= uParticleBufferSize)
+    if (index >= uNumberParticles)
     {
         return;
     }
@@ -44,9 +44,9 @@ void main()
     // buffer size - index (50000 - 49996 = 4).  The loop end condition will prevent index 
     // overrun.
     uint maxOffsetIndex = 
-        (index + NUM_PARTICLES_TO_CHECK_ON_EACH_SIDE < uParticleBufferSize) 
+        (index + NUM_PARTICLES_TO_CHECK_ON_EACH_SIDE < uNumberParticles) 
         ? NUM_PARTICLES_TO_CHECK_ON_EACH_SIDE 
-        : (uParticleBufferSize - index);
+        : (uNumberParticles - index);
 
     // Ex: Index is 4.  Previous offsets are 3, 2, 1, and 0.  That's 4 total, so if the particle 
     // is too close to 0, just use the index.

@@ -31,7 +31,7 @@ Creator:    John Cox, 5/2017
 void main()
 {
     uint threadIndex = gl_GlobalInvocationID.x;
-    if (threadIndex >= uParticleBufferFullSize)
+    if (threadIndex >= uNumberParticles)
     {
         return;
     }
@@ -41,13 +41,13 @@ void main()
     // shader deals with only one entry per thread, so divide work group ID in half to get the 
     // right prefix sum of all previous work groups
     uint prefixSumOfAllPreviousWorkGroups = PrefixSumsOfWorkGroupSums[gl_WorkGroupID.x / 2];
-    uint prefixSumOfThisItemWithinWorkGroup = PrefixSumsPerWorkGroup[threadIndex]
+    uint prefixSumOfThisItemWithinWorkGroup = PrefixSumsPerWorkGroup[threadIndex];
 
     // add them together to get the total number of particles that came before with a 1 in the 
     // current bit of the Morton Code
     uint prefixSumOfOnes = 
         prefixSumOfAllPreviousWorkGroups + 
-        prefixSumOfThisItemWithinWorkGroup
+        prefixSumOfThisItemWithinWorkGroup;
 
     // there are only 0s and 1s, so if they weren't counted in the sum, then they are 0s
     uint prefixSumOfZeros = threadIndex - prefixSumOfOnes;

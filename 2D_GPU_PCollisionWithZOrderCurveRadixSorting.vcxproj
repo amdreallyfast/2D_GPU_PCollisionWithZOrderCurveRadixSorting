@@ -206,7 +206,7 @@
     <None Include="Shaders\ParallelSort\ParallelPrefixScan.comp" />
     <None Include="Shaders\ParallelSort\PrefixScanBuffer.comp" />
     <None Include="Shaders\ParallelSort\SortIntermediateData.comp" />
-    <None Include="Shaders\ParallelSort\SortParticleData.comp" />
+    <None Include="Shaders\ParallelSort\SortParticlesByPrefixSum.comp" />
     <None Include="Shaders\ParticleBuffer.comp" />
     <None Include="Shaders\ParticleCollisions.comp" />
     <None Include="Shaders\ParticleRegionBoundaries.comp" />

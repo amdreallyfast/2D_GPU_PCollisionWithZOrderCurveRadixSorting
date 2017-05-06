@@ -74,7 +74,7 @@ Creator:    John Cox, 4/2017
 ------------------------------------------------------------------------------------------------*/
 ParticleSsbo::ParticleSsbo(unsigned int numItems) :
     SsboBase(),  // generate buffers
-    _numItems(numItems)
+    _numParticles(numItems)
 {
     // each particle is 1 vertex, so for particles, "num vertices" == "num items"
     // Note: This can't be set in the class initializer list.  The class initializer list is for 
@@ -113,21 +113,24 @@ void ParticleSsbo::ConfigureConstantUniforms(unsigned int computeProgramId) cons
 {
     // the uniform should remain constant after this 
     glUseProgram(computeProgramId);
-    glUniform1ui(UNIFORM_LOCATION_PARTICLE_BUFFER_SIZE, _numItems);
+    glUniform1ui(UNIFORM_LOCATION_NUMBER_PARTICLES, _numParticles);
+
+    // particle buffer is double capacity
+    glUniform1ui(UNIFORM_LOCATION_PARTICLE_BUFFER_FULL_SIZE, _numParticles * 2);
     glUseProgram(0);
 }
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    A simple getter for the value that was passed in on creation.
+    A simple getter.  Self-explanatory.
 Parameters: None
 Returns:    
     See Description.
 Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
-unsigned int ParticleSsbo::NumItems() const
+unsigned int ParticleSsbo::NumParticles() const
 {
-    return _numItems;
+    return _numParticles;
 }
 
 /*------------------------------------------------------------------------------------------------

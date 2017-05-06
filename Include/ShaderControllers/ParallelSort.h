@@ -48,13 +48,14 @@ namespace ShaderControllers
     class ParallelSort
     {
     public:
-        ParallelSort(const ParticleSsbo::CONST_SHARED_PTR dataToSort);
+        ParallelSort(const ParticleSsbo::CONST_SHARED_PTR particleSsboToSort);
         ~ParallelSort();
 
         void SortWithProfiling() const;
         void SortWithoutProfiling() const;
 
     private:
+        unsigned int _numParticles;
         unsigned int _programIdCalculateMortonCodes;
         unsigned int _programIdGetBitForPrefixScans;
         unsigned int _programIdParallelPrefixScan;
@@ -63,8 +64,7 @@ namespace ShaderControllers
         // these are unique to this class and are needed for sorting
         PrefixSumSsbo::SHARED_PTR _prefixSumSsbo;
 
-        //// need to keep this around until the end of Sort() in order to copy the sorted data 
-        //// back to the original buffer
-        //ParticleSsbo::CONST_SHARED_PTR _particleSsbo;
+        // used during SortWithProfiling() to copy data back to system memory and verify the sort
+        ParticleSsbo::CONST_SHARED_PTR _particleSsboCopy;
     };
 }

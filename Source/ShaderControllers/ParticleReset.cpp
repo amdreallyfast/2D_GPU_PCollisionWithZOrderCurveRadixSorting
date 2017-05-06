@@ -40,7 +40,7 @@ namespace ShaderControllers
         _unifLocBarMinParticleVelocity(-1),
         _unifLocBarMaxParticleVelocity(-1)
     {
-        _totalParticleCount = ssboToReset->NumItems();
+        _totalParticleCount = ssboToReset->NumParticles();
         _particleResetAtomicCounter = PersistentAtomicCounterBuffer::GetInstance();
 
         // construct the compute shader

@@ -3,7 +3,7 @@
 // - PARALLEL_SORT_WORK_GROUP_SIZE_X
 // REQUIRES CrossShaderUniformLocations.comp
 // REQUIRES SsboBufferBindings.comp
-// REQUIRES IntermediateSortBuffers.comp
+// REQUIRES ParticleBuffer.comp
 // REQUIRES PrefixScanBuffer.comp
 
 // Y and Z work group sizes default to 1
@@ -14,7 +14,7 @@ layout(location = UNIFORM_LOCATION_BIT_NUMBER) uniform uint uBitNumber;
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    Grabs a bit from the "read" buffer of the IntermediateSortBuffers and puts it into the 
+    Grabs a bit from the "read" half of ParticleBuffer and puts it into the 
     PrefixScanBuffer::PrefixSumsPerWorkGroup array.
 
     This is part of the Radix Sort algorithm.
@@ -24,20 +24,40 @@ Creator:    John Cox, 3/2017
 ------------------------------------------------------------------------------------------------*/
 void main()
 {
+    // fill excess entries with 0 so that they don't contribute to the sum
+    // Note: The prefix scan buffer, by design, must be an exact multiple of 
+    // 2*PARALLEL_SORT_WORK_GROUP_SIZE_X.  Unless the user chose that same number for the total 
+    // number of particles (unlikely), then there will be more prefix scan entries than 
+    // particles.  The prefix scan runs twice: First over all prefix scan entries, and second 
+    // over the per-work-group sums.  Part of the second scan is the calculation of the total 
+    // number of 1s that appear over the entire prefix sum.  If garbage data is let into excess 
+    // prefix scan entries, then those values will filter up and create an erroneous 
+    // "total number of 1s" value.  So put in 0s.
+    // Also Note: This cannot avoided by trimming off excess threads during the prefix scan.  
+    // The prefix scan works on 2 items per thread, so one of the threads in the last work group 
+    // is working on one good value and the other a bad value, what should happen?  Forget that 
+    // particle's data?  Go ahead anyway?  Either way the total number of 1s may not be correct. 
+    // So fill in with 0s.
+    uint threadIndex = gl_GlobalInvocationID.x;
+    if (threadIndex > uNumberParticles)
+    {
+        PrefixSumsPerWorkGroup[gl_GlobalInvocationID.x] = 0;
+        return;
+    }
+
     // extract the bit value, NOT the positional bit value
     // Ex: What is the value of the 3rd bit in 0b101011?
-    // The bit value at bit 3 is 0b101011 & 0b001000 = 0b001000 = 8.
-    // The positional bit value at bit 3 is (0b101011 >> 3) & 0b000001 = 0b000101 & 0b000001 = 1;
+    // The bit value at bit 3 is (0b101011 >> 3) & 0b000001 = 0b000101 & 0b000001 = 1;
+    // The positional bit value at bit 3 is 0b101011 & 0b001000 = 0b001000 = 8.
     // Two very different values.  Radix Sort sorts by bit values, not by positional bit values, 
     // so use the second approach.
     // Also Note: The "& 1" is very important.  This is 32bit land (at the time of this demo), 
     // so there are 31 0s to left of the 1, and they will strip off any additional 1s in the 
     // value, leaving just the value of the desired bit.
-    uint intermediateDataReadIndex = gl_GlobalInvocationID.x + uIntermediateBufferReadOffset;
-    uint bitVal = (IntermediateDataBuffer[intermediateDataReadIndex]._data >> uBitNumber) & 1;
+    uint readIndex = gl_GlobalInvocationID.x + uParticleBufferReadOffset;
+    uint bitVal = (AllParticles[readIndex]._mortonCode >> uBitNumber) & 1;
 
-    // Note: Thread count should be the size of the PrefixScanBuffer::PrefixSumsPerWorkGroup 
-    // array, so no special calculations are required for the "write" index.
+    // and that's it
     PrefixSumsPerWorkGroup[gl_GlobalInvocationID.x] = bitVal;
 
     // clear out the PrefixSumsOfWorkGroupSums array
@@ -50,12 +70,12 @@ void main()
     // size of 1 work group, so the only work group that is guaranteed to exist is work group 0.
     // Also Also Note: This reset cannot be performed in ParallelPrefixScan.comp because there 
     // is no guaranteed work group launch order.  If I tried to say that, at the beginning of 
-    // the parallel prefix scan, work group 0's threads will clean out the PrefixSumsOfWorkGroupSums 
-    // array, it may be that (for example) work group 57 will launch before work group 0, so 
-    // that work group would record a value in PrefixSumsOfWorkGroupSums[57], but then work group 0 
-    // comes along afterwards and sets it to 0.  Whoops.  The only way to guarantee that these 
-    // will be set to 0 before running the prefix scan is to set them to 0 in a shader that runs 
-    // prior.
+    // the parallel prefix scan, work group 0's threads will clean out the 
+    // PrefixSumsOfWorkGroupSums array, it may be that (for example) work group 57 will launch 
+    // before work group 0, so that work group would record a value in 
+    // PrefixSumsOfWorkGroupSums[57], but then work group 0 comes along afterwards and sets it 
+    // to 0.  Whoops.  The only way to guarantee that these will be set to 0 before running the 
+    // prefix scan is to set them to 0 in a shader that runs prior.
     if (gl_WorkGroupID.x == 0)
     {
         // ParallelPrefixScan.comp was designed to work on 2 items per thread (it's the unusual 

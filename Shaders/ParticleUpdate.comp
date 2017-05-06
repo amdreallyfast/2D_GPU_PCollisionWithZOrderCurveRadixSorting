@@ -31,7 +31,7 @@ Creator:    John Cox (9-25-2016)
 void main()
 {
     uint index = gl_GlobalInvocationID.x;
-    if (index < uParticleBufferSize)
+    if (index < uNumberParticles)
     {
         Particle pCopy = AllParticles[index];
 

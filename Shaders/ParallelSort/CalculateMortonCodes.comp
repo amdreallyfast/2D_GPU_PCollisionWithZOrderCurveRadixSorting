@@ -31,14 +31,15 @@ void main()
     // Note: This is guaranteed by the ParallelSort shader controller.  It sorts over an even 
     // number of bits, so the final sorted particles always end up in the first half of the buffer. 
     uint threadIndex = gl_GlobalInvocationID.x;
-    if (threadIndex > uParticleBufferHalfSize)
+    if (threadIndex > uNumberParticles)
     {
         return;
     }
 
     // assume inactive, and give it data that will put it at the back of the sort
-    uint mortonCode = 0xffffffff;
-    if (AllParticles[threadIndex]._isActive == 1)
+    //uint mortonCode = 0xffffffff;
+    uint mortonCode = 17;
+    //if (AllParticles[threadIndex]._isActive == 1)
     {
         // calculate Morton Code based on position
         mortonCode = PositionToMortonCode(AllParticles[threadIndex]._pos);
