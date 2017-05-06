@@ -182,68 +182,68 @@ namespace ShaderControllers
     --------------------------------------------------------------------------------------------*/
     void ParallelSort::SortWithoutProfiling() const
     {
-        //unsigned int numItemsInPrefixScanBuffer = _prefixSumSsbo->NumDataEntries();
-        //
-        //// for ParallelPrefixScan.comp, which works on 2 items per thread
-        //int numWorkGroupsXByItemsPerWorkGroup = numItemsInPrefixScanBuffer / PARALLEL_SORT_ITEMS_PER_WORK_GROUP;
-        //int remainder = numItemsInPrefixScanBuffer % PARALLEL_SORT_ITEMS_PER_WORK_GROUP;
-        //numWorkGroupsXByItemsPerWorkGroup += (remainder == 0) ? 0 : 1;
+        unsigned int numItemsInPrefixScanBuffer = _prefixSumSsbo->NumDataEntries();
+        
+        // for ParallelPrefixScan.comp, which works on 2 items per thread
+        int numWorkGroupsXByItemsPerWorkGroup = numItemsInPrefixScanBuffer / PARALLEL_SORT_ITEMS_PER_WORK_GROUP;
+        int remainder = numItemsInPrefixScanBuffer % PARALLEL_SORT_ITEMS_PER_WORK_GROUP;
+        numWorkGroupsXByItemsPerWorkGroup += (remainder == 0) ? 0 : 1;
 
-        //// for other shaders, which work on 1 item per thread
-        //int numWorkGroupsXByWorkGroupSize = numItemsInPrefixScanBuffer / PARALLEL_SORT_WORK_GROUP_SIZE_X;
-        //remainder = numItemsInPrefixScanBuffer % PARALLEL_SORT_WORK_GROUP_SIZE_X;
-        //numWorkGroupsXByWorkGroupSize += (remainder == 0) ? 0 : 1;
+        // for other shaders, which work on 1 item per thread
+        int numWorkGroupsXByWorkGroupSize = numItemsInPrefixScanBuffer / PARALLEL_SORT_WORK_GROUP_SIZE_X;
+        remainder = numItemsInPrefixScanBuffer % PARALLEL_SORT_WORK_GROUP_SIZE_X;
+        numWorkGroupsXByWorkGroupSize += (remainder == 0) ? 0 : 1;
 
-        //// working on a 1D array (X dimension), so these are always 1
-        //int numWorkGroupsY = 1;
-        //int numWorkGroupsZ = 1;
+        // working on a 1D array (X dimension), so these are always 1
+        int numWorkGroupsY = 1;
+        int numWorkGroupsZ = 1;
 
-        //// moving original data to intermediate data is 1 item per thread
-        //glUseProgram(_particleDataToIntermediateDataProgramId);
-        //glDispatchCompute(numWorkGroupsXByWorkGroupSize, numWorkGroupsY, numWorkGroupsZ);
-        //glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        // calculate Morton Codes based on particle position (active particles only)
+        glUseProgram(_programIdCalculateMortonCodes);
+        glDispatchCompute(numWorkGroupsXByWorkGroupSize, numWorkGroupsY, numWorkGroupsZ);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     
-        //// for 32bit unsigned integers, make 32 passes, one for each bit
-        //bool writeToSecondBuffer = true;
-        //for (unsigned int bitNumber = 0; bitNumber < 32; bitNumber++)
-        //{
-        //    // this will either be 0 or half the size of IntermediateDataBuffer
-        //    unsigned int intermediateDataReadBufferOffset = (unsigned int)!writeToSecondBuffer * numItemsInPrefixScanBuffer;
-        //    unsigned int intermediateDataWriteBufferOffset = (unsigned int)writeToSecondBuffer * numItemsInPrefixScanBuffer;
+        // for 32bit unsigned integers, make 32 passes, one for each bit
+        bool writeToSecondBuffer = true;
+        for (unsigned int bitNumber = 0; bitNumber < 32; bitNumber++)
+        {
+            // this will either be 0 or half the size of ParticleBuffer
+            unsigned int particleBufferReadOffset = (unsigned int)!writeToSecondBuffer * _numParticles;
+            unsigned int particleBufferWriteOffset = (unsigned int)writeToSecondBuffer * _numParticles;
 
-        //    // getting 1 bit value from intermediate data to prefix sum is 1 item per thread
-        //    glUseProgram(_getBitForPrefixScansProgramId);
-        //    glUniform1ui(UNIFORM_LOCATION_INTERMEDIATE_BUFFER_READ_OFFSET, intermediateDataReadBufferOffset);
-        //    glUniform1ui(UNIFORM_LOCATION_INTERMEDIATE_BUFFER_WRITE_OFFSET, intermediateDataWriteBufferOffset);
-        //    glUniform1ui(UNIFORM_LOCATION_BIT_NUMBER, bitNumber);
-        //    glDispatchCompute(numWorkGroupsXByWorkGroupSize, numWorkGroupsY, numWorkGroupsZ);
-        //    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+            // getting 1 bit value from particle Morton Codes is 1 item per thread
+            glUseProgram(_programIdGetBitForPrefixScans);
+            glUniform1ui(UNIFORM_LOCATION_PARTICLE_BUFFER_READ_OFFSET, particleBufferReadOffset);
+            glUniform1ui(UNIFORM_LOCATION_PARTICLE_BUFFER_WRITE_OFFSET, particleBufferWriteOffset);
+            glUniform1ui(UNIFORM_LOCATION_BIT_NUMBER, bitNumber);
+            glDispatchCompute(numWorkGroupsXByWorkGroupSize, numWorkGroupsY, numWorkGroupsZ);
+            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        //    // prefix scan over all values
-        //    // Note: Parallel prefix scan is 2 items per thread.
-        //    glUseProgram(_parallelPrefixScanProgramId);
-        //    glUniform1ui(UNIFORM_LOCATION_CALCULATE_ALL, 1);
-        //    glDispatchCompute(numWorkGroupsXByItemsPerWorkGroup, numWorkGroupsY, numWorkGroupsZ);
-        //    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+            // prefix scan over all values
+            // Note: Parallel prefix scan is 2 items per thread.
+            glUseProgram(_programIdParallelPrefixScan);
+            glUniform1ui(UNIFORM_LOCATION_CALCULATE_ALL, 1);
+            glDispatchCompute(numWorkGroupsXByItemsPerWorkGroup, numWorkGroupsY, numWorkGroupsZ);
+            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        //    // prefix scan over per-work-group sums
-        //    // Note: The PrefixSumsOfWorkGroupSums array is sized to be exactly enough for 1 work group.  
-        //    // It makes the prefix sum easier than trying to eliminate excess threads.
-        //    glUniform1ui(UNIFORM_LOCATION_CALCULATE_ALL, 0);
-        //    glDispatchCompute(1, numWorkGroupsY, numWorkGroupsZ);
-        //    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+            // prefix scan over per-work-group sums
+            // Note: The PrefixSumsOfWorkGroupSums array is sized to be exactly enough for 1 work group.  
+            // It makes the prefix sum easier than trying to eliminate excess threads.
+            glUniform1ui(UNIFORM_LOCATION_CALCULATE_ALL, 0);
+            glDispatchCompute(1, numWorkGroupsY, numWorkGroupsZ);
+            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        //    // and sort the intermediate data with the scanned values
-        //    glUseProgram(_sortIntermediateDataProgramId);
-        //    glUniform1ui(UNIFORM_LOCATION_INTERMEDIATE_BUFFER_READ_OFFSET, intermediateDataReadBufferOffset);
-        //    glUniform1ui(UNIFORM_LOCATION_INTERMEDIATE_BUFFER_WRITE_OFFSET, intermediateDataWriteBufferOffset);
-        //    glUniform1ui(UNIFORM_LOCATION_BIT_NUMBER, bitNumber);
-        //    glDispatchCompute(numWorkGroupsXByWorkGroupSize, numWorkGroupsY, numWorkGroupsZ);
-        //    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+            // and sort the particle data using the prefix sums
+            glUseProgram(_programIdSortParticles);
+            glUniform1ui(UNIFORM_LOCATION_PARTICLE_BUFFER_READ_OFFSET, particleBufferReadOffset);
+            glUniform1ui(UNIFORM_LOCATION_PARTICLE_BUFFER_WRITE_OFFSET, particleBufferWriteOffset);
+            glUniform1ui(UNIFORM_LOCATION_BIT_NUMBER, bitNumber);
+            glDispatchCompute(numWorkGroupsXByWorkGroupSize, numWorkGroupsY, numWorkGroupsZ);
+            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        //    // now switch intermediate buffers and do it again
-        //    writeToSecondBuffer = !writeToSecondBuffer;
-        //}
+            // now switch intermediate buffers and do it again
+            writeToSecondBuffer = !writeToSecondBuffer;
+        }
 
         //// now use the sorted IntermediateData objects to sort the original data objects into a 
         //// copy buffer (there is no "swap" in parallel sorting, so must write to a dedicated 
@@ -265,9 +265,9 @@ namespace ShaderControllers
         //glBindBuffer(GL_COPY_READ_BUFFER, 0);
         //glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
 
-        //// end sorting
-        //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-        //glUseProgram(0);
+        // end sorting
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        glUseProgram(0);
     }
 
     /*--------------------------------------------------------------------------------------------
@@ -322,7 +322,7 @@ namespace ShaderControllers
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         end = high_resolution_clock::now();
         durationCalculateMortonCodes = duration_cast<microseconds>(end - start).count();
-    
+
         // for 32bit unsigned integers, make 32 passes
         // Note: MUST make an even number of passes!  If it is an odd number of passes, then the 
         // final sorted particles ends up in the second half of ParticleBuffer.  The particle 
@@ -333,11 +333,11 @@ namespace ShaderControllers
         bool writeToSecondBuffer = true;
         for (unsigned int bitNumber = 0; bitNumber < 32; bitNumber++)
         {
-            // this will either be 0 or half the size of IntermediateDataBuffer
+            // this will either be 0 or half the size of ParticleBuffer
             unsigned int particleBufferReadOffset = (unsigned int)!writeToSecondBuffer * _numParticles;
             unsigned int particleBufferWriteOffset = (unsigned int)writeToSecondBuffer * _numParticles;
 
-            // getting 1 bit value from intermediate data to prefix sum is 1 item per thread
+            // getting 1 bit value from particle Morton Codes is 1 item per thread
             start = high_resolution_clock::now();
             glUseProgram(_programIdGetBitForPrefixScans);
             glUniform1ui(UNIFORM_LOCATION_PARTICLE_BUFFER_READ_OFFSET, particleBufferReadOffset);
@@ -368,7 +368,7 @@ namespace ShaderControllers
             end = high_resolution_clock::now();
             durationsPrefixScanWorkGroupSums[bitNumber] = (duration_cast<microseconds>(end - start).count());
 
-            // and sort the intermediate data with the scanned values
+            // and sort the particle data using the prefix sums
             start = high_resolution_clock::now();
             glUseProgram(_programIdSortParticles);
             glUniform1ui(UNIFORM_LOCATION_PARTICLE_BUFFER_READ_OFFSET, particleBufferReadOffset);
