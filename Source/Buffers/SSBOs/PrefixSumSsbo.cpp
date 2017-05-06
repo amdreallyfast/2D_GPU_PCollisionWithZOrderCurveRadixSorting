@@ -118,24 +118,28 @@ PrefixSumSsbo::PrefixSumSsbo(unsigned int numDataEntries) :
     _numDataEntries(0)
 {
     // see explanation essay at the top of the file
-    // Note: If the user passes in a data set of size 0, then the following calculation 
-    // will give a number of data entries of 0, so the number of work groups calculated in the 
-    // ParallelSort compute controller will lso be 0 and the sorting process will go nowhere.  
-    // At least it won't crash.
-    _numDataEntries = (numDataEntries / PARALLEL_SORT_ITEMS_PER_WORK_GROUP);
-    _numDataEntries += (numDataEntries % PARALLEL_SORT_ITEMS_PER_WORK_GROUP == 0) ? 0 : 1;
-    _numDataEntries *= PARALLEL_SORT_ITEMS_PER_WORK_GROUP;
+    // Note: In summary, need to make this SSBO a multiple of the number of items that each work 
+    // group in the parallel sort can handle (full occupancy).  Integer division cuts off any 
+    // remainder, so if the number of items is exactly a multiple of the number of items per 
+    // work group, then no additional work groups are necessary.  Otherwise add 1.  Excess
+    // data entries will be padded with junk data and sorted to the back.
+    int numWorkGroups = (numDataEntries / PARALLEL_SORT_ITEMS_PER_WORK_GROUP);
+    numWorkGroups += (numDataEntries % PARALLEL_SORT_ITEMS_PER_WORK_GROUP == 0) ? 0 : 1;
+    _numDataEntries = numWorkGroups * PARALLEL_SORT_ITEMS_PER_WORK_GROUP;
 
-    // use one work group's worth of data for the per-work-group prefix sums
+    // use exactly one work group's worth of data for the per-work-group prefix sums
     // Note: The prefix scan of the "per work group sums" is a necessary step in preparation for 
     // Radix Sort, so the individual work groups' prefix sums are rather useless without the 
     // results of each work group being tallied and one more chunk of data is required.  This 
     // data will also have the prefix scan run on it, so it must be the size of one work group's 
     // worth of data.  
-    // Also Note: If the original data set is larger than 
+    // Also Note: If this prefix sum is more than one work group's worth of data, then yet 
+    // another prefix sum would need to be run on those results.  And that makes it more messy.
+    // Also Also Note: If the original data set is larger than 
     // PARALLEL_SORT_ITEMS_PER_WORK_GROUP * PARALLEL_SORT_ITEMS_PER_WORK_GROUP 
     // (number of work group sums * amount of data that each work group operates on), then 
-    // PARALLEL_SORT_ITEMS_PER_WORK_GROUP will need to be increased.
+    // PARALLEL_SORT_ITEMS_PER_WORK_GROUP will need to be increased in order to keep the 
+    // "per group prefix sums" within one work group's worth of data.
     _numPerGroupPrefixSums = PARALLEL_SORT_ITEMS_PER_WORK_GROUP;
 
     // the std::vector<...>(...) constructor will set everything to 0

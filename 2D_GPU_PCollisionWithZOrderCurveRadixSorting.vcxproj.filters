@@ -209,9 +209,6 @@
     <None Include="Shaders\ParallelSort\SortParticleData.comp">
       <Filter>Shaders\ParallelSort</Filter>
     </None>
-    <None Include="Shaders\ParallelSort\ParticleDataToIntermediateData.comp">
-      <Filter>Shaders\ParallelSort</Filter>
-    </None>
     <None Include="Shaders\ParticleBuffer.comp">
       <Filter>Shaders</Filter>
     </None>
@@ -256,6 +253,9 @@
     </None>
     <None Include="Shaders\ParticleRegionBoundaries.comp">
       <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\ParallelSort\CalculateMortonCodes.comp">
+      <Filter>Shaders\ParallelSort</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

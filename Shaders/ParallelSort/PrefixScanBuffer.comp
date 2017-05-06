@@ -38,8 +38,14 @@ Creator:    John Cox, 3/11/2017
 ------------------------------------------------------------------------------------------------*/
 layout (std430, binding = PREFIX_SCAN_BUFFER_BINDING) buffer PrefixScanBuffer
 {
+    // one entry for each work group
     uint PrefixSumsOfWorkGroupSums[PARALLEL_SORT_ITEMS_PER_WORK_GROUP];
+
+    // use in conjunction with the number of items being sorted to determine the number of 0s
     uint totalNumberOfOnes;
+
+    // one entry for each particle (plus enough to pad out the last work group), but calculated 
+    // in chunks of 2*PARALLEL_SORT_WORK_GROUP_SIZE_X
     uint PrefixSumsPerWorkGroup[];
 };
 

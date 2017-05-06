@@ -1,51 +1,69 @@
 // REQUIRES Version.comp
 // REQUIRES ComputeShaderWorkGroupSizes.comp
-// - PARALLEL_SORT_WORK_GROUP_SIZE_X
 // REQUIRES SsboBufferBindings.comp
 // REQUIRES CrossShaderUniformLocations.comp
+// REQUIRES PrefixScanBuffer.comp
 // REQUIRES ParticleBuffer.comp
-// REQUIRES IntermediateSortBuffers.comp
 
 // Y and Z work group sizes default to 1
 layout (local_size_x = PARALLEL_SORT_WORK_GROUP_SIZE_X) in;
 
+// also used in GetBitForPrefixScans.comp (different uniform of course because different shader)
+layout(location = UNIFORM_LOCATION_BIT_NUMBER) uniform uint uBitNumber;
+
 
 /*------------------------------------------------------------------------------------------------
 Description:
-    This is almost the end of the line for sorting.  By the time that this shader is called, the
-    IntermediataDataBuffer's last written portion (should be switched to the "read" portion by 
-    now) should contain IntermediateData structures that have been parallel Radix sorted 
-    according to their _data member.  The sorted ParticleBuffer should have this same order.
+    Uses the Radix Sorting algorithm to sort the Particle structures in the "read" portion of the
+    ParticleBuffer into the "write" portion using the prefix sums from PrefixScanBuffer.  This is 
+    necessary because there is no "swap" in parallel sorting.
 
-    But there is no "swap" in paralel sorting, so copy the OriginalData structures from where 
-    they are in the ParticleBuffer to where they should be in a copy buffer.  The CPU-side 
-    code is then responsible for copying the buffer back.
+    This is part of the Radix Sort algorithm.
+    Note: As per Radix Sort, the value must remain relative to others with the same value.
+    Suppose there is the following data: 0 1 0 0 1 1 0
+    The 0s will be gathered to the left and the 1s to the right, but not in just any order.  The 
+    first 0 will be on the far left, the second 0 after that, the third 0 after that, and the 
+    fourth 0 after that.  Then the first 1, then the second 1, then the third. 
 Parameters: None
 Returns:    None
-Creator:    John Cox, 3/2017
+Creator:    John Cox, 5/2017
 ------------------------------------------------------------------------------------------------*/
 void main()
 {
-    // one thread per original data item
-    // Note: This shader is almost like OriginalDataToIntermediateData.comp in reverse.  All the 
-    // excess IntermediateData items had ._data = 0xffffffff and were thus sorted to the back, so 
-    // ignore those.
-    uint globalIndex = gl_GlobalInvocationID.x;
-    if (globalIndex >= uParticleBufferSize)
+    uint threadIndex = gl_GlobalInvocationID.x;
+    if (threadIndex >= uParticleBufferFullSize)
     {
         return;
     }
 
-    // the offset determines which half of the IntermediateDataBuffer to read from
-    uint intermediateDataReadIndex = globalIndex + uIntermediateBufferReadOffset;
-    uint sourceIndex = IntermediateDataBuffer[intermediateDataReadIndex]._globalIndexOfOriginalData;
+    // remember that, during prefix scan, each thread works on 2 items, so the number of data 
+    // entries that were scanned per work group is twice the size of a work group, but this 
+    // shader deals with only one entry per thread, so divide work group ID in half to get the 
+    // right prefix sum of all previous work groups
+    uint prefixSumOfAllPreviousWorkGroups = PrefixSumsOfWorkGroupSums[gl_WorkGroupID.x / 2];
+    uint prefixSumOfThisItemWithinWorkGroup = PrefixSumsPerWorkGroup[threadIndex]
 
-    // the IntermediateData structure was already sorted according to its _data value, so 
-    // whatever index it is at now is the same index where the original data should be 
-    uint destinationIndex = globalIndex;
+    // add them together to get the total number of particles that came before with a 1 in the 
+    // current bit of the Morton Code
+    uint prefixSumOfOnes = 
+        prefixSumOfAllPreviousWorkGroups + 
+        prefixSumOfThisItemWithinWorkGroup
+
+    // there are only 0s and 1s, so if they weren't counted in the sum, then they are 0s
+    uint prefixSumOfZeros = threadIndex - prefixSumOfOnes;
+    uint totalNumberOfZeros = uNumberParticles - totalNumberOfOnes;
+
+    // the bit determines if the value should go with the 0s or with 1s on this sort step
+    uint readIndex = threadIndex + uParticleBufferReadOffset;
+    uint bitVal = (AllParticles[readIndex]._mortonCode >> uBitNumber) & 1;
+
+    // Note: If the value being sorted has a 0 at the current bit, then the order of 0s in the 
+    // data set is maintained (as required by Radix Sort) by the number of 0s that came before 
+    // the current value.  If the value being sorted has a 1 at the current bit, then the order 
+    // is maintained by the number of 1s that came before it.
+    uint writeIndex = (bitVal == 0) ? prefixSumOfZeros : (totalNumberOfZeros + prefixSumOfOnes);
+    writeIndex += uParticleBufferWriteOffset;
 
     // copy it to where it should be
-    // Note: After this, perform a glCopyBufferSubData(...) to copy the sorted original data 
-    // back to the ParticleBuffer, where others can use it.
-    AllParticlesCopy[destinationIndex] = AllParticles[sourceIndex];
+    AllParticles[writeIndex] = AllParticles[readIndex];
 }

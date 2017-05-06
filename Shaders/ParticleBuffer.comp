@@ -24,8 +24,18 @@ struct Particle
     // vec4s are 16 bytes, +6 individual 4-byte items, so needs 2 bytes padding on the CPU side
 };
 
-// whatever size the user wants
-layout(location = UNIFORM_LOCATION_PARTICLE_BUFFER_SIZE) uniform uint uParticleBufferSize;
+
+// the number of particles that the user specified
+layout(location = UNIFORM_LOCATION_PARTICLE_BUFFER_HALF_SIZE) uniform uint uNumberParticles;
+
+// is double capacity so that particles can be sorted without an extra buffer
+layout(location = UNIFORM_LOCATION_PARTICLE_BUFFER_SIZE) uniform uint uParticleBufferFullSize;
+
+// for convenience
+layout(location = UNIFORM_LOCATION_PARTICLE_BUFFER_READ_OFFSET) uniform uint uParticleBufferReadOffset;
+layout(location = UNIFORM_LOCATION_PARTICLE_BUFFER_WRITE_OFFSET) uniform uint uParticleBufferWriteOffset;
+
+
 
 /*------------------------------------------------------------------------------------------------
 Description:
@@ -42,26 +52,5 @@ Creator:    John Cox, 9-25-2016
 layout (std430, binding = PARTICLE_BUFFER_BINDING) buffer ParticleBuffer
 {
     Particle AllParticles[];
-};
-
-/*------------------------------------------------------------------------------------------------
-Description:
-    At the end of the parallel Radix Sort, the original data needs to be sorted.  Doing this in 
-    parallel requires making a copy of the original data and then writing back to wherever in 
-    the original buffer.  This buffer serves that purpose.
-
-    Note: It should be in its own buffer so that it can easily be used with 
-    glCopyBufferSubData(...).
-
-    Also Note: According to the documentation for shader storage buffer objects, "there can only 
-    be one array of variable size per SSBO and it has to be the bottommost in the layout 
-    definition."  So I can't create a particle buffer of variable size and then another of the 
-    same size back to back in the same buffer.  They have to be separate buffers.
-    See here: https://www.opengl.org/wiki/Shader_Storage_Buffer_Object.
-Creator:    John Cox, 4/2017
-------------------------------------------------------------------------------------------------*/
-layout (std430, binding = PARTICLE_COPY_BUFFER_BINDING) buffer ParticleCopyBuffer
-{
-    Particle AllParticlesCopy[];
 };
 

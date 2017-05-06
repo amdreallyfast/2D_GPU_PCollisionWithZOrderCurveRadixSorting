@@ -34,7 +34,10 @@ static void InitializeWithRandomData(std::vector<Particle> &initThese)
     srand(static_cast<unsigned int>(time(0)));
 
     float inverseRandMax = 1.0f / RAND_MAX;
-    for (size_t particleIndex = 0; particleIndex < initThese.size(); particleIndex++)
+
+    // because the ParticleSsbo is double capacity; only fill the first half
+    size_t endIndex = (initThese.size() / 2) + 1;
+    for (size_t particleIndex = 0; particleIndex < endIndex; particleIndex++)
     {
         // randomized X and Y values
         // Note: Once the sim gets running, the particles will be in window space (X and Y along 
@@ -78,7 +81,9 @@ ParticleSsbo::ParticleSsbo(unsigned int numItems) :
     // members of this class only (ParticleSsbo), not for base class members. 
     _numVertices = numItems;
 
-    std::vector<Particle> v(numItems);
+    // give additional space so that the parallel sorting of particles can be done without a 
+    // copy buffer
+    std::vector<Particle> v(numItems * 2);
     InitializeWithRandomData(v);
 
     // now bind this new buffer to the dedicated buffer binding location

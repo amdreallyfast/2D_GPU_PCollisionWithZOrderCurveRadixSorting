@@ -55,20 +55,16 @@ namespace ShaderControllers
         void SortWithoutProfiling() const;
 
     private:
-        unsigned int _particleDataToIntermediateDataProgramId;
-        unsigned int _getBitForPrefixScansProgramId;
-        unsigned int _parallelPrefixScanProgramId;
-        unsigned int _sortIntermediateDataProgramId;
-        unsigned int _sortParticlesProgramId;
+        unsigned int _programIdCalculateMortonCodes;
+        unsigned int _programIdGetBitForPrefixScans;
+        unsigned int _programIdParallelPrefixScan;
+        unsigned int _programIdSortParticles;
 
         // these are unique to this class and are needed for sorting
-        ParticleCopySsbo::SHARED_PTR _particleCopySsbo;
-        IntermediateDataSsbo::SHARED_PTR _intermediateDataSsbo;
         PrefixSumSsbo::SHARED_PTR _prefixSumSsbo;
 
-        // need to keep this around until the end of Sort() in order to copy the sorted data 
-        // back to the original buffer
-        ParticleSsbo::CONST_SHARED_PTR _particleSsbo;
-
+        //// need to keep this around until the end of Sort() in order to copy the sorted data 
+        //// back to the original buffer
+        //ParticleSsbo::CONST_SHARED_PTR _particleSsbo;
     };
 }

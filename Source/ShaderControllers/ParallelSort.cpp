@@ -58,11 +58,10 @@ namespace ShaderControllers
     Creator:    John Cox, 3/2017
     --------------------------------------------------------------------------------------------*/
     ParallelSort::ParallelSort(const ParticleSsbo::CONST_SHARED_PTR dataToSort) :
-        _particleDataToIntermediateDataProgramId(0),
-        _getBitForPrefixScansProgramId(0),
-        _parallelPrefixScanProgramId(0),
-        _sortIntermediateDataProgramId(0),
-        _sortParticlesProgramId(0),
+        _programIdCalculateMortonCodes(0),
+        _programIdGetBitForPrefixScans(0),
+        _programIdParallelPrefixScan(0),
+        _programIdSortParticles(0),
         _particleCopySsbo(nullptr),
         _intermediateDataSsbo(nullptr),
         _prefixSumSsbo(nullptr),
@@ -74,17 +73,16 @@ namespace ShaderControllers
         // take a data structure that needs to be sorted by a value (must be unsigned int for 
         // radix sort to work) and put it into an intermediate structure that has the value and 
         // the index of the original data structure in the ParticleBuffer
-        shaderKey = "particle data to intermediate data";
+        shaderKey = "calculate morton codes";
         shaderStorageRef.NewCompositeShader(shaderKey);
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/Version.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/SsboBufferBindings.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/CrossShaderUniformLocations.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleBuffer.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/ComputeShaderWorkGroupSizes.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/IntermediateSortBuffers.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleBuffer.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleRegionBoundaries.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/PositionToMortonCode.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/ParticleDataToIntermediateData.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/CalculateMortonCodes.comp");
         shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _particleDataToIntermediateDataProgramId = shaderStorageRef.GetShaderProgram(shaderKey);
@@ -119,32 +117,17 @@ namespace ShaderControllers
         _parallelPrefixScanProgramId = shaderStorageRef.GetShaderProgram(shaderKey);
 
         // and finally sort the "read" array from IntermediateSortBuffers into the "write" array
-        shaderKey = "sort intermediate data";
+        shaderKey = "sort particle data";
         shaderStorageRef.NewCompositeShader(shaderKey);
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/Version.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/CrossShaderUniformLocations.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/SsboBufferBindings.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/ComputeShaderWorkGroupSizes.comp");
         shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/PrefixScanBuffer.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/IntermediateSortBuffers.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/SortIntermediateData.comp");
+        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/ParticleBuffer.comp");
         shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
         shaderStorageRef.LinkShader(shaderKey);
         _sortIntermediateDataProgramId = shaderStorageRef.GetShaderProgram(shaderKey);
-
-        // after the loop, sort the original data according to the sorted intermediate data
-        shaderKey = "sort original data";
-        shaderStorageRef.NewCompositeShader(shaderKey);
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/Version.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/SsboBufferBindings.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/CrossShaderUniformLocations.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParticleBuffer.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ComputeHeaders/ComputeShaderWorkGroupSizes.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/IntermediateSortBuffers.comp");
-        shaderStorageRef.AddPartialShaderFile(shaderKey, "Shaders/ParallelSort/SortParticleData.comp");
-        shaderStorageRef.CompileCompositeShader(shaderKey, GL_COMPUTE_SHADER);
-        shaderStorageRef.LinkShader(shaderKey);
-        _sortParticlesProgramId = shaderStorageRef.GetShaderProgram(shaderKey);
 
         // the size of the ParticleBuffer is needed by these shaders, and it is known (as 
         // per my design) only by the OriginalDataSsbo object
@@ -152,7 +135,6 @@ namespace ShaderControllers
         dataToSort->ConfigureConstantUniforms(_sortParticlesProgramId);
 
         unsigned int numParticles = dataToSort->NumItems();
-        _particleCopySsbo = std::make_unique<ParticleCopySsbo>(numParticles);
         _prefixSumSsbo = std::make_unique<PrefixSumSsbo>(numParticles);
 
         // the PrefixScanBuffer is used in three shaders
