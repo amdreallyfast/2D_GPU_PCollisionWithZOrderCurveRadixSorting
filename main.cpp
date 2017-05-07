@@ -261,11 +261,9 @@ void Display()
     particleRenderer->Render(particleBuffer);
 
 
-    // draw the frame rate once per second in the lower left corner
-    glUseProgram(ShaderStorage::GetInstance().GetShaderProgram("freetype"));
-
+    // calculate frame rate
     GLfloat color[4] = { 0.5f, 0.5f, 0.0f, 1.0f };
-    char str[32];
+    char frameRateStr[32];
     static int elapsedFramesPerSecond = 0;
     static double elapsedTime = 0.0;
     static double frameRate = 0.0;
@@ -276,31 +274,28 @@ void Display()
         frameRate = (double)elapsedFramesPerSecond / elapsedTime;
         elapsedFramesPerSecond = 0;
         elapsedTime -= 1.0f;
+        printf("frame rate: %.2lf\n", frameRate);
     }
-    sprintf(str, "%.2lf", frameRate);
+    sprintf(frameRateStr, "%.2lf", frameRate);
+
+    // number of active particles
+    char activeParticleCountStr[32];
+    sprintf(activeParticleCountStr, "active: %d", particleUpdater->NumActiveParticles());
 
     // Note: The font textures' orgin is their lower left corner, so the "lower left" in screen 
     // space is just above [-1.0f, -1.0f].
-    float xy[2] = { -0.99f, -0.99f };
+    // Also Note: For some reason, lower case "i" seems to appear too close to the other letters.
+    float frameRateXY[2] = { -0.99f, -0.99f };          // lower left
+    float numActiveParticlesXY[2] = { -0.99f, +0.7f };  // upper left
     float scaleXY[2] = { 1.0f, 1.0f };
 
-    // frame rate
-    gTextAtlases.GetAtlas(48)->RenderText(str, xy, scaleXY, color);
-
-    // now show number of active particles
-    // Note: For some reason, lower case "i" seems to appear too close to the other letters.
-    sprintf(str, "active: %d", particleUpdater->NumActiveParticles());
-    float numActiveParticlesXY[2] = { -0.99f, +0.7f };
-    gTextAtlases.GetAtlas(48)->RenderText(str, numActiveParticlesXY, scaleXY, color);
-
-
-    // clean up bindings
-    glUseProgram(0);
-    glBindVertexArray(0);       // unbind this BEFORE the buffer
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    //glUseProgram(ShaderStorage::GetInstance().GetShaderProgram("freetype"));
+    //gTextAtlases.GetAtlas(48)->RenderText(frameRateStr, frameRateXY, scaleXY, color);
+    //gTextAtlases.GetAtlas(48)->RenderText(activeParticleCountStr, numActiveParticlesXY, scaleXY, color);
+    //glUseProgram(0);
 
     // tell the GPU to swap out the displayed buffer with the one that was just rendered
-    glutSwapBuffers();
+    //glutSwapBuffers();
 
     steady_clock::time_point end = high_resolution_clock::now();
     //std::cout << "Display(): " << duration_cast<milliseconds>(end - start).count() << " milliseconds" << std::endl;
