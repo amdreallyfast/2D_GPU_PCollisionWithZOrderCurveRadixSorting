@@ -71,7 +71,7 @@ std::unique_ptr<ShaderControllers::ParticleCollide> particleCollisions = nullptr
 std::unique_ptr<ShaderControllers::CountNearbyParticles> nearbyParticleCounter = nullptr;
 std::unique_ptr<ShaderControllers::RenderParticles> particleRenderer = nullptr;
 
-const unsigned int MAX_PARTICLE_COUNT = 50000;
+const unsigned int MAX_PARTICLE_COUNT = 200000;
 
 
 /*------------------------------------------------------------------------------------------------
@@ -217,8 +217,44 @@ void UpdateAllTheThings()
     particleUpdater->Update(deltaTimeSec);
     parallelSort->SortWithoutProfiling();
     //parallelSort->SortWithProfiling();
-    particleCollisions->DetectAndResolveCollisions();
-    nearbyParticleCounter->Count();
+    //particleCollisions->DetectAndResolveCollisions();
+    //nearbyParticleCounter->Count();
+
+    
+    
+    
+    
+    
+    //glFinish();
+
+    // okay to declare static; they won't be initialized until the first call to this function, 
+    // before which Init() was already called, so the OpenGL context will be initialized by the 
+    // time that the code gets here
+    static GLsync updateSyncFences[3] = //{ 0,0,0 };
+    {
+        0,  // the "current" index will make a new fence sync object here at the end of the first time through, so don't give it one on startup
+        glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0),
+        glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0)
+    };
+    static int currentSyncFenceIndex = 0;
+    static int waitSyncFenceIndex = 1;
+
+    GLenum waitReturn = GL_UNSIGNALED;
+    while (waitReturn != GL_ALREADY_SIGNALED && waitReturn != GL_CONDITION_SATISFIED)
+    {
+        waitReturn = glClientWaitSync(updateSyncFences[waitSyncFenceIndex], GL_SYNC_FLUSH_COMMANDS_BIT, 1);
+    }
+    glDeleteSync(updateSyncFences[waitSyncFenceIndex]);
+
+    // new sync
+    updateSyncFences[currentSyncFenceIndex] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+
+    // update indices
+    currentSyncFenceIndex = (currentSyncFenceIndex == 2) ? 0 : currentSyncFenceIndex + 1;
+    waitSyncFenceIndex = (waitSyncFenceIndex == 2) ? 0 : waitSyncFenceIndex + 1;
+
+
+
 
 
 
@@ -260,44 +296,42 @@ void Display()
 
     particleRenderer->Render(particleBuffer);
 
+    static int counter = 0;
+    counter++;
 
-    // draw the frame rate once per second in the lower left corner
-    glUseProgram(ShaderStorage::GetInstance().GetShaderProgram("freetype"));
-
+    // calculate frame rate
     GLfloat color[4] = { 0.5f, 0.5f, 0.0f, 1.0f };
-    char str[32];
+    char frameRateStr[32];
     static int elapsedFramesPerSecond = 0;
     static double elapsedTime = 0.0;
     static double frameRate = 0.0;
     elapsedFramesPerSecond++;
     elapsedTime += gTimer.Lap();
     if (elapsedTime > 1.0f)
-    { 
+    {
         frameRate = (double)elapsedFramesPerSecond / elapsedTime;
         elapsedFramesPerSecond = 0;
         elapsedTime -= 1.0f;
+        printf("frame rate: %.2lf, counter = %d\n", frameRate, counter);
+        counter = 0;
     }
-    sprintf(str, "%.2lf", frameRate);
+    sprintf(frameRateStr, "%.2lf", frameRate);
+
+    // number of active particles
+    char activeParticleCountStr[32];
+    sprintf(activeParticleCountStr, "active: %d", particleUpdater->NumActiveParticles());
 
     // Note: The font textures' orgin is their lower left corner, so the "lower left" in screen 
     // space is just above [-1.0f, -1.0f].
-    float xy[2] = { -0.99f, -0.99f };
+    // Also Note: For some reason, lower case "i" seems to appear too close to the other letters.
+    float frameRateXY[2] = { -0.99f, -0.99f };          // lower left
+    float numActiveParticlesXY[2] = { -0.99f, +0.7f };  // upper left
     float scaleXY[2] = { 1.0f, 1.0f };
 
-    // frame rate
-    gTextAtlases.GetAtlas(48)->RenderText(str, xy, scaleXY, color);
-
-    // now show number of active particles
-    // Note: For some reason, lower case "i" seems to appear too close to the other letters.
-    sprintf(str, "active: %d", particleUpdater->NumActiveParticles());
-    float numActiveParticlesXY[2] = { -0.99f, +0.7f };
-    gTextAtlases.GetAtlas(48)->RenderText(str, numActiveParticlesXY, scaleXY, color);
-
-
-    // clean up bindings
+    glUseProgram(ShaderStorage::GetInstance().GetShaderProgram("freetype"));
+    gTextAtlases.GetAtlas(48)->RenderText(frameRateStr, frameRateXY, scaleXY, color);
+    gTextAtlases.GetAtlas(48)->RenderText(activeParticleCountStr, numActiveParticlesXY, scaleXY, color);
     glUseProgram(0);
-    glBindVertexArray(0);       // unbind this BEFORE the buffer
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // tell the GPU to swap out the displayed buffer with the one that was just rendered
     glutSwapBuffers();
