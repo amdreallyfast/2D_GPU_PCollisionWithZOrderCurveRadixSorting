@@ -217,8 +217,8 @@ void UpdateAllTheThings()
     particleUpdater->Update(deltaTimeSec);
     parallelSort->SortWithoutProfiling();
     //parallelSort->SortWithProfiling();
-    particleCollisions->DetectAndResolveCollisions();
-    nearbyParticleCounter->Count();
+    //particleCollisions->DetectAndResolveCollisions();
+    //nearbyParticleCounter->Count();
 
 
 
@@ -289,13 +289,13 @@ void Display()
     float numActiveParticlesXY[2] = { -0.99f, +0.7f };  // upper left
     float scaleXY[2] = { 1.0f, 1.0f };
 
-    //glUseProgram(ShaderStorage::GetInstance().GetShaderProgram("freetype"));
-    //gTextAtlases.GetAtlas(48)->RenderText(frameRateStr, frameRateXY, scaleXY, color);
-    //gTextAtlases.GetAtlas(48)->RenderText(activeParticleCountStr, numActiveParticlesXY, scaleXY, color);
-    //glUseProgram(0);
+    glUseProgram(ShaderStorage::GetInstance().GetShaderProgram("freetype"));
+    gTextAtlases.GetAtlas(48)->RenderText(frameRateStr, frameRateXY, scaleXY, color);
+    gTextAtlases.GetAtlas(48)->RenderText(activeParticleCountStr, numActiveParticlesXY, scaleXY, color);
+    glUseProgram(0);
 
     // tell the GPU to swap out the displayed buffer with the one that was just rendered
-    //glutSwapBuffers();
+    glutSwapBuffers();
 
     steady_clock::time_point end = high_resolution_clock::now();
     //std::cout << "Display(): " << duration_cast<milliseconds>(end - start).count() << " milliseconds" << std::endl;
