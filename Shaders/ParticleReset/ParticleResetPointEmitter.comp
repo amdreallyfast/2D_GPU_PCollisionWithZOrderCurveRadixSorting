@@ -69,24 +69,34 @@ void main()
     //  particle emitter's center.  This shall be the particle's new spawn position.
     
     // Note: Use last position as the rand seed for X, then swizzle a bit for the Y.
-    float newPosX = RandomOnRangeNeg1ToPos1(pCopy._pos.xy);
-    float newPosY = RandomOnRangeNeg1ToPos1(pCopy._pos.yx);
+    PrimitiveVec4 pos = pCopy._pos;
+    float newPosX = RandomOnRangeNeg1ToPos1(vec2(pos.x, pos.y));
+    float newPosY = RandomOnRangeNeg1ToPos1(vec2(pos.y, pos.x));
     vec4 cloudRingLimit = (0.1f * QuickNormalize(vec4(newPosX, newPosY, 0.0f, 0.0f)));
     vec4 innerPosLimit = uPointEmitterCenter;
     vec4 outerPosLimit = uPointEmitterCenter + cloudRingLimit;
     float blendAlpha = RandomOnRange0To1(vec2(newPosX, newPosY));
-    pCopy._pos = mix(innerPosLimit, outerPosLimit, blendAlpha);
+    vec4 newPos = mix(innerPosLimit, outerPosLimit, blendAlpha);
+    pCopy._pos.x = newPos.x;
+    pCopy._pos.y = newPos.y;
+    pCopy._pos.z = newPos.z;
+    pCopy._pos.w = newPos.w;
 
     // velocity
-    // Note: Similar to position, use the last know velocity as the rand seed for X, then 
+    // Note: Similar to position, use the last known velocity as the rand seed for X, then 
     // swizzle for the Y.
-    float newVelX = RandomOnRangeNeg1ToPos1(pCopy._vel.xy);
-    float newVelY = RandomOnRangeNeg1ToPos1(pCopy._vel.yx);
+    PrimitiveVec4 vel = pCopy._vel;
+    float newVelX = RandomOnRangeNeg1ToPos1(vec2(vel.x, vel.y));
+    float newVelY = RandomOnRangeNeg1ToPos1(vec2(vel.y, vel.x));
     vec4 randomVelocityVector = QuickNormalize(vec4(newVelX, newVelY, 0.0, 0.0));
     vec4 minVel = uMinParticleVelocity * randomVelocityVector;
     vec4 maxVel = uMaxParticleVelocity * randomVelocityVector;
     blendAlpha = RandomOnRange0To1(vec2(newVelX, newVelY));
-    pCopy._vel = mix(minVel, maxVel, blendAlpha);
+    vec4 newVel = mix(minVel, maxVel, blendAlpha);
+    pCopy._vel.x = newVel.x;
+    pCopy._vel.y = newVel.y;
+    pCopy._vel.z = newVel.z;
+    pCopy._vel.w = newVel.w;
     
     // set to "active"
     pCopy._isActive = 1;

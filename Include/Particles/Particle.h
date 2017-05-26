@@ -77,7 +77,8 @@ struct Particle
     // (https://www.opengl.org/sdk/docs/man/html/glVertexAttribPointer.xhtml), so send the 
     // "is active" flag as an integer.  
     int _isActive; 
-    
-    // any necessary padding out to 16 bytes to match the GPU's version
-    int _padding[2];
+
+    // no padding necessary because the Particle structure on the shader side does not have 
+    // native GLSL structures (pos and vel used to be GLSL vec4) and is therefore no longer 
+    // forced to 16byte alignment
 };

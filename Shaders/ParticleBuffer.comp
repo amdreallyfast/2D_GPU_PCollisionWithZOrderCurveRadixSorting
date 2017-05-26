@@ -4,6 +4,15 @@
 //  UNIFORM_LOCATION_PARTICLE_BUFFER_SIZE
 
 
+// TODO: header (if this works)
+struct PrimitiveVec4
+{
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
 /*------------------------------------------------------------------------------------------------
 Description:
     Stores info about a single particle.  Must match the value type and order in Particle.h.
@@ -11,8 +20,8 @@ Creator:    John Cox, 4/2017 (original from 9-25-2016)
 ------------------------------------------------------------------------------------------------*/
 struct Particle
 {
-    vec4 _pos;
-    vec4 _vel;
+    PrimitiveVec4 _pos;
+    PrimitiveVec4 _vel;
 
     uint _numberOfNearbyParticles;
     float _mass;
@@ -21,7 +30,7 @@ struct Particle
     uint _hasCollidedAlreadyThisFrame;
     int _isActive;
 
-    // vec4s are 16 bytes, +6 individual 4-byte items, so needs 2 bytes padding on the CPU side
+    // no native GLSL structures, so no padding necessary 
 };
 
 

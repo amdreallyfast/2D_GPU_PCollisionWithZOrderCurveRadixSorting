@@ -78,10 +78,10 @@ void main()
     // prefix scan is to set them to 0 in a shader that runs prior.
     if (gl_WorkGroupID.x == 0)
     {
-        // ParallelPrefixScan.comp was designed to work on 2 items per thread (it's the unusual 
-        // one), so the PrefixScanBuffer::PrefixSumsOfWorkGroupSums is double the size of the work 
+        // ParallelPrefixScan.comp was designed to work on 2 items per thread, so the 
+        // PrefixScanBuffer::PrefixSumsOfWorkGroupSums buffer is double the size of the work 
         // group, but this shader only works on 1 item per thread, so need to double the thread 
-        // index
+        // index and set 2 prefix sums to 0
         PrefixSumsOfWorkGroupSums[(gl_LocalInvocationID.x * 2)] = 0;
         PrefixSumsOfWorkGroupSums[(gl_LocalInvocationID.x * 2) + 1] = 0;
     }

@@ -81,6 +81,18 @@ void main()
     // Note: Only pluck out the positional information for these calculations.  Ignore the W 
     // component of the position.  It should end up as 0 after the subtraction, but force it to 
     // 0 just in case.
+
+
+        PrimitiveVec4 pos = AllParticles[index]._pos;
+    float blendAlpha = RandomOnRange0To1(vec4(pos.x, pos.y, pos.z, pos.w));
+    vec4 newPos = mix(uBarEmitterP1, uBarEmitterP2, blendAlpha);
+    pCopy._pos.x = newPos.x;
+    pCopy._pos.y = newPos.y;
+    pCopy._pos.z = newPos.z;
+    pCopy._pos.w = newPos.w;
+
+
+
     vec4 p1ToP2 = vec4(p2._pos.xyz - p1._pos.xyz, 0.0f);
     float distP1ToP2Sqr = dot(p1ToP2, p1ToP2);
 

@@ -170,11 +170,11 @@ void Init()
     // for sorting particles once they've been updated
     parallelSort = std::make_unique<ShaderControllers::ParallelSort>(particleBuffer);
 
-    // for detecting and resolving collisions once the particles have been sorted
-    particleCollisions = std::make_unique<ShaderControllers::ParticleCollide>(particleBuffer);
+    //// for detecting and resolving collisions once the particles have been sorted
+    //particleCollisions = std::make_unique<ShaderControllers::ParticleCollide>(particleBuffer);
 
-    // determines particle color
-    nearbyParticleCounter = std::make_unique<ShaderControllers::CountNearbyParticles>(particleBuffer);
+    //// determines particle color
+    //nearbyParticleCounter = std::make_unique<ShaderControllers::CountNearbyParticles>(particleBuffer);
 
     // for rendering particles
     particleRenderer = std::make_unique<ShaderControllers::RenderParticles>();

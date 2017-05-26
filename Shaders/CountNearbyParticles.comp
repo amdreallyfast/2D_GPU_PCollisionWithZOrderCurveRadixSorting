@@ -29,7 +29,8 @@ void main()
     }
     
     // the radius of nearby particles that could pose an imminent collision 
-    vec4 particlePos = AllParticles[index]._pos;
+    PrimitiveVec4 pos = AllParticles[index]._pos;
+    vec4 particlePos = vec4(pos.x, pos.y, pos.z, pos.w);
     float nearbyRadius = AllParticles[index]._collisionRadius * 1.0f;    //??*3??
 
     vec4 upperCorner = particlePos + vec4(nearbyRadius, nearbyRadius, 0.0f, 0.0f);

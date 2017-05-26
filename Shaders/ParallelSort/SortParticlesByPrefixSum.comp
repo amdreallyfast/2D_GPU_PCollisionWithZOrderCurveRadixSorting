@@ -64,21 +64,6 @@ void main()
     uint writeIndex = (bitVal == 0) ? prefixSumOfZeros : (totalNumberOfZeros + prefixSumOfOnes);
     writeIndex += uParticleBufferWriteOffset;
 
-
-
-
-    // TODO: try to make Particle have primitives for pos and vel (struct MyVec$ { float _x;...}); shaders should construct vec4s as necessary when they want to work with the data
-
-
     // copy it to where it should be
-    //AllParticles[writeIndex] = AllParticles[readIndex];
-    AllParticles[writeIndex]._pos = AllParticles[readIndex]._pos;
-    AllParticles[writeIndex]._vel = AllParticles[readIndex]._vel;
-    //AllParticles[writeIndex]._numberOfNearbyParticles = AllParticles[readIndex]._numberOfNearbyParticles;
-    //AllParticles[writeIndex]._mass = AllParticles[readIndex]._mass;
-    //AllParticles[writeIndex]._collisionRadius = AllParticles[readIndex]._collisionRadius;
-    //AllParticles[writeIndex]._mortonCode = AllParticles[readIndex]._mortonCode;
-    //AllParticles[writeIndex]._hasCollidedAlreadyThisFrame = AllParticles[readIndex]._hasCollidedAlreadyThisFrame;
-    AllParticles[writeIndex]._isActive = AllParticles[readIndex]._isActive;
-
+    AllParticles[writeIndex] = AllParticles[readIndex];
 }

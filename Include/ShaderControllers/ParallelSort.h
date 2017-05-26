@@ -5,7 +5,6 @@
 
 #include "Include/Buffers/SSBOs/SsboBase.h"
 #include "Include/Buffers/SSBOs/PrefixSumSsbo.h"
-#include "Include/Buffers/SSBOs/IntermediateDataSsbo.h"
 #include "Include/Buffers/SSBOs/ParticleSsbo.h"
 #include "Include/Buffers/SSBOs/ParticleCopySsbo.h"
 

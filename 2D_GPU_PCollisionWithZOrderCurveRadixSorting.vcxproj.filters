@@ -38,9 +38,6 @@
     <ClCompile Include="Source\Particles\ParticleEmitterBar.cpp">
       <Filter>Source\Particles</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Buffers\SSBOs\IntermediateDataSsbo.cpp">
-      <Filter>Source\Buffers\SSBOs</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Buffers\SSBOs\ParticleCopySsbo.cpp">
       <Filter>Source\Buffers\SSBOs</Filter>
     </ClCompile>
@@ -103,9 +100,6 @@
     <ClInclude Include="Include\Particles\ParticleEmitterBar.h">
       <Filter>Include\Particles</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Buffers\IntermediateData.h">
-      <Filter>Include\Buffers</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Buffers\SSBOs\ParticleCopySsbo.h">
       <Filter>Include\Buffers\SSBOs</Filter>
     </ClInclude>
@@ -116,9 +110,6 @@
       <Filter>Include\Buffers\SSBOs</Filter>
     </ClInclude>
     <ClInclude Include="Include\Buffers\SSBOs\SsboBase.h">
-      <Filter>Include\Buffers\SSBOs</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Buffers\SSBOs\IntermediateDataSsbo.h">
       <Filter>Include\Buffers\SSBOs</Filter>
     </ClInclude>
     <ClInclude Include="Include\ShaderControllers\CountNearbyParticles.h">

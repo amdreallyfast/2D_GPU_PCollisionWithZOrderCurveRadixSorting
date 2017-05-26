@@ -45,14 +45,19 @@ void main()
         // give a count of how many active particles exist
         atomicCounterIncrement(acActiveParticleCounter);
 
-        pCopy._pos += (pCopy._vel * uDeltaTimeSec);
+        //pCopy._pos += (pCopy._vel * uDeltaTimeSec);
+        PrimitiveVec4 pos = pCopy._pos;
+        PrimitiveVec4 vel = pCopy._vel;
+        pos.x += (vel.x * uDeltaTimeSec);
+        pos.y += (vel.y * uDeltaTimeSec);
+        pos.z += (vel.z * uDeltaTimeSec);
+        pos.w += (vel.w * uDeltaTimeSec);
+        pCopy._pos = pos;
 
         // if it went out of bounds, turn it off
         vec3 particleRegionCenter = vec3(PARTICLE_REGION_CENTER_X, PARTICLE_REGION_CENTER_Y, 0.0f);
-        //vec4 regionCenterToParticle = pCopy._pos - uParticleRegionCenter;
-        vec3 regionCenterToParticle = pCopy._pos.xyz - particleRegionCenter;
+        vec3 regionCenterToParticle = vec3(pos.x, pos.y, pos.z) - particleRegionCenter;
         float distToParticleSqr = dot(regionCenterToParticle, regionCenterToParticle);
-        //if (distToParticleSqr > uParticleRegionRadiusSqr)
         if (distToParticleSqr > (PARTICLE_REGION_RADIUS * PARTICLE_REGION_RADIUS))
         {
             pCopy._isActive = 0;

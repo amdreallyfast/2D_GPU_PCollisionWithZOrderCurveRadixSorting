@@ -36,13 +36,13 @@ void main()
         return;
     }
 
-    // assume inactive, and give it data that will put it at the back of the sort
-    //uint mortonCode = 0xffffffff;
-    uint mortonCode = 17;
-    //if (AllParticles[threadIndex]._isActive == 1)
+    // assume inactive and set a value that will put it at the back of the sort
+    uint mortonCode = 0xffffffff;
+    if (AllParticles[threadIndex]._isActive == 1)
     {
         // calculate Morton Code based on position
-        mortonCode = PositionToMortonCode(AllParticles[threadIndex]._pos);
+        PrimitiveVec4 pos = AllParticles[threadIndex]._pos;
+        mortonCode = PositionToMortonCode(vec4(pos.x, pos.y, pos.z, pos.w));
     }
 
     AllParticles[threadIndex]._mortonCode = mortonCode;
