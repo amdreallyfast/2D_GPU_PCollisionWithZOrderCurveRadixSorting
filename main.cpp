@@ -71,7 +71,7 @@ std::unique_ptr<ShaderControllers::ParticleCollide> particleCollisions = nullptr
 std::unique_ptr<ShaderControllers::CountNearbyParticles> nearbyParticleCounter = nullptr;
 std::unique_ptr<ShaderControllers::RenderParticles> particleRenderer = nullptr;
 
-const unsigned int MAX_PARTICLE_COUNT = 200000;
+const unsigned int MAX_PARTICLE_COUNT = 20000;
 
 
 /*------------------------------------------------------------------------------------------------
@@ -217,8 +217,8 @@ void UpdateAllTheThings()
     particleUpdater->Update(deltaTimeSec);
     parallelSort->SortWithoutProfiling();
     //parallelSort->SortWithProfiling();
-    //particleCollisions->DetectAndResolveCollisions();
-    //nearbyParticleCounter->Count();
+    particleCollisions->DetectAndResolveCollisions();
+    nearbyParticleCounter->Count();
 
     
     
